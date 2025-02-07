@@ -14,11 +14,6 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 feat: add hat wobble
-^--^ ^------------^
-| |
-| +-> Summary in present tense.
-|
-+-------> Type: chore, docs, feat, fix, refactor, style, or test.
 More Examples:
 
 <!-- Buat bikin feature, gunakan commit message dibawah ini. -->
