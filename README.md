@@ -23,6 +23,8 @@ More Examples:
 
 <!-- Buat bikin feature, gunakan commit message dibawah ini. -->
 
+Read this instruction before commit!
+
 feat: (new feature for the user, not a new feature for build script)
 fix: (bug fix for the user, not a fix to a build script)
 docs: (changes to the documentation)
