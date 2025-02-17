@@ -2,6 +2,7 @@ import ButtonComponent from "@/components/buttoncomponent/Button";
 import Section1 from "@/components/section1/Section1";
 import { Button, Typography } from "@material-tailwind/react";
 import React, { ChangeEvent, useState } from "react";
+import { useInView } from "react-intersection-observer";
 
 const Home = () => {
   return (
