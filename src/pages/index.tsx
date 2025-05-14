@@ -7,10 +7,10 @@ import { useInView } from "react-intersection-observer";
 
 const HomePage = (): JSX.Element => {
   return (
-    <>
+    <div>
       <Section1 />
       <Section2 />
-    </>
+    </div>
   );
 };
 
