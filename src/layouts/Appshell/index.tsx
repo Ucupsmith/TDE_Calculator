@@ -6,13 +6,19 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-const dissableNavbar = ["/auth/register", "/auth/login"];
+const dissableNavbar = [
+  "/auth/register",
+  "/auth/login",
+  "/auth/forget-password",
+  "/404",
+];
 
 const AppShell: React.FC<LayoutProps> = ({ children }) => {
-  const { pathname } = useRouter();
+  const router = useRouter();
+  const { pathname } = router;
   return (
-    <div className="w-full h-screen px-10 py-3 bg-[#132A2E]">
-      <div className="px-20">
+    <div className="md:w-full md:px-10 px-0 bg-[#132A2E]">
+      <div className="md:px-20 px-0 h-screen">
         {!dissableNavbar.includes(pathname) ? (
           <Navbar />
         ) : (
