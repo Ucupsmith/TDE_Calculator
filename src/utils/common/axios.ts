@@ -3,15 +3,14 @@ import type { AxiosInstance } from 'axios';
 import axios, { AxiosHeaders } from 'axios';
 
 const axiosInterceptor = (
-  url: string | undefined,
+  url: string,
   isAuthenticated: boolean = false,
   additionalHeaders = {}
 ): AxiosInstance => {
-  const customUrl = (url = process.env.NEXT_PUBLIC_API_URL);
   const customHeader = AxiosHeaders.from(additionalHeaders);
 
   const axiosCreate = axios.create({
-    baseURL: customUrl,
+    baseURL: url,
     headers: {
       Platform: 'web',
       Accept: 'application/json',
