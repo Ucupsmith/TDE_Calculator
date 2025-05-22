@@ -26,7 +26,7 @@ const Navigate: Navigation[] = [
   {
     label: 'Tdee',
     navigate: '/tdee-calculator',
-    icon: TdeeIcon
+    icon: ArticleIcon
   },
   {
     label: 'Meal',
@@ -36,7 +36,7 @@ const Navigate: Navigation[] = [
   {
     label: 'Article',
     navigate: '/article',
-    icon: ArticleIcon
+    icon: TdeeIcon
   },
   {
     label: 'Register',
@@ -65,7 +65,7 @@ const Navbar = () => {
                 return (
                   <div
                     key={id}
-                    className='w-full md:h-auto md:flex flex flex-col items-center justify-center'
+                    className='w-full md:h-auto md:flex flex flex-col items-center justify-center  cursor-pointer'
                   >
                     {active ? (
                       <div
