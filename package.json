@@ -12,8 +12,10 @@
     "@heroicons/react": "^2.0.18",
     "@hookform/resolvers": "^5.0.1",
     "@material-tailwind/react": "^2.1.10",
+    "@prisma/client": "^6.8.2",
     "@reduxjs/toolkit": "^2.5.1",
     "axios": "^1.3.4",
+    "bcrypt": "^6.0.0",
     "formik": "^2.2.9",
     "framer-motion": "^12.11.0",
     "i18next": "^22.4.14",
@@ -35,12 +37,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "18.2.39",
     "@types/react-dom": "18.2.14",
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
     "postcss": "^8",
+    "prisma": "^6.8.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.7.3"
   }
