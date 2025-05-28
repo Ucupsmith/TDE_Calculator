@@ -1,7 +1,5 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
-import Hearts from '@/assets/homepage/hearts.png';
-import Link from 'next/link';
 import { Button, Typography } from '@material-tailwind/react';
 import TdeeLogo from '@/assets/homepage/Logo.svg';
 import { useRouter } from 'next/router';
@@ -10,6 +8,7 @@ import TdeeIcon from '@/assets/homepage/tdee-calculation.svg';
 import MealIcon from '@/assets/homepage/gambar mealplan.svg';
 import ArticleIcon from '@/assets/homepage/articleIcon.svg';
 import UserIcon from '@/assets/homepage/Union.svg';
+import { useSession } from 'next-auth/react';
 
 interface Navigation {
   label: string;
@@ -17,35 +16,35 @@ interface Navigation {
   icon: string;
 }
 
-const Navigate: Navigation[] = [
-  {
-    label: 'Home',
-    navigate: '/homepage',
-    icon: HomeIcon
-  },
-  {
-    label: 'Tdee',
-    navigate: '/tdee-calculator',
-    icon: ArticleIcon
-  },
-  {
-    label: 'Meal',
-    navigate: '/meal-plan',
-    icon: MealIcon
-  },
-  {
-    label: 'Article',
-    navigate: '/article',
-    icon: TdeeIcon
-  },
-  {
-    label: 'Register',
-    navigate: '/auth/register',
-    icon: UserIcon
-  }
-];
-
 const Navbar = () => {
+  const { data: session } = useSession();
+  const Navigate: Navigation[] = [
+    {
+      label: 'Home',
+      navigate: '/homepage',
+      icon: HomeIcon
+    },
+    {
+      label: 'Tdee',
+      navigate: '/tdee-calculator',
+      icon: ArticleIcon
+    },
+    {
+      label: 'Meal',
+      navigate: '/meal-plan',
+      icon: MealIcon
+    },
+    {
+      label: 'Article',
+      navigate: '/article',
+      icon: TdeeIcon
+    },
+    {
+      label: session ? 'User' : 'Register',
+      navigate: session ? '/profile' : '/auth/login',
+      icon: UserIcon
+    }
+  ];
   const router = useRouter();
   const { pathname, push } = router;
   return (
@@ -70,7 +69,11 @@ const Navbar = () => {
                     {active ? (
                       <div
                         onClick={async () => {
-                          await push(nav.navigate);
+                          if (nav.label === 'Register') {
+                            await push(session ? '/profile' : '/auth/login');
+                          } else {
+                            await push(nav.navigate);
+                          }
                         }}
                         className={`md:w-auto md:h-auto w-20 h-8 flex flex-row justify-around items-center  gap-1 py-2 md:rounded-none md:bg-[#144B3C] rounded-[35px] transition-all duration-300 border-none bg-[#132A2E]`}
                       >
@@ -90,7 +93,11 @@ const Navbar = () => {
                           
                           `}
                           >
-                            {nav.label}
+                            {nav.label === 'Register'
+                              ? session
+                                ? 'User'
+                                : 'Register'
+                              : nav.label}
                           </Typography>
                         </div>
                       </div>
