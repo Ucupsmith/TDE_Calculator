@@ -10,6 +10,8 @@ const dissableNavbar = [
   '/auth/register',
   '/auth/login',
   '/auth/forget-password',
+  '/auth/forget-password/auth-otp',
+  '/auth-otp',
   '/404'
 ];
 
