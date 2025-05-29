@@ -1,0 +1,279 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Status {
+  Pending
+  Approved
+  Rejected
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+enum ActivityLevel {
+  Sedentary
+  SlightlyActive
+  ModeratelyActive
+  VeryActive
+}
+
+enum Goal {
+  LoseWeight     @map("Lose Weight")
+  MaintainWeight @map("Maintain Weight")
+  GainWeight     @map("Gain Weight")
+}
+
+
+model User {
+  userId             Int       @id @default(autoincrement()) @map("user_id")
+  username           String    @db.VarChar(255)
+  password           String    @db.VarChar(255)
+  email              String    @db.VarChar(255)
+  reset_token        String?   @db.VarChar(25)
+  reset_token_expiry DateTime? @db.DateTime()
+
+  profile           Profile?
+  mealPlans         MealPlan[]
+  mealSelections    UserMealSelection[]
+  payments          Payment[]
+
+  @@map("users")
+}
+
+model TdeeCalculation {
+  tdeeId         Int           @id @default(autoincrement()) @map("tdee_id")
+  profileId      Int           @map("profile_id")
+  saved_id       Int           @map("saved_id") @db.Int
+  gender         Gender
+  weight         Decimal       @db.Decimal(8, 2)
+  height         Decimal       @db.Decimal(8, 2)
+  age            Int           @db.Int
+  activity_level ActivityLevel
+  goal           Goal          @map("goal")
+  tdee_result    Decimal       @map("tdee_result")
+
+  saved            SavedProfile[]
+  mealPlan         MealPlan[]
+  mealSelections   UserMealSelection[]
+
+  profile Profile @relation(fields: [profileId], references: [profileId])
+
+  @@map("tdee_calculations")
+}
+
+model Profile {
+  profileId    Int      @id @default(autoincrement()) @map("profile_id")
+  userId       Int      @unique @map("user_id")
+  full_name    String   @db.VarChar(255)
+  birth_date   DateTime @db.DateTime()
+  birth_place  String   @db.VarChar(255)
+  address      String   @db.VarChar(255)
+  phone_number String   @db.VarChar(12)
+  email        String   @db.VarChar(255)
+  avatar       String?
+  gender       Gender
+
+  mealPlan         MealPlan[]
+  saved            SavedProfile[]
+  tdeeCalculations TdeeCalculation[]
+  customAllergies  CustomAllergy[]
+  notifications    Notification[]
+
+  user User @relation(fields: [userId], references: [userId])
+
+  @@map("profiles")
+}
+
+model SavedProfile {
+  saved_id       Int           @id @default(autoincrement())
+  profileId      Int           @map("profile_id")
+  tdeeId         Int           @map("tdee_id")
+  tdee_result    Decimal       @map("tdee_result")
+  bmi_score      Decimal       @db.Decimal(8, 2)
+  bmr_score      Decimal       @db.Decimal(8, 2)
+  gender         Gender
+  weight         Decimal       @db.Decimal(8, 2)
+  height         Decimal       @db.Decimal(8, 2)
+  age            Int           @db.Int
+  activity_level ActivityLevel
+
+  tdeeCalculation TdeeCalculation @relation(fields: [tdeeId], references: [tdeeId])
+  profile         Profile         @relation(fields: [profileId], references: [profileId])
+}
+
+model Admin {
+  adminId    Int    @id @default(autoincrement()) @map("admin_id")
+  admin_name String @db.VarChar(255)
+  email      String @db.VarChar(255)
+  password   Int    @db.Int
+
+  mealPlans          MealPlan[]
+  approvals          Approval[]
+  adminNotifications AdminNotification[]
+  createNotifcations CreateNotification[]
+  articles           Article[]
+
+  @@map("admins")
+}
+
+model MealPlan {
+  mealplanId   Int     @id @default(autoincrement()) @map("mealplan_id")
+  userId       Int     @map("user_id")
+  adminId      Int     @map("admin_id")
+  tdeeId       Int     @map("tdee_id")
+  profileId    Int     @map("profile_id")
+  goal         Goal    @map("goal")
+  meal_detail  String? @map("meal_details")
+  breakfast    String  @db.VarChar(255)
+  lunch        String  @db.VarChar(255)
+  dinner       String  @db.VarChar(255)
+  vegan        String  @db.VarChar(255)
+  glutten_free String  @db.VarChar(255)
+  low_carb     String  @db.VarChar(255)
+
+  user            User            @relation(fields: [userId], references: [userId])
+  admin           Admin           @relation(fields: [adminId], references: [adminId])
+  tdeeCalculation TdeeCalculation @relation(fields: [tdeeId], references: [tdeeId])
+  profile         Profile         @relation(fields: [profileId], references: [profileId])
+  payments        Payment[]
+
+  @@map("meal_plans")
+}
+
+model Allergy {
+  allergy_id Int    @id @default(autoincrement())
+  name       String @db.VarChar(255)
+}
+
+model CustomAllergy {
+  custom_allergy_id Int    @id @default(autoincrement())
+  profileId         Int    @map("profile_id")
+  name_alergy       String @db.VarChar(255)
+  approval_id       Int?
+  status            Status @default(Pending)
+
+  profile            Profile             @relation(fields: [profileId], references: [profileId])
+  approval           Approval?
+  adminNotifications AdminNotification[]
+}
+
+model Approval {
+  approval_id       Int    @id @default(autoincrement())
+  adminId           Int    @map("admin_id")
+  custom_allergy_id Int    @unique @db.Int()
+  status            Status
+
+  admin         Admin         @relation(fields: [adminId], references: [adminId])
+  customAllergy CustomAllergy @relation(fields: [custom_allergy_id], references: [custom_allergy_id])
+}
+
+model AdminNotification {
+  notification_id   Int      @id @default(autoincrement())
+  adminId           Int      @map("admin_id")
+  custom_allergy_id Int      @db.Int
+  notification_date DateTime @db.DateTime()
+  message           String   @db.VarChar(255)
+
+  admin         Admin         @relation(fields: [adminId], references: [adminId])
+  customAllergy CustomAllergy @relation(fields: [custom_allergy_id], references: [custom_allergy_id])
+}
+
+model Notification {
+  notification_id      Int      @id @default(autoincrement())
+  profileId            Int      @map("profile_id")
+  notification_content String   @db.VarChar(255)
+  notification_date    DateTime @db.DateTime()
+
+  profile Profile @relation(fields: [profileId], references: [profileId])
+}
+
+model CreateNotification {
+  create_notification_id Int      @id @default(autoincrement())
+  adminId                Int      @db.Int()
+  notification_content   String   @db.VarChar(255)
+  notification_date      DateTime
+
+  admin Admin @relation(fields: [adminId], references: [adminId])
+}
+
+model Article {
+  article_id Int      @id @default(autoincrement()) @map("article_id")
+  title      String   @db.VarChar(255)
+  content    String   @db.Text
+  image_path String?  @db.VarChar(255)
+  category   String   @db.VarChar(255)
+  author_id  Int      @map("author_id")
+  created_at DateTime @default(now()) @map("created_at")
+  updated_at DateTime @updatedAt @map("updated_at")
+  status     Status   @default(Pending)
+  views      Int      @default(0)
+  likes      Int      @default(0)
+
+  author Admin @relation(fields: [author_id], references: [adminId])
+
+  @@map("articles")
+}
+
+model Menu {
+  menuId        Int      @id @default(autoincrement()) @map("menu_id")
+  name          String   @db.VarChar(255)
+  calories      Int
+  price         Decimal  @db.Decimal(10, 2)
+  description   String   @db.Text
+  category      String   @db.VarChar(50)  // breakfast, lunch, dinner, snack
+  image_path    String?  @db.VarChar(255)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt @map("updated_at")
+
+  userMealSelections UserMealSelection[]
+
+  @@map("menus")
+}
+
+model UserMealSelection {
+  selectionId   Int      @id @default(autoincrement()) @map("selection_id")
+  userId        Int      @map("user_id")
+  menuId        Int      @map("menu_id")
+  tdeeId        Int      @map("tdee_id")
+  selected_date DateTime @default(now())
+  meal_type     String   @db.VarChar(50)  // breakfast, lunch, dinner, snack
+
+  user User @relation(fields: [userId], references: [userId])
+  menu Menu @relation(fields: [menuId], references: [menuId])
+  tdeeCalculation TdeeCalculation @relation(fields: [tdeeId], references: [tdeeId])
+
+  @@map("user_meal_selections")
+}
+
+model Payment {
+  payment_id Int @id @default(autoincrement())
+  userId     Int
+  mealplanId Int?
+  amount     Decimal @db.Decimal(10, 2)
+  status     String  @default("pending") @db.VarChar(50)
+  qris_url   String? @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [userId])
+  mealplan MealPlan? @relation(fields: [mealplanId], references: [mealplanId])
+
+  @@map("payments")
+}
+
