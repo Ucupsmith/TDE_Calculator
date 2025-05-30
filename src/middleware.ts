@@ -23,5 +23,5 @@ const middleware = async (req: NextRequest) => {
 };
 
 export const config = {
-  matcher: ['/tdee-calculator', '/meal-plan', '/article']
+  matcher: []
 };

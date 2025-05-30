@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 const TdeeFormSchema = z.object({
-  gender: z.enum(['male', 'female'], {
+  gender: z.enum(['Male', 'Female'], {
     required_error: 'Gender is Requiered'
   }),
   age: z
@@ -29,6 +29,7 @@ const TdeeFormSchema = z.object({
     .min(100, { message: 'Height must be at least 100 cm tall!' })
     .max(250, { message: 'Height must be under 200 cm tall' })
     .positive('Height must be with possitive'),
+  goal: z.enum(['LoseWeight', 'MaintainWeight', 'GainWeight']),
   activity_level: z.enum(
     [
       'Sedentary',
@@ -56,11 +57,12 @@ export const useTdeeForm = () => {
   } = useForm<TdeeFormType>({
     resolver: zodResolver(TdeeFormSchema),
     defaultValues: {
-      gender: 'male',
+      gender: 'Male',
       age: undefined,
       weight: undefined,
       height: undefined,
-      activity_level: 'Sedentary'
+      activity_level: 'Sedentary',
+      goal: 'MaintainWeight'
     }
   });
 
