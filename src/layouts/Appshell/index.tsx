@@ -20,7 +20,7 @@ const AppShell: React.FC<LayoutProps> = ({ children }) => {
   const { pathname } = router;
   return (
     <div className='md:w-full md:px-10 px-0 bg-[#132A2E]'>
-      <div className='md:flex md:flex-col md:justify-normal flex flex-col-reverse justify-between md:px-20 px-0 md:py-4 py-0 overflow-auto'>
+      <div className='md:flex md:flex-col md:justify-normal md:px-20 px-0 md:py-4 py-0 overflow-auto'>
         {!dissableNavbar.includes(pathname) ? (
           <Navbar />
         ) : (
