@@ -1,7 +1,18 @@
 import TdeeCalculationComponent from '@/components/tdee-calculation/TdeeCalculationComponent';
+import { Goal } from '@/generated/prisma';
 import { TdeeFormType, useTdeeForm } from '@/hooks/useTdeeCalculation';
-import { tdeeCalculation } from '@/repository/tdee.repository';
-import { button, Button, Input, Typography } from '@material-tailwind/react';
+import {
+  saveTdeeCalculationToHome,
+  tdeeCalculation
+} from '@/repository/tdee.repository';
+import {
+  Accordion,
+  button,
+  Button,
+  Input,
+  Typography
+} from '@material-tailwind/react';
+import { useSession } from 'next-auth/react';
 import React, { ReactNode, useEffect, useState } from 'react';
 
 interface TdeeCalculateInterface {
@@ -9,7 +20,19 @@ interface TdeeCalculateInterface {
   bmiCategory: string;
   bmr?: number;
   tdee: number;
-  goal?: string;
+  goal: string;
+}
+
+interface SaveTdeeCalculationInterface {
+  userId: number;
+  gender: string;
+  weight: number;
+  height: number;
+  age: number;
+  activity_level: string;
+  goal: string;
+  tdee_result: number;
+  saved_id?: number;
 }
 
 const ActivityLevel = [
@@ -21,7 +44,10 @@ const ActivityLevel = [
 ];
 
 const TdeeCalculatorPage = () => {
+  const { data: session } = useSession();
+  const userId = session?.user.userId as number;
   const [buttonClicked, setButtonClicked] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -31,36 +57,71 @@ const TdeeCalculatorPage = () => {
     watch
   } = useTdeeForm();
   const gender = watch('gender');
+  const goal = watch('goal');
   const [calculateTdee, setCalculateTdee] =
     useState<TdeeCalculateInterface | null>(null);
-
   const fetchDataTdee = async (data: TdeeFormType): Promise<void> => {
     setIsLoading(!isLoading);
     try {
-      const responseTdee = await tdeeCalculation({
+      const response = await tdeeCalculation({
         gender: data.gender,
         age: data.age,
         weight: data.weight,
         height: data.height,
+        goal: data.goal,
         activity_level: data.activity_level
       });
-      if (responseTdee !== null && responseTdee !== 0) {
-        setCalculateTdee(responseTdee);
+      if (response !== null && response !== 0) {
+        setCalculateTdee(response);
+        setIsModalOpen(response);
       } else {
         setCalculateTdee(null);
       }
+      if (!response || typeof response !== 'object') {
+        console.warn('TDEE response invalid or empty:', response);
+        setCalculateTdee(null);
+        return;
+      }
+      const formattedGoals =
+        data.goal === 'LoseWeight' ? 'MaintainWeight' : 'GainWeight';
+      const formattedActivityLevel =
+        data.activity_level === 'Sedentary'
+          ? 'Sedentary'
+          : data.activity_level === 'Lightly Active'
+          ? 'Lightly Active'
+          : data.activity_level === 'Moderately Active'
+          ? 'Moderately Active'
+          : data.activity_level === 'Very Active'
+          ? 'Very Active'
+          : data.activity_level === 'Extra Active'
+          ? 'Extra Active'
+          : data.activity_level;
+      const payload: SaveTdeeCalculationInterface = {
+        userId: userId,
+        gender: data.gender,
+        age: data.age,
+        weight: data.weight,
+        height: data.height,
+        activity_level: formattedActivityLevel,
+        goal: formattedGoals,
+        tdee_result: response.tdee
+      };
+      console.log(payload);
+      await saveTdeeCalculationToHome(payload);
     } catch (error) {
       console.error('Error fetching TDEE:', error);
     } finally {
       setIsLoading(false);
     }
     reset({
-      gender: 'male',
+      goal: 'MaintainWeight',
+      gender: 'Male',
       activity_level: 'Sedentary'
     });
   };
   useEffect(() => {
     void fetchDataTdee;
+    void saveTdeeCalculationToHome;
   }, []);
   const handleButtonClick = (): void => {
     setButtonClicked(!buttonClicked);
@@ -88,17 +149,17 @@ const TdeeCalculatorPage = () => {
             className='w-full transition-all duration-100 flex justify-around'
           >
             <Button
-              onClick={() => reset({ ...watch(), gender: 'male' })}
+              onClick={() => reset({ ...watch(), gender: 'Male' })}
               className={`w-20 py-2 px-3 border border-green-500 rounded-xl ${
-                gender === 'male' ? 'bg-[#34D399]' : 'bg-[#132A2E]'
+                gender === 'Male' ? 'bg-[#34D399]' : 'bg-[#132A2E]'
               }`}
             >
               male
             </Button>
             <Button
-              onClick={() => reset({ ...watch(), gender: 'female' })}
+              onClick={() => reset({ ...watch(), gender: 'Female' })}
               className={`w-20 py-2 px-3 border rounded-xl border-green-500 ${
-                gender === 'female' ? 'bg-[#34D399]' : 'bg-[#132A2E]'
+                gender === 'Female' ? 'bg-[#34D399]' : 'bg-[#132A2E]'
               }`}
             >
               female
@@ -169,6 +230,42 @@ const TdeeCalculatorPage = () => {
               )}
             </div>
           </div>
+          <div className='flex flex-row w-full justify-evenly items-center'>
+            <Typography className='w-full md:w-auto text-center font-poppins font-semibold text-white text-sm md:text-2xl capitalize'>
+              goal
+            </Typography>
+            <div
+              onClick={handleButtonClick}
+              className='w-full gap-2 md:gap-1 transition-all duration-100 flex justify-evenly md:justify-end'
+            >
+              <Button
+                onClick={() => reset({ ...watch(), goal: 'MaintainWeight' })}
+                className={`w-14 md:w-32 py-2 md:px-3 px-1 border rounded-xl border-green-500 text-[9px]  ${
+                  goal === 'MaintainWeight'
+                    ? 'bg-[#34D399] w-24'
+                    : 'bg-[#132A2E]'
+                }`}
+              >
+                Maintain Weight
+              </Button>
+              <Button
+                onClick={() => reset({ ...watch(), goal: 'LoseWeight' })}
+                className={`w-14 md:w-32 py-2 md:px-3 px-1 border border-green-500 rounded-xl text-[9px]  ${
+                  goal === 'LoseWeight' ? 'bg-[#34D399] w-24' : 'bg-[#132A2E]'
+                }`}
+              >
+                Lose Weight
+              </Button>
+              <Button
+                onClick={() => reset({ ...watch(), goal: 'GainWeight' })}
+                className={`w-14 md:w-32 py-2 md:px-3 px-1 border rounded-xl border-green-500 text-[10px]  ${
+                  goal === 'GainWeight' ? 'bg-[#34D399] w-24' : 'bg-[#132A2E]'
+                }`}
+              >
+                Gain Weight
+              </Button>
+            </div>
+          </div>
           <div className='md:w-96 w-72 flex flex-row items-center justify-center gap-1'>
             <label className='w-full text-center font-poppins font-semibold text-sm text-white md:text-start capitalize md:text-2xl'>
               activity
@@ -188,8 +285,7 @@ const TdeeCalculatorPage = () => {
           </div>
         </div>
         <Button
-          onClick={handleSubmit(fetchDataTdee)}
-          onSubmit={handleSubmit(fetchDataTdee)}
+          onClick={() => handleSubmit(fetchDataTdee)()}
           className='w-44 md:w-60 h-7 md:h-12 flex justify-center items-center capitalize rounded-md bg-[#34D399] text-sm md:text-2xl text-white hover:scale-125'
         >
           calculate now !
@@ -200,6 +296,10 @@ const TdeeCalculatorPage = () => {
           bmi={calculateTdee?.bmi ?? 0}
           tdee={calculateTdee?.tdee ?? 0}
           bmiCategory={calculateTdee?.bmiCategory ?? 'N/A'}
+          goal={calculateTdee?.goal}
+          onClick={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={() => handleSubmit(fetchDataTdee)()}
         />
       </div>
     </div>

@@ -26,7 +26,7 @@ const label: IconProps[] = [
 const Section4: React.FC = () => {
   const { push } = useRouter();
   return (
-    <div className='hidden md:w-full'>
+    <div className='md:w-full md:h-24 h-28 flex flex-col md:justify-end justify-start'>
       <div className='flex flex-row justify-center items-center h-16'>
         <div className='w-full flex justify-center'>
           <Typography className='font-poppins font-bold text-[#34D399] uppercase text-2xl md:text-4xl'>
@@ -41,9 +41,9 @@ const Section4: React.FC = () => {
                 onClick={async () => {
                   push(item.navigate);
                 }}
-                className='w-full flex justify-start items-center '
+                className='w-full flex justify-between items-center'
               >
-                <Typography className='font-normal font-poppins text-white text-[8px] md:text-lg'>
+                <Typography className='font-normal font-poppins text-center w-full text-white text-[8px] md:text-lg'>
                   {item.label}
                 </Typography>
               </div>
