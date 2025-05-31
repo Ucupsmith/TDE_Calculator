@@ -60,6 +60,9 @@ const authOptions: NextAuthOptions = {
         (token.userId = parseInt(user.id)),
           (token.username = user.name),
           (token.email = user.email);
+        if (account?.provider === 'credentials' && (user as any).token) {
+             token.accessToken = (user as any).token;
+        }
       }
       return token;
     },
@@ -68,6 +71,7 @@ const authOptions: NextAuthOptions = {
         (session.user.userId = token.userId),
           (session.user.username = token.username),
           (session.user.email = token.email);
+        session.accessToken = token.accessToken
       }
       return session;
     }
