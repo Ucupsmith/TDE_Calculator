@@ -19,8 +19,8 @@ const TdeeFormSchema = z.object({
       invalid_type_error: 'Weight must be a number!'
     })
     .min(30, { message: 'Weight must be at least 30 kg!' })
-    .max(150, { message: 'Weight must be under 150 kg!' })
-    .positive('Weight must be with possitive'),
+    .max(150, { message: 'Weight must be under 150 kg!' }),
+  // .positive('Weight must be with possitive'),
   height: z
     .number({
       required_error: 'Height is required',

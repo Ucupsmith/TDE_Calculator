@@ -24,7 +24,7 @@ const authLoginSchema = z.object({
     .regex(/^\S+$/, { message: 'Password must not contain spaces' })
 });
 
-type AuthLoginType = z.infer<typeof authLoginSchema>;
+export type AuthLoginType = z.infer<typeof authLoginSchema>;
 
 export const useAuthLogin = () => {
   const {
