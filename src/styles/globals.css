@@ -41,3 +41,10 @@ body {
   border: 2px solid transparent;
   background-clip: content-box;
 }
+
+#__next-build-watcher {
+  pointer-events: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  display: none !important;
+}
