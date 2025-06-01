@@ -28,7 +28,8 @@ const ForgotSchema = z.object({
     })
 });
 
-type ForgotAuthType = z.infer<typeof ForgotSchema>;
+// Export the type
+export type ForgotAuthType = z.infer<typeof ForgotSchema>;
 
 export const useAuthForgotPassword = () => {
   const {

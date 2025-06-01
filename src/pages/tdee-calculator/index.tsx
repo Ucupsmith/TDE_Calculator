@@ -1,6 +1,6 @@
 import TdeeCalculationComponent from '@/components/tdee-calculation/TdeeCalculationComponent';
 import { Goal } from '@/generated/prisma';
-import { TdeeFormType, useTdeeForm } from '@/hooks/useTdeeCalculation';
+import { useTdeeForm } from '@/hooks/useTdeeCalculation';
 import {
   saveTdeeCalculation,
   saveTdeeCalculationToHome,
@@ -42,13 +42,22 @@ const ActivityLevel = [
 ];
 
 const schema = yup.object().shape({
-  gender: yup.string().required('gender is required'),
+  gender: yup.string().oneOf(['Male', 'Female']).required('gender is required'),
   age: yup.number().required().positive().integer().min(1, 'age invalid').typeError('age invalid'),
   weight: yup.number().required().positive().typeError('weight invalid'),
   height: yup.number().required().positive().typeError('height invalid'),
-  goal: yup.string().required('goal is required'),
-  activity_level: yup.string().required('activity level is required'),
+  goal: yup.string().oneOf(['LoseWeight', 'MaintainWeight', 'GainWeight']).required('goal is required'),
+  activity_level: yup.string().oneOf(['Sedentary', 'Lightly Active', 'Moderately Active', 'Very Active', 'Extra Active']).required('activity level is required'),
 });
+
+type TdeeFormType = {
+  gender: 'Male' | 'Female';
+  age: number;
+  weight: number;
+  height: number;
+  goal: 'LoseWeight' | 'MaintainWeight' | 'GainWeight';
+  activity_level: 'Sedentary' | 'Lightly Active' | 'Moderately Active' | 'Very Active' | 'Extra Active';
+};
 
 const TdeeCalculatorPage = () => {
   const { data: session } = useSession();
@@ -64,6 +73,11 @@ const TdeeCalculatorPage = () => {
     watch
   } = useForm<TdeeFormType>({
     resolver: yupResolver(schema),
+    defaultValues: {
+      gender: 'Male',
+      goal: 'MaintainWeight',
+      activity_level: 'Sedentary'
+    }
   });
   const gender = watch('gender');
   const goal = watch('goal');
@@ -71,32 +85,41 @@ const TdeeCalculatorPage = () => {
   const [calculateTdee, setCalculateTdee] =
     useState<TdeeCalculateInterface | null>(null);
   const fetchDataTdee = useCallback(async (data: TdeeFormType): Promise<void> => {
-    setIsLoading(!isLoading);
+    setIsLoading(true);
     try {
       const payloadTdee = await tdeeCalculation(data);
-      if (payloadTdee !== null && payloadTdee !== 0) {
-        setCalculateTdee(payloadTdee.data);
-        setIsModalOpen(payloadTdee.data);
-      } else {
-        setCalculateTdee(null);
-      }
-      console.log('calculateTdee', calculateTdee);
-      if (!payloadTdee || typeof payloadTdee !== 'object') {
-        console.warn('TDEE payloadTdee invalid or empty:', payloadTdee);
+      
+      if (!payloadTdee) {
+        console.warn('TDEE calculation returned null or undefined');
         setCalculateTdee(null);
         return;
       }
+
+      if (typeof payloadTdee === 'string') {
+        console.warn('TDEE calculation returned error message:', payloadTdee);
+        setCalculateTdee(null);
+        return;
+      }
+
+      if (payloadTdee.data) {
+        setCalculateTdee(payloadTdee.data);
+        setIsModalOpen(true);
+      } else {
+        console.warn('TDEE calculation response missing data property:', payloadTdee);
+        setCalculateTdee(null);
+      }
     } catch (error) {
       console.error('Error fetching TDEE:', error);
+      setCalculateTdee(null);
     } finally {
       setIsLoading(false);
+      reset({
+        goal: 'MaintainWeight',
+        gender: 'Male',
+        activity_level: 'Sedentary'
+      });
     }
-    reset({
-      goal: 'MaintainWeight',
-      gender: 'Male',
-      activity_level: 'Sedentary'
-    });
-  }, []);
+  }, [reset]);
   const handleSaveTdee = async () => {
     if (!calculateTdee) {
       return;
