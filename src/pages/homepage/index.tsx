@@ -52,7 +52,7 @@ const HomePageSection = () => {
             onClick={async () => {
               await push('/profile');
             }}
-            className='w-10 border border-none rounded-full flex flex-row items-center justify-center bg-[#132A2E]'
+            className='w-10 border border-none rounded-full flex flex-row items-center justify-center cursor-pointer bg-[#132A2E]'
           >
             <Image src={GearProfile} alt={GearProfile} />
           </div>
