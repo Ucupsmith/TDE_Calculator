@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -45,7 +45,7 @@ const Section2: React.FC = () => {
     threshold: 0.2
   });
 
-  const fetchDataTdee = async (): Promise<void> => {
+  const fetchDataTdee = useCallback(async (): Promise<void> => {
     if (!userId) {
       setError('User ID not found');
       return;
@@ -64,7 +64,7 @@ const Section2: React.FC = () => {
         setTdeeDisplay([]);
         setError('No TDEE data available');
       }
-      return response.data;
+      // return response.data; // Removed this line as the function is typed void
     } catch (error) {
       console.error('Error fetching TDEE data:', error);
       setError('Failed to fetch TDEE data');
@@ -72,9 +72,9 @@ const Section2: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId, accessToken]);
 
-  const deleteTdeeCalculation = async (tdeeId: number) => {
+  const deleteTdeeCalculation = useCallback(async (tdeeId: number) => {
     try {
       const payload: TdeePayloadDelete = {
         userId: userId,
@@ -83,24 +83,28 @@ const Section2: React.FC = () => {
       };
       if (!payload) {
         console.log('error payload', payload);
+        return; // Added return here
       }
       setTdeeDisplay((prev) =>
         prev.filter((item) => Number(item.tdeeId) !== tdeeId)
       );
       await deleteSaveTdee(payload);
-      fetchDataTdee();
+      fetchDataTdee(); // Call fetchDataTdee after deletion
     } catch (error) {
-      console.error('Error fetching TDEE data:', error);
+      console.error('Error deleting TDEE data:', error);
+      // Handle error (e.g., show toast) if needed
     }
-  };
+  }, [userId, accessToken, fetchDataTdee]);
+
   useEffect(() => {
     if (userId) {
       fetchDataTdee();
     }
-    void deleteTdeeCalculation;
-  }, [userId]);
+    // Removed: void deleteTdeeCalculation;
+  }, [userId, fetchDataTdee]);
 
-  useEffect(() => {}, [inView]);
+  // Removed this empty useEffect hook:
+  // useEffect(() => {}, [inView]);
 
   {
     console.log(`tdee display: ${TdeeDisplay}`);

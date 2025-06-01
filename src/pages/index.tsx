@@ -1,4 +1,3 @@
-import ButtonComponent from '@/components/buttoncomponent/Button';
 import Section1 from '@/components/homepage/Section1';
 import Section2 from '@/components/homepage/Section2';
 import { Button, Typography } from '@material-tailwind/react';
