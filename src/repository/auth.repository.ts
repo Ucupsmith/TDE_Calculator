@@ -3,7 +3,7 @@ import baseAxios from '../utils/common/axios';
 import Email from 'next-auth/providers/email';
 
 const authService = baseAxios(
-  `${process.env.NEXT_PUBLIC_API_URL ?? `http://localhost:8000`}/user/v1/`
+  `${process.env.NEXT_PUBLIC_API_URL ?? `http://localhost:8000`}/user/v1`
 );
 
 export const loginUser = async (params: {
@@ -67,7 +67,7 @@ export const requestPasswordReset = async (email: string): Promise<any> => {
       email: email
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error requesting password reset:', error);
     throw error; // Re-throw the error to be handled by the component
   }
@@ -76,12 +76,12 @@ export const requestPasswordReset = async (email: string): Promise<any> => {
 // New function to reset password with token and new password
 export const resetPassword = async (token: string, newPassword: string): Promise<any> => {
   try {
-    const response = await authService.post('/reset-password', {
+    const response = await authService.post('/auth/reset-password', {
       token: token,
       newPassword: newPassword,
     });
     return response.data; // Assuming backend returns data on success
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error resetting password:', error);
     throw error; // Re-throw the error for component handling
   }
