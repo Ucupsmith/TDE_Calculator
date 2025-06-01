@@ -1,11 +1,12 @@
 import { Button, Input, Typography } from '@material-tailwind/react';
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import Plate from '@/assets/auth/Plate.svg';
 import IconList from '@/assets/auth/IconList.svg';
 import ForgetPassword from '@/assets/auth/ForgotPassword.svg';
 import { TestContext } from 'node:test';
-import { useAuthForgotPassword } from '@/hooks/useAuthForgot';
+import { useAuthForgotPassword, ForgotAuthType } from '@/hooks/useAuthForgot';
+import { requestPasswordReset } from '@/repository/auth.repository';
 
 const ForgetPasswordComponent = () => {
   const valueOption = ['+62', '+61', '+60'];
@@ -15,6 +16,29 @@ const ForgetPasswordComponent = () => {
     handleSubmit,
     formState: { errors }
   } = useAuthForgotPassword();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
+
+  const onSubmit = async (data: ForgotAuthType) => {
+    setIsLoading(true);
+    setMessage(null);
+    setIsError(false);
+    try {
+      await requestPasswordReset(data.email);
+      setMessage('Link reset password telah dikirim ke email Anda.');
+      setIsError(false);
+      reset();
+    } catch (error: any) {
+      console.error('Password reset request failed:', error);
+      setMessage(error.response?.data?.message || 'Terjadi kesalahan saat memproses permintaan Anda.');
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className='w-full h-screen flex flex-row'>
       <div className='md:w-1/2 flex flex-col bg-[#132A2E] md:justify-between items-center md:py-3 py-0'>
@@ -83,12 +107,14 @@ const ForgetPasswordComponent = () => {
               </div>
             </div>
             <div className='flex flex-col md:w-80 w-60 justify-center items-center gap-2 text-center'>
-              <Button className='border-none w-full rounded-[25px] bg-[#144B3C]'>
-                Reset Password
+              <Button onClick={handleSubmit(onSubmit)} className='border-none w-full rounded-[25px] bg-[#144B3C]' disabled={isLoading}>
+                {isLoading ? 'Processing...' : 'Reset Password'}
               </Button>
-              <Typography className='font-semibold font-poppins md:text-sm text-[12px] text-white'>
-                you will shortly receive an email with further instruction
-              </Typography>
+              {message && (
+                <Typography className={`font-semibold font-poppins md:text-sm text-[12px] ${isError ? 'text-red-500' : 'text-green-500'}`}>
+                  {message}
+                </Typography>
+              )}
             </div>
           </div>
         </div>

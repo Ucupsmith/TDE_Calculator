@@ -14,11 +14,13 @@ import { Session } from 'next-auth';
 
 declare module 'next-auth' {
   interface Session {
-    accessToken?: string; // Based on repository usage
+     // Based on repository usage
     user: {
       userId: number; // Added in JWT callback
+      username: string;
       name: string;
       email: string;
+      accessToken: string;  
     }
   }
 }
@@ -33,6 +35,7 @@ import { useRouter } from 'next/router';
 
 const ProfilePages = () => {
   const { data: session, status } = useSession();
+  const accessToken = session?.user.accessToken as string
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -43,7 +46,7 @@ const ProfilePages = () => {
     const fetchProfile = async () => {
       if (status === 'authenticated') {
         try {
-          if (!session?.accessToken) {
+          if (!session?.user.accessToken) {
             console.error('Access token not available');
             setLoading(false);
             return;
@@ -51,7 +54,7 @@ const ProfilePages = () => {
 
           const response = await fetch('http://localhost:8000/user/v1/profiles/', {
             headers: {
-              Authorization: `Bearer ${session.accessToken}`
+              Authorization: `Bearer ${session.user.accessToken}`
             }
           });
 
@@ -79,30 +82,31 @@ const ProfilePages = () => {
 
   const handleEdit = () => {
     console.log('handleEdit called');
-    if (!session?.accessToken) {
+    if (!session?.user.accessToken) {
       console.error('Access token not available in handleEdit');
       return;
     }
     // Store the access token in localStorage when entering edit mode
-    localStorage.setItem('accessToken', session.accessToken);
+    localStorage.setItem('user.accessToken', session.user.accessToken);
     setIsEditing(true);
     console.log('isEditing set to true');
   };
 
   const onSubmit = async (data: ProfileFormType) => {
     try {
-      if (!session?.accessToken) {
+      if (!session?.user.accessToken) {
         console.error('Access token not available');
         return;
       }
 
       // Store the access token in localStorage
-      localStorage.setItem('accessToken', session.accessToken);
+      localStorage.setItem('user.accessToken', session.user.accessToken);
 
       const updatedData = await updateProfile({
         full_name: data.full_name,
         gender: data.gender,
-        address: data.address
+        address: data.address,
+        accessToken : accessToken
       });
       
       if (updatedData) {
@@ -242,14 +246,14 @@ const ProfilePages = () => {
 
       {/* Sign Out Button */}
       <div className='flex justify-end mt-8 cursor-pointer'>
-        <Button
-          onClick={() =>
+      <Button
+        onClick={() =>
             signOut({callbackUrl: '/homepage',redirect: true} )
-          }
+        }
           className='px-4 py-2 text-sm bg-red-600 hover:bg-red-700 rounded-md cursor-pointer'
-        >
+      >
           Sign Out
-        </Button>
+      </Button>
       </div>
     </div>
   );

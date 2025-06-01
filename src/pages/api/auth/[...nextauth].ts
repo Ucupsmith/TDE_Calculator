@@ -20,6 +20,7 @@ const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
       },
+
       authorize: async (credentials) => {
         if (!credentials?.email || !credentials.password) {
           throw new Error('Missing email or password');
@@ -38,6 +39,7 @@ const authOptions: NextAuthOptions = {
           }
         );
         const data = await response.json();
+        console.log('data', data);
         console.log(`data dari backend ${data}`);
         if (!data.ok) {
           console.log(data.message || 'Invalid credentials');
@@ -45,33 +47,33 @@ const authOptions: NextAuthOptions = {
         if (!data.data || !data.token) {
           console.log('Invalid response structure');
         }
+
         return {
           id: data.data.id,
           name: data.data.username,
           email: data.data.email,
-          token: data.token
+          accessToken: data.token
         } as any;
       }
     })
   ],
   callbacks: {
     async jwt({ token, user, account, profile }) {
-      if (user) {
+      if (account && user) {
+        console.log('JWT callback user:', user);
         (token.userId = parseInt(user.id)),
-          (token.username = user.name),
+          (token.name = user.name),
           (token.email = user.email);
-        if (account?.provider === 'credentials' && (user as any).token) {
-             token.accessToken = (user as any).token;
-        }
+        token.accessToken = user.accessToken;
       }
       return token;
     },
     async session({ session, token, user, profile }: any) {
       if (session) {
         (session.user.userId = token.userId),
-          (session.user.username = token.username),
+          (session.user.name = token.name),
           (session.user.email = token.email);
-        session.accessToken = token.accessToken
+        session.user.accessToken = token.accessToken;
       }
       return session;
     }

@@ -5,46 +5,106 @@ import Image from 'next/image';
 import { Button, Card, CardBody, Typography } from '@material-tailwind/react';
 import CardBMI from '../homepage-component/CardBMI';
 import Circle from '@/assets/homepage/circle2.svg';
-import { getTdeeCalculationHome } from '@/repository/tdee.repository';
-import { useSession } from 'next-auth/react';
+import {
+  deleteSaveTdee,
+  getTdeeCalculationHome
+} from '@/repository/tdee.repository';
+import { getSession, useSession } from 'next-auth/react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/router';
+import { tree } from 'next/dist/build/templates/app-page';
+import { parse } from 'path';
+import { parseJsonFile } from 'next/dist/build/load-jsconfig';
+import { t } from 'framer-motion/dist/types.d-CQt5spQA';
 
 export interface TdeeProps {
+  tdeeId?: string;
+  tdee_result: string;
+  calculation_date: string;
+}
+
+interface TdeePayloadProps {
+  userId: number;
+  accessToken: string;
+}
+
+interface TdeePayloadDelete {
   tdeeId: number;
-  tdee: number;
-  createdAt: number;
-  lastCalculated: number;
+  userId: number;
+  accessToken?: string;
 }
 const Section2: React.FC = () => {
   const { data: session } = useSession();
-  const userId = session?.user.userId;
+  const userId = session?.user.userId as number;
+  // const { tdeeId } = useParams();
+  const accessToken = session?.user.accessToken;
   const [TdeeDisplay, setTdeeDisplay] = useState<TdeeProps[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const { ref, inView } = useInView({
     threshold: 0.2
   });
 
   const fetchDataTdee = async (): Promise<void> => {
+    if (!userId) {
+      setError('User ID not found');
+      return;
+    }
     try {
       setIsLoading(true);
-      const response = await getTdeeCalculationHome(userId);
-      if (response !== null && response !== undefined) {
+      setError(null);
+      const payload: TdeePayloadProps = {
+        userId: userId,
+        accessToken: accessToken as string
+      };
+      const response = await getTdeeCalculationHome(payload);
+      if (response) {
         setTdeeDisplay(response);
       } else {
         setTdeeDisplay([]);
+        setError('No TDEE data available');
       }
+      return response.data;
     } catch (error) {
-      console.log(`error fetching data : ${error}`);
+      console.error('Error fetching TDEE data:', error);
+      setError('Failed to fetch TDEE data');
+      setTdeeDisplay([]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const deleteTdeeCalculation = async (tdeeId: number) => {
+    try {
+      const payload: TdeePayloadDelete = {
+        userId: userId,
+        accessToken: accessToken,
+        tdeeId: tdeeId
+      };
+      if (!payload) {
+        console.log('error payload', payload);
+      }
+      setTdeeDisplay((prev) =>
+        prev.filter((item) => Number(item.tdeeId) !== tdeeId)
+      );
+      await deleteSaveTdee(payload);
+      fetchDataTdee();
+    } catch (error) {
+      console.error('Error fetching TDEE data:', error);
+    }
+  };
   useEffect(() => {
-    void fetchDataTdee();
-  }, []);
+    if (userId) {
+      fetchDataTdee();
+    }
+    void deleteTdeeCalculation;
+  }, [userId]);
 
   useEffect(() => {}, [inView]);
+
+  {
+    console.log(`tdee display: ${TdeeDisplay}`);
+  }
 
   return (
     <div className='w-full md:py-0 py-3 flex flex-col justify-between items-center gap-3'>
@@ -71,11 +131,11 @@ const Section2: React.FC = () => {
         </div>
         <motion.div
           ref={ref}
-          animate={{ y: [0, -10, 0] }} // naik -10px lalu turun kembali ke 0
+          animate={{ y: [0, -10, 0] }}
           transition={{
-            duration: 1.5, // lama animasi
-            repeat: Infinity, // ulangi terus
-            ease: 'easeInOut' // efek easing
+            duration: 1.5,
+            repeat: Infinity,
+            ease: 'easeInOut'
           }}
           className='w-6 border overflow-hidden bg-green-300 rounded-full'
         >
@@ -85,7 +145,15 @@ const Section2: React.FC = () => {
       <Button className='py-1 text-white font-poppins font-semibold text-sm md:text-lg bg-[#144B3C] hover:scale-100'>
         BMI Score Record
       </Button>
-      <CardBMI data={TdeeDisplay} loading={isLoading} />
+      {isLoading && (
+        <Typography className='text-white'>Loading TDEE data...</Typography>
+      )}
+      {error && <Typography className='text-red-500'>{error}</Typography>}
+      <CardBMI
+        data={TdeeDisplay}
+        loading={isLoading}
+        onDelete={deleteTdeeCalculation}
+      />
     </div>
   );
 };

@@ -8,13 +8,9 @@ export const updateProfile = async (params: {
   full_name?: string;
   gender?: string;
   address?: string;
+  accessToken?: string;
 }): Promise<any> => {
   try {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      throw new Error('Access token not found');
-    }
-
     console.log('Updating profile with params:', params); // Debug log
 
     const response = await profileService.patch(
@@ -24,7 +20,7 @@ export const updateProfile = async (params: {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${params.accessToken}`
         }
       }
     );
@@ -40,3 +36,4 @@ export const updateProfile = async (params: {
     throw error;
   }
 };
+

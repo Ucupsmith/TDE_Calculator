@@ -2,6 +2,7 @@ import TdeeCalculationComponent from '@/components/tdee-calculation/TdeeCalculat
 import { Goal } from '@/generated/prisma';
 import { TdeeFormType, useTdeeForm } from '@/hooks/useTdeeCalculation';
 import {
+  saveTdeeCalculation,
   saveTdeeCalculationToHome,
   tdeeCalculation
 } from '@/repository/tdee.repository';
@@ -12,27 +13,21 @@ import {
   Input,
   Typography
 } from '@material-tailwind/react';
-import { useSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import React, { ReactNode, useEffect, useState } from 'react';
 
 interface TdeeCalculateInterface {
   bmi: number;
   bmiCategory: string;
-  bmr?: number;
+  bmr?: string;
   tdee: number;
   goal: string;
 }
 
-interface SaveTdeeCalculationInterface {
+export interface SaveTdeeCalculationInterface {
   userId: number;
-  gender: string;
-  weight: number;
-  height: number;
-  age: number;
-  activity_level: string;
-  goal: string;
   tdee_result: number;
-  saved_id?: number;
+  accessToken: string;
 }
 
 const ActivityLevel = [
@@ -58,12 +53,13 @@ const TdeeCalculatorPage = () => {
   } = useTdeeForm();
   const gender = watch('gender');
   const goal = watch('goal');
+  const formWatch = watch();
   const [calculateTdee, setCalculateTdee] =
     useState<TdeeCalculateInterface | null>(null);
   const fetchDataTdee = async (data: TdeeFormType): Promise<void> => {
     setIsLoading(!isLoading);
     try {
-      const response = await tdeeCalculation({
+      const payloadTdee = await tdeeCalculation({
         gender: data.gender,
         age: data.age,
         weight: data.weight,
@@ -71,43 +67,18 @@ const TdeeCalculatorPage = () => {
         goal: data.goal,
         activity_level: data.activity_level
       });
-      if (response !== null && response !== 0) {
-        setCalculateTdee(response);
-        setIsModalOpen(response);
+      if (payloadTdee !== null && payloadTdee !== 0) {
+        setCalculateTdee(payloadTdee.data);
+        setIsModalOpen(payloadTdee.data);
       } else {
         setCalculateTdee(null);
       }
-      if (!response || typeof response !== 'object') {
-        console.warn('TDEE response invalid or empty:', response);
+      console.log('calculateTdee', calculateTdee);
+      if (!payloadTdee || typeof payloadTdee !== 'object') {
+        console.warn('TDEE payloadTdee invalid or empty:', payloadTdee);
         setCalculateTdee(null);
         return;
       }
-      const formattedGoals =
-        data.goal === 'LoseWeight' ? 'MaintainWeight' : 'GainWeight';
-      const formattedActivityLevel =
-        data.activity_level === 'Sedentary'
-          ? 'Sedentary'
-          : data.activity_level === 'Lightly Active'
-          ? 'Lightly Active'
-          : data.activity_level === 'Moderately Active'
-          ? 'Moderately Active'
-          : data.activity_level === 'Very Active'
-          ? 'Very Active'
-          : data.activity_level === 'Extra Active'
-          ? 'Extra Active'
-          : data.activity_level;
-      const payload: SaveTdeeCalculationInterface = {
-        userId: userId,
-        gender: data.gender,
-        age: data.age,
-        weight: data.weight,
-        height: data.height,
-        activity_level: formattedActivityLevel,
-        goal: formattedGoals,
-        tdee_result: response.tdee
-      };
-      console.log(payload);
-      await saveTdeeCalculationToHome(payload);
     } catch (error) {
       console.error('Error fetching TDEE:', error);
     } finally {
@@ -118,6 +89,33 @@ const TdeeCalculatorPage = () => {
       gender: 'Male',
       activity_level: 'Sedentary'
     });
+  };
+  const handleSaveTdee = async () => {
+    if (!calculateTdee) {
+      return;
+    }
+    const session = await getSession();
+    const accessToken = session?.user.accessToken as string;
+    const userId = session?.user.userId as number;
+    console.log(accessToken);
+    try {
+      const payload: SaveTdeeCalculationInterface = {
+        userId: userId,
+        tdee_result: calculateTdee.tdee,
+        accessToken: accessToken
+      };
+      const response = await saveTdeeCalculationToHome(payload);
+      if (response) {
+        console.log('Berhasil menyimpan TDEE ke home.');
+      } else {
+        console.warn('Gagal menyimpan:', response);
+      }
+      console.log('accessToken:', session?.user.accessToken);
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.error('Error saat menyimpan:', error);
+    }
   };
   useEffect(() => {
     void fetchDataTdee;
@@ -145,6 +143,7 @@ const TdeeCalculatorPage = () => {
             gender
           </Typography>
           <div
+            {...register('gender')}
             onClick={handleButtonClick}
             className='w-full transition-all duration-100 flex justify-around'
           >
@@ -300,6 +299,7 @@ const TdeeCalculatorPage = () => {
           onClick={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSubmit={() => handleSubmit(fetchDataTdee)()}
+          onSave={handleSaveTdee}
         />
       </div>
     </div>
