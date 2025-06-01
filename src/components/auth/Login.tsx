@@ -6,18 +6,26 @@ import SignInIcon from '@/assets/auth/SignInIcon.svg';
 import FruitList from '@/assets/auth/FruitList.svg';
 import Google from '@/assets/auth/Google.svg';
 import Facebook from '@/assets/auth/Facebook.svg';
-import { signIn } from 'next-auth/react';
-import { useAuthLogin } from '@/hooks/useAuthLogin';
+import { getSession, signIn, useSession } from 'next-auth/react';
+import { AuthLoginType, useAuthLogin } from '@/hooks/useAuthLogin';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { set } from 'react-hook-form';
+import { setLocalStorage } from '@/utils/common/localStorage';
+import { getToken } from 'next-auth/jwt';
+
+interface LoginProps {
+  email: string;
+  password: string;
+}
+
 const LoginComponent = (): JSX.Element => {
   const { push } = useRouter();
   const searchParams = useSearchParams();
   const errorParams = searchParams.get('error');
-  const [isLogin, setIsLogin] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
+
   const {
     register,
     formState: { errors },
@@ -34,10 +42,7 @@ const LoginComponent = (): JSX.Element => {
       );
     }
   }, [errorParams]);
-  const handleCredentialsLogin = async (data: {
-    email: string;
-    password: string;
-  }) => {
+  const handleCredentialsLogin = async (data: LoginProps) => {
     try {
       const result = await signIn('credentials', {
         redirect: true,
@@ -45,6 +50,14 @@ const LoginComponent = (): JSX.Element => {
         password: data.password,
         callbackUrl: '/homepage'
       });
+      if (result?.ok) {
+        const session = await getSession();
+        const token = session?.user.accessToken;
+        if (token) {
+          localStorage.setItem(token, 'accessToken');
+        }
+        console.log(session?.user.accessToken);
+      }
       reset();
       console.log(`login result :${result}`);
       return result;
@@ -53,6 +66,7 @@ const LoginComponent = (): JSX.Element => {
       alert('An error occurred during login');
     }
   };
+
   return (
     <div className='w-full min-h-screen flex flex-row'>
       <div className='md:w-1/2 hidden object-fill md:flex flex-col justify-center'>
@@ -113,6 +127,13 @@ const LoginComponent = (): JSX.Element => {
                 )}
               </div>
             </div>
+            <div className='md:w-1/2 w-full flex justify-center'>
+                          <div onClick={async () => await push('/auth/forget-password')} className='cursor-pointer'>
+                            <Typography className='font-semibold font-poppins text-sm text-white'>
+                              Forgot Password?
+                            </Typography>
+                          </div>
+                        </div>
             <div className='md:w-80 w-60 flex flex-col justify-center items-center gap-2 text-center'>
               <Button
                 onClick={() => handleSubmit(handleCredentialsLogin)()}
@@ -138,6 +159,7 @@ const LoginComponent = (): JSX.Element => {
               </div>
             </div>
           </div>
+
           <div className='md:w-1/2 w-72 flex flex-col items-center gap-2'>
             <Typography className='font-semibold font-poppins text-[12px] text-white'>
               or

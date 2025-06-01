@@ -1,3 +1,4 @@
+import { SaveTdeeCalculationInterface } from '@/pages/tdee-calculator';
 import { saveTdeeCalculation } from '@/repository/tdee.repository';
 import {
   Button,
@@ -13,10 +14,11 @@ interface TdeeProps {
   onClose: () => void;
   bmi: number;
   bmiCategory: string;
-  bmr?: number;
+  bmr?: string;
   tdee: number;
   goal?: string;
   onSubmit: () => void;
+  onSave: () => void;
 }
 
 const TdeeCalculationComponent: React.FC<TdeeProps> = ({
@@ -26,12 +28,20 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
   goal,
   onClick,
   onClose,
-  onSubmit
+  onSubmit,
+  onSave
 }) => {
   const [showModalSuccess, setShowModalSucces] = useState<boolean>(false);
   const handleSubmit = async () => {
     try {
       await onSubmit();
+    } catch (error) {
+      console.error('Failed to submit:', error);
+    }
+  };
+  const handleSave = async () => {
+    try {
+      await onSave();
       setShowModalSucces(true);
     } catch (error) {
       console.error('Failed to save TDEE:', error);
@@ -53,7 +63,10 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
           </Typography>
         </div>
       )}
-      <div className='flex flex-row relative w-full px-3 gap-2'>
+      <div
+        onClick={() => handleSubmit()}
+        className='flex flex-row relative w-full px-3 gap-2'
+      >
         <div
           className={`w-1/2 flex flex-col items-center justify-start md:h-full md:gap-8 gap-4 h-72`}
         >
@@ -168,7 +181,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               </Button>
               <Button
                 onClick={async () => {
-                  await handleSubmit();
+                  await handleSave();
                   onClose();
                 }}
                 className='bg-green-800 w-20 h-6 flex justify-center items-center py-2'
@@ -177,22 +190,22 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               </Button>
             </div>
           </div>
-          {showModalSuccess && (
-            <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-              <div className='bg-white rounded-lg p-6 flex flex-col items-center justify-center gap-3'>
-                <div className='text-green-600 text-4xl'>✓</div>
-                <Typography className='text-gray-800 font-semibold'>
-                  TDEE successfully saved!
-                </Typography>
-                <Button
-                  onClick={() => setShowModalSucces(false)}
-                  className='bg-green-700 text-white px-4 py-1 rounded'
-                >
-                  OK
-                </Button>
-              </div>
-            </div>
-          )}
+        </div>
+      )}
+      {showModalSuccess && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
+          <div className='bg-white rounded-lg p-6 flex flex-col items-center justify-center gap-3'>
+            <div className='text-green-600 text-4xl'>✓</div>
+            <Typography className='text-gray-800 font-semibold'>
+              TDEE successfully saved!
+            </Typography>
+            <Button
+              onClick={() => setShowModalSucces(false)}
+              className='bg-green-700 text-white px-4 py-1 rounded'
+            >
+              OK
+            </Button>
+          </div>
         </div>
       )}
     </div>
