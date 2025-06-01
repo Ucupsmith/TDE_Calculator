@@ -107,7 +107,7 @@ const Section2: React.FC = () => {
   }
 
   return (
-    <div className='w-full md:py-0 py-3 flex flex-col justify-between items-center gap-3'>
+    <div className='w-full md:py-0 py-3 px-4 flex flex-col justify-center items-center gap-3'>
       <div className='flex flex-row items-center justify-evenly w-full'>
         <motion.div
           ref={ref}
