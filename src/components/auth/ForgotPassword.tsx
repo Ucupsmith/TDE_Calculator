@@ -1,13 +1,23 @@
 import { Button, Input, Typography } from '@material-tailwind/react';
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import Plate from '@/assets/auth/Plate.svg';
 import IconList from '@/assets/auth/IconList.svg';
 import ForgetPassword from '@/assets/auth/ForgotPassword.svg';
-import { TestContext } from 'node:test';
-import { useAuthForgotPassword } from '@/hooks/useAuthForgot';
+import { useAuthForgotPassword, ForgotAuthType } from '@/hooks/useAuthForgot';
+import { requestPasswordReset } from '@/repository/auth.repository';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'react-hot-toast';
 
-const ForgetPasswordComponent = () => {
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Please enter a valid email address')
+});
+
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+
+const ForgotPasswordComponent = () => {
   const valueOption = ['+62', '+61', '+60'];
   const {
     register,
@@ -15,6 +25,24 @@ const ForgetPasswordComponent = () => {
     handleSubmit,
     formState: { errors }
   } = useAuthForgotPassword();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  const onSubmit = async (data: ForgotPasswordFormData) => {
+    try {
+      setIsLoading(true);
+      await requestPasswordReset(data.email);
+      setResetSent(true);
+      toast.success('Password reset instructions sent to your email');
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      toast.error(error.message || 'Failed to send reset instructions');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className='w-full h-screen flex flex-row'>
       <div className='md:w-1/2 flex flex-col bg-[#132A2E] md:justify-between items-center md:py-3 py-0'>
@@ -33,63 +61,68 @@ const ForgetPasswordComponent = () => {
             </Typography>
           </div>
           <div className='w-full flex flex-col items-center justify-between h-60'>
-            <div className='md:w-96 w-72 flex flex-col px-3'>
-              <label className='font-poppins font-semibold text-sm text-white'>
-                Email
-              </label>
-              <Input
-                type='email'
-                placeholder='please insert your email'
-                className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
-                labelProps={{
-                  className: 'hidden floating-none'
-                }}
-                crossOrigin={''}
-                {...register('email')}
-              />
-            </div>
-            <div className='md:w-96 w-72 flex flex-col gap-1 px-3'>
-              <label className='font-poppins font-semibold text-sm text-white'>
-                Number Phone
-              </label>
-              <div className='flex flex-row w-full justify-center md:justify-start'>
-                <select
-                  className='border border-none rounded-lg bg-white focus:outline-none rounded-r-none shadow-sm w-16 md:w-16 h-9 focus:ring-2 ring-white focus:border-white text-center'
-                  {...register('select_number')}
-                >
-                  {valueOption.map((value, id: number) => (
-                    <option
-                      key={id}
-                      value={value}
-                      className='hover:bg-gray-600 text-start md:text-center bg-green-900 border focus:bg-green-900 focus-visible:w-10'
+            {!resetSent ? (
+              <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                <div className="rounded-md shadow-sm -space-y-px">
+                  <div>
+                    <label htmlFor="email" className="sr-only">
+                      Email address
+                    </label>
+                    <input
+                      {...register('email')}
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                      placeholder="Email address"
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? 'Sending...' : 'Send reset instructions'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="rounded-md bg-green-50 p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg
+                      className="h-5 w-5 text-green-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
                     >
-                      {value}
-                    </option>
-                  ))}
-                </select>
-                <div className='flex flex-col gap-1'>
-                  <input
-                    type='text'
-                    placeholder='please insert your number phone'
-                    className='bg-white focus:outline-none shadow-sm px-3 py-2 focus:ring-2 md:w-[300px] h-9 rounded-lg rounded-l-none ring-white focus:border-white w-full text-sm md:text-[13px]'
-                    {...register('number_phone')}
-                  />
-                  {errors.number_phone && (
-                    <Typography className='font-poppins font-normal text-sm md:text-lg text-red-900'>
-                      {errors.number_phone.message}
-                    </Typography>
-                  )}
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-green-800">
+                      Reset instructions sent
+                    </h3>
+                    <div className="mt-2 text-sm text-green-700">
+                      <p>
+                        Please check your email for instructions to reset your password.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className='flex flex-col md:w-80 w-60 justify-center items-center gap-2 text-center'>
-              <Button className='border-none w-full rounded-[25px] bg-[#144B3C]'>
-                Reset Password
-              </Button>
-              <Typography className='font-semibold font-poppins md:text-sm text-[12px] text-white'>
-                you will shortly receive an email with further instruction
-              </Typography>
-            </div>
+            )}
           </div>
         </div>
         <div className='flex h-48 md:h-auto flex-col justify-end'>
@@ -103,4 +136,4 @@ const ForgetPasswordComponent = () => {
   );
 };
 
-export default ForgetPasswordComponent;
+export default ForgotPasswordComponent;

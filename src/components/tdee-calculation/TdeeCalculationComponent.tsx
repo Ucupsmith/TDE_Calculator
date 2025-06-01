@@ -7,6 +7,7 @@ import {
   CardBody,
   Typography
 } from '@material-tailwind/react';
+import Link from 'next/link';
 import React, { useState } from 'react';
 
 interface TdeeProps {
@@ -65,7 +66,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
       )}
       <div
         onClick={() => handleSubmit()}
-        className='flex flex-row relative w-full px-3 gap-2'
+        className='flex flex-row w-full px-3 gap-2'
       >
         <div
           className={`w-1/2 flex flex-col items-center justify-start md:h-full md:gap-8 gap-4 h-72`}
@@ -89,13 +90,12 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               </Typography>
             </CardBody>
           </Card>
-          {!onClick && (
-            <Typography className='md:w-72 font-poppins font-extralight text-white text-xs md:text-lg capitalize text-center'>
-              TDEE adalah jumlah total kalori yang dibakar tubuh Anda dalam
-              sehari, termasuk dari aktivitas dasar (seperti bernapas dan
-              mencerna makanan) hingga aktivitas fisik.
-            </Typography>
-          )}
+
+          <Typography className='md:w-72 font-poppins font-extralight text-white text-xs md:text-lg capitalize text-center'>
+            TDEE adalah jumlah total kalori yang dibakar tubuh Anda dalam
+            sehari, termasuk dari aktivitas dasar (seperti bernapas dan mencerna
+            makanan) hingga aktivitas fisik.
+          </Typography>
         </div>
         <div className='w-1/2 flex flex-col items-center justify-start md:h-full md:gap-8 gap-4 h-72'>
           <Typography className='font-poppins font-normal text-white text-xs md:text-2xl capitalize'>
@@ -157,18 +157,16 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               </Typography>
             </CardBody>
           </Card>
-          {!onClick && (
-            <Typography className='md:w-72 font-poppins font-extralight text-white text-xs md:text-lg capitalize text-center'>
-              TDEE adalah jumlah total kalori yang dibakar tubuh Anda dalam
-              sehari, termasuk dari aktivitas dasar (seperti bernapas dan
-              mencerna makanan) hingga aktivitas fisik.
-            </Typography>
-          )}
+          <Typography className='md:w-72 font-poppins font-extralight text-white text-xs md:text-lg capitalize text-center'>
+            TDEE adalah jumlah total kalori yang dibakar tubuh Anda dalam
+            sehari, termasuk dari aktivitas dasar (seperti bernapas dan mencerna
+            makanan) hingga aktivitas fisik.
+          </Typography>
         </div>
       </div>
       {onClick && (
-        <div className='flex flex-col items-center justify-center bg-[#132A2E] rounded-xl w-80 md:w-full h-20 md:h-56'>
-          <div className='flex absolute bottom-8 flex-col w-60 md:w-96 h-44 items-center justify-center gap-2 border border-green-500 rounded-xl'>
+        <div className='flex flex-col items-center justify-end bg-[#132A2E] bg-opacity-0 rounded-xl fixed inset-0 z-10'>
+          <div className='flex items-center justify-center flex-col w-60 md:w-96 inset-10 bg-opacity-50 h-40 bg-black gap-2 border border-green-500 rounded-xl'>
             <Typography className='font-poppins font-semibold text-white text-xs md:text-lg'>
               Would You Like To Save Your Tdee?
             </Typography>
@@ -205,6 +203,12 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
             >
               OK
             </Button>
+            <Link
+              href={'/homepage'}
+              className='font-poppins font-normal underline text-blue-700 text-xs md:text-lg'
+            >
+              see the result!
+            </Link>
           </div>
         </div>
       )}

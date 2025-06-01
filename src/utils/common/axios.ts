@@ -14,35 +14,69 @@ const axiosInterceptor = (url: string): AxiosInstance => {
       Accept: 'application/json',
       'Accept-Language': 'id',
       'Content-Type': 'application/json'
-    }
+    },
+    timeout: 10000 // 10 seconds timeout
   });
 
-  // Interceptor untuk menambahkan token dari NextAuth
+  // Request interceptor
   axiosCreate.interceptors.request.use(
     async (config) => {
-      const session = await getSession();
-
-      if (session?.user.accessToken) {
-        config.headers.Authorization = `Bearer ${session.user.accessToken}`;
+      try {
+        const session = await getSession();
+        if (session?.user.accessToken) {
+          config.headers.Authorization = `Bearer ${session.user.accessToken}`;
+        }
+        return config;
+      } catch (error) {
+        console.error('Request interceptor error:', error);
+        return Promise.reject(error);
       }
-
-      return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+      console.error('Request error:', error);
+      return Promise.reject(error);
+    }
   );
 
-  // axiosCreate.interceptors.response.use(
-  //   (response) => {
-  //     return response.data;
-  //   },
-  //   async (error) => {
-  //     if (error.response.status === 401) {
-  //       clearLocalStorage();
-  //       // clear all auth cookie or auth local storage
-  //     }
-  //     return await Promise.reject(error);
-  //   }
-  // );
+  // Response interceptor
+  axiosCreate.interceptors.response.use(
+    (response) => {
+      return response;
+    },
+    async (error) => {
+      if (error.response) {
+        // Handle specific error status codes
+        switch (error.response.status) {
+          case 401:
+            // Unauthorized - clear auth data and redirect to login
+            clearLocalStorage();
+            window.location.href = '/auth/login';
+            break;
+          case 403:
+            // Forbidden
+            console.error('Access forbidden');
+            break;
+          case 404:
+            // Not found
+            console.error('Resource not found');
+            break;
+          case 500:
+            // Server error
+            console.error('Server error:', error.response.data);
+            break;
+          default:
+            console.error('API error:', error.response.data);
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error('No response received:', error.request);
+      } else {
+        // Error in request configuration
+        console.error('Request error:', error.message);
+      }
+      return Promise.reject(error);
+    }
+  );
 
   return axiosCreate;
 };
