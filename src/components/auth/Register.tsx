@@ -195,13 +195,7 @@ const RegisterComponent = (): JSX.Element => {
                 )}
               </div>
             </div>
-            <div className='md:w-1/2 w-full flex justify-center'>
-              <Link href={'/auth/forget-password'}>
-                <Typography className='font-semibold font-poppins text-sm text-white'>
-                  Forgot Password?
-                </Typography>
-              </Link>
-            </div>
+            
             <div className='md:w-80 w-60 flex flex-col items-center gap-2'>
               <Button
                 onClick={async () => {
