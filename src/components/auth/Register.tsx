@@ -50,7 +50,7 @@ const RegisterComponent = (): JSX.Element => {
       setIsRegist(!isRegist);
       setIsRegisteredUser(registeredUser);
     }
-  }, []);
+  }, [registeredUser, isRegist]);
   const fetchDataRegist = async (data: RegisterProps): Promise<void> => {
     try {
       setIsloading(!isLoading);

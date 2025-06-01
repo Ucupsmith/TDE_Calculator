@@ -14,7 +14,10 @@ import {
   Typography
 } from '@material-tailwind/react';
 import { getSession, useSession } from 'next-auth/react';
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState, useCallback } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
 interface TdeeCalculateInterface {
   bmi: number;
@@ -38,6 +41,15 @@ const ActivityLevel = [
   'Extra Active'
 ];
 
+const schema = yup.object().shape({
+  gender: yup.string().required('gender is required'),
+  age: yup.number().required().positive().integer().min(1, 'age invalid').typeError('age invalid'),
+  weight: yup.number().required().positive().typeError('weight invalid'),
+  height: yup.number().required().positive().typeError('height invalid'),
+  goal: yup.string().required('goal is required'),
+  activity_level: yup.string().required('activity level is required'),
+});
+
 const TdeeCalculatorPage = () => {
   const { data: session } = useSession();
   const userId = session?.user.userId as number;
@@ -50,23 +62,18 @@ const TdeeCalculatorPage = () => {
     reset,
     formState: { errors },
     watch
-  } = useTdeeForm();
+  } = useForm<TdeeFormType>({
+    resolver: yupResolver(schema),
+  });
   const gender = watch('gender');
   const goal = watch('goal');
   const formWatch = watch();
   const [calculateTdee, setCalculateTdee] =
     useState<TdeeCalculateInterface | null>(null);
-  const fetchDataTdee = async (data: TdeeFormType): Promise<void> => {
+  const fetchDataTdee = useCallback(async (data: TdeeFormType): Promise<void> => {
     setIsLoading(!isLoading);
     try {
-      const payloadTdee = await tdeeCalculation({
-        gender: data.gender,
-        age: data.age,
-        weight: data.weight,
-        height: data.height,
-        goal: data.goal,
-        activity_level: data.activity_level
-      });
+      const payloadTdee = await tdeeCalculation(data);
       if (payloadTdee !== null && payloadTdee !== 0) {
         setCalculateTdee(payloadTdee.data);
         setIsModalOpen(payloadTdee.data);
@@ -89,7 +96,7 @@ const TdeeCalculatorPage = () => {
       gender: 'Male',
       activity_level: 'Sedentary'
     });
-  };
+  }, []);
   const handleSaveTdee = async () => {
     if (!calculateTdee) {
       return;
