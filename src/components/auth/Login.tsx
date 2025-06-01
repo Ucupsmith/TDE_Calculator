@@ -127,6 +127,13 @@ const LoginComponent = (): JSX.Element => {
                 )}
               </div>
             </div>
+            <div className='md:w-1/2 w-full flex justify-center'>
+                          <div onClick={async () => await push('/auth/forget-password')} className='cursor-pointer'>
+                            <Typography className='font-semibold font-poppins text-sm text-white'>
+                              Forgot Password?
+                            </Typography>
+                          </div>
+                        </div>
             <div className='md:w-80 w-60 flex flex-col justify-center items-center gap-2 text-center'>
               <Button
                 onClick={() => handleSubmit(handleCredentialsLogin)()}
@@ -152,6 +159,7 @@ const LoginComponent = (): JSX.Element => {
               </div>
             </div>
           </div>
+
           <div className='md:w-1/2 w-72 flex flex-col items-center gap-2'>
             <Typography className='font-semibold font-poppins text-[12px] text-white'>
               or
