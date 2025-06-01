@@ -41,39 +41,6 @@ const CardBMI: React.FC<PropsCardBmi> = ({ data, onDelete }) => {
           );
         })}
     </div>
-    // <div className='w-full border'>
-    //   <Swiper
-    //     direction='horizontal'
-    //     centeredSlides={true}
-    //     breakpoints={{
-    //       320: { slidesPerView: 1 },
-    //       640: { slidesPerView: 2 },
-    //       1440: { slidesPerView: 3 }
-    //     }}
-    //     className='w-full flex h-60'
-    //     spaceBetween={30}
-    //     pagination
-    //   >
-    //     {data?.length >= 0 &&
-    //       data?.length !== null &&
-    //       data?.map((item, idx: number) => {
-    //         return (
-    //           <SwiperSlide key={idx}>
-    //             <Card className='md:w-96 rounded-[20px] w-72 h-60 py-2 px-2 bg-transparent border border-green-400'>
-    //               <CardBody className='h-full flex flex-col items-center justify-center gap-2'>
-    //                 <Typography className='font-bold font-poppins text-green-400 uppercase text-6xl md:text-5xl'>
-    //                   {item.tdee_result}
-    //                 </Typography>
-    //                 <Typography className='font-normal font-poppins text-xs md:text-xl capitalize text-green-400'>
-    //                   Last Calculation : {item.calculation_date.split('T')[0]}
-    //                 </Typography>
-    //               </CardBody>
-    //             </Card>
-    //           </SwiperSlide>
-    //         );
-    //       })}
-    //   </Swiper>
-    // </div>
   );
 };
 
