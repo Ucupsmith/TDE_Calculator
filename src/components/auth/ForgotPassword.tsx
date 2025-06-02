@@ -9,7 +9,7 @@ import { requestPasswordReset } from '@/repository/auth.repository';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { toast } from 'react-hot-toast';
+// import { toast } from 'react-hot-toast';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address')
@@ -34,10 +34,10 @@ const ForgotPasswordComponent = () => {
       setIsLoading(true);
       await requestPasswordReset(data.email);
       setResetSent(true);
-      toast.success('Password reset instructions sent to your email');
+      // toast.success('Password reset instructions sent to your email');
     } catch (error: any) {
       console.error('Password reset error:', error);
-      toast.error(error.message || 'Failed to send reset instructions');
+      // toast.error(error.message || 'Failed to send reset instructions');
     } finally {
       setIsLoading(false);
     }
