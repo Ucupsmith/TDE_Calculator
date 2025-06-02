@@ -2,7 +2,7 @@ import { error } from 'console';
 import baseAxios from '../utils/common/axios';
 
 const authService = baseAxios(
-  `${process.env.NEXT_PUBLIC_API_URL ?? `http://localhost:8000`}/user/v1/`
+  `${process.env.NEXT_PUBLIC_API_URL ?? `http://localhost:8000`}/user/v1`
 );
 
 export const loginUser = async (params: {
@@ -89,12 +89,12 @@ export const resetPassword = async (
   newPassword: string
 ): Promise<any> => {
   try {
-    const response = await authService.post('/reset-password', {
+    const response = await authService.post('/auth/reset-password', {
       token: token,
       newPassword: newPassword
     });
     return response.data; // Assuming backend returns data on success
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error resetting password:', error);
   }
 };
