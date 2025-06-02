@@ -87,10 +87,23 @@ const TdeeCalculatorPage = () => {
   const fetchDataTdee = useCallback(async (data: TdeeFormType): Promise<void> => {
     setIsLoading(true);
     try {
-      const payloadTdee = await tdeeCalculation(data);
-      
-      if (!payloadTdee) {
-        console.warn('TDEE calculation returned null or undefined');
+      const payloadTdee = await tdeeCalculation({
+        gender: data.gender,
+        age: data.age,
+        weight: data.weight,
+        height: data.height,
+        goal: data.goal,
+        activity_level: data.activity_level
+      });
+      if (payloadTdee !== null && payloadTdee !== 0) {
+        setCalculateTdee(payloadTdee);
+        setIsModalOpen(payloadTdee);
+      } else {
+        setCalculateTdee(null);
+      }
+      console.log('calculateTdee', calculateTdee);
+      if (!payloadTdee || typeof payloadTdee !== 'object') {
+        console.warn('TDEE payloadTdee invalid or empty:', payloadTdee);
         setCalculateTdee(null);
         return;
       }
@@ -155,11 +168,11 @@ const TdeeCalculatorPage = () => {
     setButtonClicked(!buttonClicked);
   };
   return (
-    <div className='w-full md:items-center flex flex-col justify-evenly gap-3 md:space-y-10'>
+    <div className='w-full md:items-center h-auto flex flex-col justify-evenly gap-3 md:space-y-10 '>
       <Typography className='text-center flex items-center justify-center md:hidden text-[#34D399] font-poppins font-semibold text-lg md:text-4xl capitalize h-20'>
         tdee calculator
       </Typography>
-      <div className='hidden md:flex md:h-72 md:flex-col justify-center items-center gap-2'>
+      <div className='hidden md:flex md:h-40 md:flex-col justify-center items-center gap-2'>
         <Typography className='flex text-center text-[#34D399] font-poppins font-semibold text-lg md:text-4xl capitalize'>
           tdee calculator
         </Typography>

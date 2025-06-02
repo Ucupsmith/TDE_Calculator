@@ -1,8 +1,12 @@
 import '@/styles/globals.css';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import type { AppProps } from 'next/app';
 import { ThemeProvider } from '@material-tailwind/react';
 import AppShell from '@/layouts/Appshell';
 import { SessionProvider } from 'next-auth/react';
+import { SessionExpiredProvider } from '@/common/SessionExpiredContext';
+import SessionExpiredModal from '@/components/common/SessionExpiredModal';
 import { useEffect } from 'react';
 
 export default function App({
@@ -26,9 +30,12 @@ export default function App({
   return (
     <SessionProvider session={session}>
       <ThemeProvider>
-        <AppShell>
-          <Component {...pageProps} />
-        </AppShell>
+        <SessionExpiredProvider>
+          <AppShell>
+            <Component {...pageProps} />
+          </AppShell>
+          <SessionExpiredModal />
+        </SessionExpiredProvider>
       </ThemeProvider>
     </SessionProvider>
   );

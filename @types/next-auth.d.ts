@@ -9,6 +9,7 @@ declare module 'next-auth' {
       name: string;
       email: string;
       accessToken: string;
+      number_phone: string;
     };
   }
 
@@ -18,6 +19,7 @@ declare module 'next-auth' {
     name: string;
     email: string;
     accessToken: string;
+    number_phone: string;
   }
 }
 
@@ -28,5 +30,6 @@ declare module 'next-auth/jwt' {
     name: string;
     email: string;
     accessToken: string;
+    number_phone: string;
   }
 }

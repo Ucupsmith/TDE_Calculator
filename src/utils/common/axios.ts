@@ -17,8 +17,6 @@ const axiosInterceptor = (url: string): AxiosInstance => {
     },
     timeout: 10000 // 10 seconds timeout
   });
-
-  // Request interceptor
   axiosCreate.interceptors.request.use(
     async (config) => {
       try {
@@ -38,45 +36,41 @@ const axiosInterceptor = (url: string): AxiosInstance => {
     }
   );
 
-  // Response interceptor
   axiosCreate.interceptors.response.use(
-    (response) => {
-      return response;
-    },
+    (response) => response,
     async (error) => {
-      if (error.response) {
-        // Handle specific error status codes
-        switch (error.response.status) {
-          case 401:
-            // Unauthorized - clear auth data and redirect to login
-            clearLocalStorage();
-            window.location.href = '/auth/login';
-            break;
-          case 403:
-            // Forbidden
-            console.error('Access forbidden');
-            break;
-          case 404:
-            // Not found
-            console.error('Resource not found');
-            break;
-          case 500:
-            // Server error
-            console.error('Server error:', error.response.data);
-            break;
-          default:
-            console.error('API error:', error.response.data);
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 403)
+      ) {
+        const errorCode = error.response?.data?.error?.toUpperCase() || '';
+        const msg = error.response?.data?.message?.toLowerCase() || '';
+
+        const isSessionExpired =
+          errorCode === 'TOKEN_EXPIRED' ||
+          msg.includes('expired') ||
+          msg.includes('invalid token');
+
+        if (isSessionExpired) {
+          window.dispatchEvent(new Event('sessionExpired'));
         }
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error('No response received:', error.request);
-      } else {
-        // Error in request configuration
-        console.error('Request error:', error.message);
       }
       return Promise.reject(error);
     }
   );
+
+  // axiosCreate.interceptors.response.use(
+  //   (response) => {
+  //     return response.data;
+  //   },
+  //   async (error) => {
+  //     if (error.response.status === 401) {
+  //       clearLocalStorage();
+  //       // clear all auth cookie or auth local storage
+  //     }
+  //     return await Promise.reject(error);
+  //   }
+  // );
 
   return axiosCreate;
 };

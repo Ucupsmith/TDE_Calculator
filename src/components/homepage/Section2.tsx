@@ -9,13 +9,7 @@ import {
   deleteSaveTdee,
   getTdeeCalculationHome
 } from '@/repository/tdee.repository';
-import { getSession, useSession } from 'next-auth/react';
-import { useParams, useSearchParams } from 'next/navigation';
-import { useRouter } from 'next/router';
-import { tree } from 'next/dist/build/templates/app-page';
-import { parse } from 'path';
-import { parseJsonFile } from 'next/dist/build/load-jsconfig';
-import { t } from 'framer-motion/dist/types.d-CQt5spQA';
+import { useSession } from 'next-auth/react';
 
 export interface TdeeProps {
   tdeeId?: string;
@@ -36,6 +30,7 @@ interface TdeePayloadDelete {
 const Section2: React.FC = () => {
   const { data: session } = useSession();
   const userId = session?.user.userId as number;
+  console.log('userId:', userId);
   // const { tdeeId } = useParams();
   const accessToken = session?.user.accessToken;
   const [TdeeDisplay, setTdeeDisplay] = useState<TdeeProps[]>([]);
@@ -45,36 +40,43 @@ const Section2: React.FC = () => {
     threshold: 0.2
   });
 
-  const fetchDataTdee = useCallback(async (): Promise<void> => {
+  const fetchDataTdee =(async (): Promise<void> => {
     if (!userId) {
-      setError('User ID not found');
+      console.log(
+        'fetchDataTdee: userId is falsy at the start of the function, returning early.'
+      );
+      setError('Internal Error: User ID missing.');
       return;
     }
+    const payload = {
+      userId: userId,
+      accessToken: session?.user?.accessToken as string
+    };
+
     try {
-      setIsLoading(true);
-      setError(null);
-      const payload: TdeePayloadProps = {
-        userId: userId,
-        accessToken: accessToken as string
-      };
-      const response = await getTdeeCalculationHome(payload);
-      if (response) {
-        setTdeeDisplay(response);
+      const historyData = await getTdeeCalculationHome(payload);
+      if (historyData && Array.isArray(historyData)) {
+        setTdeeDisplay(historyData);
+        setError(null); // Clear error jika berhasil
       } else {
+        console.warn(
+          'fetchDataTdee: Repository returned unexpected data format:',
+          historyData
+        );
         setTdeeDisplay([]);
-        setError('No TDEE data available');
+        setError('Failed to load TDEE history: Invalid data format.');
       }
-      // return response.data; // Removed this line as the function is typed void
+      return historyData;
     } catch (error) {
-      console.error('Error fetching TDEE data:', error);
-      setError('Failed to fetch TDEE data');
       setTdeeDisplay([]);
+      setError('Failed to load TDEE history.');
     } finally {
       setIsLoading(false);
     }
-  }, [userId, accessToken]);
+  })
+  ;
 
-  const deleteTdeeCalculation = useCallback(async (tdeeId: number) => {
+  const deleteTdeeCalculation = (async (tdeeId: number) => {
     try {
       const payload: TdeePayloadDelete = {
         userId: userId,
@@ -94,14 +96,13 @@ const Section2: React.FC = () => {
       console.error('Error deleting TDEE data:', error);
       // Handle error (e.g., show toast) if needed
     }
-  }, [userId, accessToken, fetchDataTdee]);
-
+  });
   useEffect(() => {
     if (userId) {
       fetchDataTdee();
     }
-    // Removed: void deleteTdeeCalculation;
-  }, [userId, fetchDataTdee]);
+    void deleteTdeeCalculation;
+  }, [userId]);
 
   // Removed this empty useEffect hook:
   // useEffect(() => {}, [inView]);
@@ -149,11 +150,13 @@ const Section2: React.FC = () => {
         <Typography className='text-white'>Loading TDEE data...</Typography>
       )}
       {error && <Typography className='text-red-500'>{error}</Typography>}
-      <CardBMI
-        data={TdeeDisplay}
-        loading={isLoading}
-        onDelete={deleteTdeeCalculation}
-      />
+      <div className='w-full px-3'>
+        <CardBMI
+          data={TdeeDisplay}
+          loading={isLoading}
+          onDelete={deleteTdeeCalculation}
+        />
+      </div>
     </div>
   );
 };
