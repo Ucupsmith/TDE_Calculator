@@ -50,7 +50,7 @@ const RegisterComponent = (): JSX.Element => {
       setIsRegist(!isRegist);
       setIsRegisteredUser(registeredUser);
     }
-  }, [registeredUser, isRegist]);
+  }, []);
   const fetchDataRegist = async (data: RegisterProps): Promise<void> => {
     try {
       setIsloading(!isLoading);
@@ -195,7 +195,7 @@ const RegisterComponent = (): JSX.Element => {
                 )}
               </div>
             </div>
-            
+
             <div className='md:w-80 w-60 flex flex-col items-center gap-2'>
               <Button
                 onClick={async () => {

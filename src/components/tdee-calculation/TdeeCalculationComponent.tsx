@@ -57,10 +57,10 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
             {goal === 'LoseWeight'
               ? 'Lose Weight 🔥'
               : goal === 'MaintainWeight'
-              ? 'Maintain Weight'
-              : goal === 'GainWeight'
-              ? 'Gain Weight 💪'
-              : goal}
+                ? 'Maintain Weight'
+                : goal === 'GainWeight'
+                  ? 'Gain Weight 💪'
+                  : goal}
           </Typography>
         </div>
       )}
@@ -105,14 +105,14 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               bmi < 18.5
                 ? 'border-yellow-300'
                 : bmi <= 23.9
-                ? 'border-green-400'
-                : bmi <= 24.9
-                ? 'border-yellow-800'
-                : bmi <= 29.9
-                ? 'border-yellow-900'
-                : bmi <= 31.0
-                ? 'border-red-900'
-                : 'border-red-900'
+                  ? 'border-green-400'
+                  : bmi <= 24.9
+                    ? 'border-yellow-800'
+                    : bmi <= 29.9
+                      ? 'border-yellow-900'
+                      : bmi <= 31.0
+                        ? 'border-red-900'
+                        : 'border-red-900'
             }`}
           >
             <CardBody
@@ -123,14 +123,14 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                   bmi < 18.5
                     ? 'text-yellow-300'
                     : bmi <= 23.9
-                    ? 'text-green-400'
-                    : bmi <= 24.9
-                    ? 'text-yellow-800'
-                    : bmi <= 29.9
-                    ? 'text-yellow-900'
-                    : bmi <= 31.0
-                    ? 'text-red-900'
-                    : 'text-red-900'
+                      ? 'text-green-400'
+                      : bmi <= 24.9
+                        ? 'text-yellow-800'
+                        : bmi <= 29.9
+                          ? 'text-yellow-900'
+                          : bmi <= 31.0
+                            ? 'text-red-900'
+                            : 'text-red-900'
                 }`}
               >
                 {Math.floor(bmi).toLocaleString('id-ID', {
@@ -142,14 +142,14 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                   bmiCategory === 'Underweight'
                     ? 'text-yellow-300'
                     : bmiCategory === 'Normal'
-                    ? 'text-green-400'
-                    : bmiCategory === 'Obesity level 1'
-                    ? 'text-yellow-800'
-                    : bmiCategory === 'Obesity level 2'
-                    ? 'text-yellow-900'
-                    : bmiCategory === 'Obesity level 3'
-                    ? 'text-red-900'
-                    : bmiCategory
+                      ? 'text-green-400'
+                      : bmiCategory === 'Obesity level 1'
+                        ? 'text-yellow-800'
+                        : bmiCategory === 'Obesity level 2'
+                          ? 'text-yellow-900'
+                          : bmiCategory === 'Obesity level 3'
+                            ? 'text-red-900'
+                            : bmiCategory
                 }`}
               >
                 {bmiCategory}
