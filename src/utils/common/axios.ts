@@ -16,8 +16,6 @@ const axiosInterceptor = (url: string): AxiosInstance => {
       'Content-Type': 'application/json'
     }
   });
-
-  // Interceptor untuk menambahkan token dari NextAuth
   axiosCreate.interceptors.request.use(
     async (config) => {
       const session = await getSession();
@@ -29,6 +27,29 @@ const axiosInterceptor = (url: string): AxiosInstance => {
       return config;
     },
     (error) => Promise.reject(error)
+  );
+
+  axiosCreate.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      if (
+        error.response &&
+        (error.response.status === 401 || error.response.status === 403)
+      ) {
+        const errorCode = error.response?.data?.error?.toUpperCase() || '';
+        const msg = error.response?.data?.message?.toLowerCase() || '';
+
+        const isSessionExpired =
+          errorCode === 'TOKEN_EXPIRED' ||
+          msg.includes('expired') ||
+          msg.includes('invalid token');
+
+        if (isSessionExpired) {
+          window.dispatchEvent(new Event('sessionExpired'));
+        }
+      }
+      return Promise.reject(error);
+    }
   );
 
   // axiosCreate.interceptors.response.use(

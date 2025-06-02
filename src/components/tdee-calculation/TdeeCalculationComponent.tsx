@@ -49,7 +49,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
     }
   };
   return (
-    <div className='flex flex-col w-full gap-3'>
+    <div className='flex flex-col w-full md:h-auto h-96 gap-3'>
       {goal && (
         <div className='flex w-full items-center justify-center'>
           <Typography className='font-poppins font-semibold text-white text-sm md:text-lg'>
@@ -90,7 +90,6 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               </Typography>
             </CardBody>
           </Card>
-
           <Typography className='md:w-72 font-poppins font-extralight text-white text-xs md:text-lg capitalize text-center'>
             TDEE adalah jumlah total kalori yang dibakar tubuh Anda dalam
             sehari, termasuk dari aktivitas dasar (seperti bernapas dan mencerna
