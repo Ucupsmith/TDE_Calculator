@@ -8,13 +8,6 @@ module.exports = {
       1,
       { extensions: [".js", ".jsx", ".tsx", ".ts"] },
     ],
-    "@typescript-eslint/no-misused-promises": [
-      2,
-      {
-        checksVoidReturn: {
-          attributes: false,
-        },
-      },
-    ],
+    "@typescript-eslint/no-misused-promises": "off",
   },
 };

@@ -14,19 +14,26 @@ const axiosInterceptor = (url: string): AxiosInstance => {
       Accept: 'application/json',
       'Accept-Language': 'id',
       'Content-Type': 'application/json'
-    }
+    },
+    timeout: 10000 // 10 seconds timeout
   });
   axiosCreate.interceptors.request.use(
     async (config) => {
-      const session = await getSession();
-
-      if (session?.user.accessToken) {
-        config.headers.Authorization = `Bearer ${session.user.accessToken}`;
+      try {
+        const session = await getSession();
+        if (session?.user.accessToken) {
+          config.headers.Authorization = `Bearer ${session.user.accessToken}`;
+        }
+        return config;
+      } catch (error) {
+        console.error('Request interceptor error:', error);
+        return Promise.reject(error);
       }
-
-      return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+      console.error('Request error:', error);
+      return Promise.reject(error);
+    }
   );
 
   axiosCreate.interceptors.response.use(

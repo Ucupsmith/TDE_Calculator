@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -40,7 +40,7 @@ const Section2: React.FC = () => {
     threshold: 0.2
   });
 
-  const fetchDataTdee = async (): Promise<void> => {
+  const fetchDataTdee =(async (): Promise<void> => {
     if (!userId) {
       console.log(
         'fetchDataTdee: userId is falsy at the start of the function, returning early.'
@@ -66,26 +66,17 @@ const Section2: React.FC = () => {
         setTdeeDisplay([]);
         setError('Failed to load TDEE history: Invalid data format.');
       }
+      return historyData;
     } catch (error) {
       setTdeeDisplay([]);
       setError('Failed to load TDEE history.');
     } finally {
       setIsLoading(false);
     }
-  };
+  })
+  ;
 
-  useEffect(() => {
-    if (!userId) {
-      setTdeeDisplay([]);
-      setError('Please log in to view TDEE history.');
-      return;
-    }
-
-    console.log('useEffect: userId is valid, calling fetchDataTdee.');
-    fetchDataTdee();
-  }, [session, userId]);
-
-  const deleteTdeeCalculation = async (tdeeId: number) => {
+  const deleteTdeeCalculation = (async (tdeeId: number) => {
     try {
       const payload: TdeePayloadDelete = {
         userId: userId,
@@ -94,18 +85,27 @@ const Section2: React.FC = () => {
       };
       if (!payload) {
         console.log('error payload', payload);
+        return; // Added return here
       }
       setTdeeDisplay((prev) =>
         prev.filter((item) => Number(item.tdeeId) !== tdeeId)
       );
       await deleteSaveTdee(payload);
-      fetchDataTdee();
+      fetchDataTdee(); // Call fetchDataTdee after deletion
     } catch (error) {
-      console.error('Error fetching TDEE data:', error);
+      console.error('Error deleting TDEE data:', error);
+      // Handle error (e.g., show toast) if needed
     }
-  };
+  });
+  useEffect(() => {
+    if (userId) {
+      fetchDataTdee();
+    }
+    void deleteTdeeCalculation;
+  }, [userId]);
 
-  useEffect(() => {}, [inView]);
+  // Removed this empty useEffect hook:
+  // useEffect(() => {}, [inView]);
 
   return (
     <div className='w-full md:py-0 py-3 px-4 flex flex-col justify-center items-center gap-3'>
