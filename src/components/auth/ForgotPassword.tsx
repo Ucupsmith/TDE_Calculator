@@ -3,7 +3,7 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import Plate from '@/assets/auth/Plate.svg';
 import IconList from '@/assets/auth/IconList.svg';
-import ForgetPassword from '@/assets/auth/ForgotPassword.svg';
+import ForgetPasswordImage from '@/assets/auth/ForgotPassword.svg';
 import { useAuthForgotPassword, ForgotAuthType } from '@/hooks/useAuthForgot';
 import { requestPasswordReset } from '@/repository/auth.repository';
 import { useForm } from 'react-hook-form';
@@ -18,26 +18,33 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 const ForgotPasswordComponent = () => {
-  const valueOption = ['+62', '+61', '+60'];
   const {
     register,
     reset,
     handleSubmit,
     formState: { errors }
-  } = useAuthForgotPassword();
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+  });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [resetSent, setResetSent] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
+    setIsLoading(true);
+    setMessage(null);
+    setIsError(false);
+
     try {
-      setIsLoading(true);
       await requestPasswordReset(data.email);
-      setResetSent(true);
-      // toast.success('Password reset instructions sent to your email');
+      setMessage('Password reset instructions sent to your email!');
+      setIsError(false);
+      reset();
     } catch (error: any) {
       console.error('Password reset error:', error);
-      // toast.error(error.message || 'Failed to send reset instructions');
+      setMessage(error.response?.data?.message || 'Failed to send reset instructions.');
+      setIsError(true);
     } finally {
       setIsLoading(false);
     }
@@ -47,12 +54,12 @@ const ForgotPasswordComponent = () => {
     <div className='w-full h-screen flex flex-row'>
       <div className='md:w-1/2 flex flex-col bg-[#132A2E] md:justify-between items-center md:py-3 py-0'>
         <div className='w-full items-center flex justify-end'>
-          <Image src={Plate} alt={Plate} className='md:w-40 w-24' />
+          <Image src={Plate} alt={'Plate'} className='md:w-40 w-24' />
         </div>
         <div className='flex flex-col h-96 gap-4 items-center md:gap-10 justify-between md:justify-center md:h-full'>
           <div className='flex flex-row justify-center'>
             <Typography className='font-semibold font-poppins md:text-2xl text-xl text-white'>
-              Forget Password
+              Forgot Password
             </Typography>
           </div>
           <div className='flex flex-row justify-center'>
@@ -60,77 +67,50 @@ const ForgotPasswordComponent = () => {
               Enter the email associated with your account
             </Typography>
           </div>
-          <div className='w-full flex flex-col items-center justify-between h-60'>
-            {!resetSent ? (
-              <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-                <div className="rounded-md shadow-sm -space-y-px">
-                  <div>
-                    <label htmlFor="email" className="sr-only">
-                      Email address
-                    </label>
-                    <input
-                      {...register('email')}
-                      id="email"
-                      type="email"
-                      autoComplete="email"
-                      className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                      placeholder="Email address"
-                    />
-                    {errors.email && (
-                      <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-                    )}
-                  </div>
-                </div>
+          <form onSubmit={handleSubmit(onSubmit)} className='md:w-96 w-72 flex flex-col px-3 gap-4'>
+            <div>
+              <label htmlFor='email' className='font-poppins font-semibold text-sm text-white'>
+                Email Address
+              </label>
+              <Input
+                type='email'
+                placeholder='Enter your email'
+                className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
+                labelProps={{
+                  className: 'hidden floating-none'
+                }}
+                crossOrigin={''}
+                {...register('email')}
+                disabled={isLoading}
+              />
+              {errors.email && (
+                <Typography color="red" className='font-poppins font-normal text-sm mt-1'>
+                  {errors.email.message}
+                </Typography>
+              )}
+            </div>
 
-                <div>
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? 'Sending...' : 'Send reset instructions'}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div className="rounded-md bg-green-50 p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg
-                      className="h-5 w-5 text-green-400"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-green-800">
-                      Reset instructions sent
-                    </h3>
-                    <div className="mt-2 text-sm text-green-700">
-                      <p>
-                        Please check your email for instructions to reset your password.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <Button
+              type='submit'
+              disabled={isLoading}
+              className='w-full py-2 px-4 rounded-md text-white font-medium bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed'
+            >
+              {isLoading ? 'Sending...' : 'Send Reset Instructions'}
+            </Button>
+
+            {message && (
+              <Typography color={isError ? "red" : "green"} className='font-poppins font-normal text-sm mt-1 text-center'>
+                {message}
+              </Typography>
             )}
-          </div>
+          </form>
         </div>
         <div className='flex h-48 md:h-auto flex-col justify-end'>
-          <Image className='w-96' src={IconList} alt={IconList} />
+          <Image className='w-96' src={IconList} alt={'IconList'} />
         </div>
       </div>
       <div className='md:w-1/2 hidden object-fill md:flex flex-col justify-center'>
-        <Image src={ForgetPassword} alt={ForgetPassword} />
+        <Image src={ForgetPasswordImage} alt={'Forgot Password Image'} />
       </div>
     </div>
   );
