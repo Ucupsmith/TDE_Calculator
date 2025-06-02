@@ -14,10 +14,9 @@ const ArticleCard = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [hasEnteredView, setHasEnteredView] = useState(false);
 
-  const articleCardRef = useRef<HTMLDivElement>(null);
+  const articleCardRef = useRef(null);
   const router = useRouter();
 
-  // Cek ukuran layar dan deteksi scroll ke ArticleCard
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -106,14 +105,13 @@ const ArticleCard = () => {
     { id: 50, title: "TDEE: Merencanakan Cheat Day Tanup Merusak Progress", imageSrc: "/tdee2.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
   ];
 
- const filteredArticles = articles.filter(article => {
+  const filteredArticles = articles.filter(article => {
     const searchContent = article.title + article.authorName;
     return searchContent.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   return (
-    <>
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full overflow-x-hidden">
       <div className="text-[#34D399] text-2xl sm:text-3xl lg:pt-10 pt-8 font-bold flex justify-center items-center mx-auto">
         Article Card
       </div>
@@ -122,7 +120,6 @@ const ArticleCard = () => {
         calculate them with ease.
       </p>
 
-      {/* Search Bar & Logo Section */}
       <div className="flex justify-center mt-6 sm:mt-8 items-center space-x-4 relative">
         <div
           className="relative"
@@ -134,13 +131,9 @@ const ArticleCard = () => {
             alt="Tdee Logo"
             width={isMobile ? 60 : 70}
             height={isMobile ? 50 : 60}
-            className={`cursor-pointer transition-transform duration-500 ${
-              isRotating ? "rotate-[360deg]" : ""
-            } hover:scale-110 will-change-transform`}
+            className={`cursor-pointer transition-transform duration-500 ${isRotating ? "rotate-[360deg]" : ""} hover:scale-110 will-change-transform`}
             onClick={handleLogoClick}
           />
-
-          {/* Tooltip */}
           {!showSearch && (isHovering || (isMobile && hasEnteredView)) && (
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 pt-2">
               <div className="transition-all duration-500 ease-in-out text-[#34D399] text-xs px-3 py-1 rounded-lg whitespace-nowrap">
@@ -150,7 +143,6 @@ const ArticleCard = () => {
           )}
         </div>
 
-        {/* Search Bar */}
         <div
           className={`transition-all duration-500 ease-in-out ${
             showSearch ? "opacity-100 scale-100 max-w-[280px] sm:max-w-[320px]" : "opacity-0 scale-0 max-w-0"
@@ -166,82 +158,48 @@ const ArticleCard = () => {
         </div>
       </div>
 
-      {/* Articles Grid - Perbaikan untuk mobile view */}
-      <div
-        ref={articleCardRef}
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 sm:gap-5 md:gap-6 pt-8 md:pt-10 pb-16 sm:pb-20 px-4 sm:px-6 max-w-3xl mx-auto sm:max-w-none">
-        
-        {filteredArticles.length === 0 ? (
-          <div className="col-span-full text-center text-gray-500 mt-8">
-            <Image
-              src="/nofound.png"
-              alt="No articles found"
-              width={120}
-              height={120}
-              className="mx-auto mb-4"/>
-            No articles found matching your search.
-          </div>
-        ) : (
-          filteredArticles.map((article) => (
-            <div key={article.id} className="relative">
-              <Link href={`/article/${article.id}`}>
-                <motion.div
-                  whileHover={{ scale: 1.05, boxShadow: "0 8px 24px rgba(0,0,0,0.2)" }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                  className="text-white group relative overflow-hidden rounded-lg shadow-lg"
-                >
-                  {/* Container gambar dengan lebar maksimum di mobile */}
-                  <div className="aspect-[4/3] w-full relative max-w-[320px] mx-auto sm:max-w-none">
-                    <Image
-                      src={article.imageSrc}
-                      alt="article image"
-                      fill
-                      className="object-cover w-full"
-                      sizes="(max-width: 640px) 85vw, (max-width: 768px) 45vw, (max-width: 1024px) 30vw, 22vw"
-                    />
-                  </div>
-
-                  {/* Hover Title Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3 sm:p-4">
-                    <span className="text-white font-semibold text-xs sm:text-sm leading-tight">
-                      {article.title}
-                    </span>
-                  </div>
-                </motion.div>
-              </Link>
-
-              {/* Author Section */}
-              <div className="flex items-center mt-2 sm:mt-3 space-x-2 px-2 truncate max-w-[320px] mx-auto sm:max-w-none">
-                <Image
-                  src={article.authorImage}
-                  alt="author image"
-                  width={isMobile ? 24 : 24}
-                  height={isMobile ? 24 : 24}
-                  className="rounded-full"
-                />
-                <span className="text-xs sm:text-sm text-gray-600 truncate">
-                  {article.authorName}
-                </span>
+      {filteredArticles.length > 0 ? (
+        <div ref={articleCardRef} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
+          {filteredArticles.map((article) => (
+            <motion.div
+              key={article.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="rounded-lg shadow-lg overflow-hidden cursor-pointer border border-gray-200 hover:border-[#34D399]"
+              onClick={() => router.push(`/articles/${article.id}`)}
+            >
+              <Image
+                src={article.imageSrc}
+                alt={article.title}
+                width={400}
+                height={200}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4">
+                <h3 className="text-[#0B5F31] font-semibold text-sm sm:text-base mb-2 line-clamp-2">
+                  {article.title}
+                </h3>
+                <div className="flex items-center space-x-2 mt-2">
+                  <Image
+                    src={article.authorImage}
+                    alt={article.authorName}
+                    width={30}
+                    height={30}
+                    className="rounded-full"
+                  />
+                  <p className="text-xs text-[#666666] font-medium">{article.authorName}</p>
+                </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
-        <span className="flex text-center justify-center items-center pb-32 sm:pb-60 text-[#666666] text-xs sm:text-sm">
-          You&apos;ve reached the end of the list
-        </span>
-      </div>
-    </>
-  );
-};
-
-const ArticlePage = () => {
-  return (
-    <div>
-      <ArticleCard />
-      <Navbar />
+            </motion.div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex justify-center items-center p-6 text-gray-600">
+          Tidak ada artikel ditemukan.
+        </div>
+      )}
     </div>
   );
 };
 
-export default ArticlePage;
+export default ArticleCard;
