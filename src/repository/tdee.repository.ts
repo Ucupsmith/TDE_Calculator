@@ -1,9 +1,6 @@
 import baseAxios from '@/utils/common/axios';
 import { isEmptyString, isUndefindOrNull } from '@/utils/common/utils';
-import { profile } from 'console';
-import { access } from 'fs';
-import { getSession, useSession } from 'next-auth/react';
-import { any } from 'zod';
+import { getSession } from 'next-auth/react';
 
 const tdeeService = baseAxios(
   `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/user/v1`
@@ -57,7 +54,7 @@ export const tdeeCalculation = async (params: {
         }
       }
     );
-    return response;
+    return await response.data;
   } catch (error) {
     console.log(`error fetching data : ${error}`);
   }
@@ -94,7 +91,7 @@ export const saveTdeeCalculation = async (params: {
         }
       }
     );
-    return response;
+    return await response;
   } catch (error) {
     console.log(`error fetching data : ${error}`);
   }
@@ -106,11 +103,6 @@ export const saveTdeeCalculationToHome = async (params: {
   accessToken: string;
 }): Promise<any> => {
   try {
-    // const session = await getSession();
-    // const accessToken = session?.accessToken;
-    // if (accessToken === null || accessToken === '') {
-    //   return await Promise.resolve('accessToken not found!');
-    // }
     const response = await tdeeService.post(
       `/tdee/home/save`,
       { ...params },
@@ -128,26 +120,25 @@ export const saveTdeeCalculationToHome = async (params: {
 };
 
 export const getTdeeCalculationHome = async (params: {
-  tdeeId?: string;
+  tdeeId?: number;
   userId: number;
   accessToken: string;
 }): Promise<any> => {
   const { userId, accessToken } = params;
   try {
-    if (isUndefindOrNull(userId) || isEmptyString(userId)) {
-      return await Promise.resolve(null);
-    }
-    const response = await tdeeService.get(`/tdee/home/history?${userId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: `application/json`,
-        Authorization: `Bearer ${accessToken ?? ''}`
+    const response = await tdeeService.get(
+      `/tdee/home/history?userId=${userId}`,
+      {
+        headers: {
+          Accept: `application/json`,
+          Authorization: `Bearer ${accessToken ?? ''}`
+        }
       }
-    });
-    return response.data;
+    );
+    return await response.data;
   } catch (error) {
-    console.error('Error fetching TDEE calculation:', error);
-    throw error;
+    console.log('Error fetching TDEE calculation:', error);
+    return null;
   }
 };
 
@@ -167,7 +158,7 @@ export const deleteSaveTdee = async (params: {
     const response = await tdeeService.delete(`/tdee/history/${tdeeId}`);
     return (await response).data;
   } catch (error) {
-    console.error('Error fetching TDEE calculation:', error);
+    console.log('Error fetching TDEE calculation:', error);
     throw error;
   }
 };
