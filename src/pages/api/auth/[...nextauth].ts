@@ -52,7 +52,8 @@ const authOptions: NextAuthOptions = {
           id: data.data.id,
           name: data.data.username,
           email: data.data.email,
-          accessToken: data.token
+          accessToken: data.token,
+          number_phone: data.data.number_phone
         } as any;
       }
     })
@@ -61,19 +62,21 @@ const authOptions: NextAuthOptions = {
     async jwt({ token, user, account, profile }) {
       if (account && user) {
         console.log('JWT callback user:', user);
-        (token.userId = parseInt(user.id)),
-          (token.name = user.name),
-          (token.email = user.email);
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
         token.accessToken = user.accessToken;
+        token.number_phone = user.number_phone;
       }
       return token;
     },
     async session({ session, token, user, profile }: any) {
       if (session) {
-        (session.user.userId = token.userId),
+        (session.user.userId = token.id),
           (session.user.name = token.name),
           (session.user.email = token.email);
         session.user.accessToken = token.accessToken;
+        session.user.number_phone = token.number_phone;
       }
       return session;
     }

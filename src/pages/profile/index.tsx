@@ -10,40 +10,37 @@ interface ProfileData {
 }
 
 // Extend NextAuth Session type to match project usage
-import { Session } from 'next-auth';
-
-declare module 'next-auth' {
-  interface Session {
-     // Based on repository usage
-    user: {
-      userId: number; // Added in JWT callback
-      username: string;
-      name: string;
-      email: string;
-      accessToken: string;  
-    }
-  }
-}
 
 import { Button } from '@material-tailwind/react';
 import { signOut } from 'next-auth/react';
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { updateProfile } from '@/repository/profile.repository';
+import { getProfile, updateProfile } from '@/repository/profile.repository';
 import { useProfileForm, ProfileFormType } from '@/hooks/useProfileForm';
 import { useRouter } from 'next/router';
 
+interface PayloadProfile {
+  userId: number;
+  accessToken: string;
+}
+
 const ProfilePages = () => {
   const { data: session, status } = useSession();
-  const accessToken = session?.user.accessToken as string
+  const accessToken = session?.user.accessToken as string;
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors }, setValue } = useProfileForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    setValue
+  } = useProfileForm();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfile = async (): Promise<void> => {
       if (status === 'authenticated') {
         try {
           if (!session?.user.accessToken) {
@@ -51,23 +48,28 @@ const ProfilePages = () => {
             setLoading(false);
             return;
           }
-
-          const response = await fetch('http://localhost:8000/user/v1/profiles/', {
-            headers: {
-              Authorization: `Bearer ${session.user.accessToken}`
-            }
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to fetch profile');
+          const payload: PayloadProfile = {
+            userId: session?.user.userId as number,
+            accessToken: session?.user.accessToken
+          };
+          const response = await getProfile(payload);
+          const data = await response;
+          if (!data) {
+            console.log('data null:', data);
+          } else {
+            setProfileData(data);
           }
-
-          const data = await response.json();
-          setProfileData(data.data);
           setValue('full_name', data.data.full_name || '');
-          setValue('gender', (data.data.gender === 'Male' || data.data.gender === 'Female') ? data.data.gender : undefined);
+          setValue(
+            'gender',
+            data.data.gender === 'Male' || data.data.gender === 'Female'
+              ? data.data.gender
+              : undefined
+          );
           setValue('address', data.data.address || '');
           setLoading(false);
+          setProfileData(data);
+          return data;
         } catch (error) {
           console.error('Error fetching profile:', error);
           setLoading(false);
@@ -77,7 +79,7 @@ const ProfilePages = () => {
       }
     };
 
-    fetchProfile();
+    void fetchProfile();
   }, [session, status, setValue]);
 
   const handleEdit = () => {
@@ -106,11 +108,13 @@ const ProfilePages = () => {
         full_name: data.full_name,
         gender: data.gender,
         address: data.address,
-        accessToken : accessToken
+        accessToken: accessToken
       });
-      
+
       if (updatedData) {
-        setProfileData(prev => prev ? { ...prev, ...updatedData.data } : null);
+        setProfileData((prev) =>
+          prev ? { ...prev, ...updatedData.data } : null
+        );
         setIsEditing(false);
         reset(updatedData.data);
       }
@@ -121,25 +125,40 @@ const ProfilePages = () => {
 
   const handleCancel = () => {
     if (profileData) {
-       reset({
-         full_name: profileData.full_name || '',
-         gender: (profileData.gender === 'Male' || profileData.gender === 'Female') ? profileData.gender : undefined,
-         address: profileData.address || '',
-       });
+      reset({
+        full_name: profileData.full_name || '',
+        gender:
+          profileData.gender === 'Male' || profileData.gender === 'Female'
+            ? profileData.gender
+            : undefined,
+        address: profileData.address || ''
+      });
     }
     setIsEditing(false);
   };
 
   if (loading) {
-    return <div className='min-h-screen bg-[#132A2E] text-gray-200 p-4 flex justify-center items-center'>Loading profile...</div>;
+    return (
+      <div className='min-h-screen bg-[#132A2E] text-gray-200 p-4 flex justify-center items-center'>
+        Loading profile...
+      </div>
+    );
   }
 
   if (status === 'unauthenticated') {
-    return <div className='min-h-screen bg-[#132A2E] text-gray-200 p-4 flex justify-center items-center'>Please login to view this page.</div>;
+    return (
+      <div className='min-h-screen bg-[#132A2E] text-gray-200 p-4 flex justify-center items-center'>
+        Please login to view this page.
+      </div>
+    );
   }
 
   if (!profileData) {
-    return <div className='min-h-screen bg-[#132A2E] text-gray-200 p-4 flex justify-center items-center'>Could not load profile data.</div>;
+    return (
+      <div className='min-h-screen bg-[#132A2E] text-gray-200 p-4 flex justify-center items-center'>
+        Could not load profile data.
+      </div>
+    );
   }
 
   return (
@@ -157,8 +176,12 @@ const ProfilePages = () => {
       {/* User Info Section */}
       <div className='flex flex-col items-center mb-8'>
         <div className='w-24 h-24 rounded-full bg-gray-700 mb-4'></div>
-        <div className='text-xl font-semibold mb-1'>{profileData.username || session?.user?.name || 'N/A'}</div>
-        <div className='text-gray-400'>{profileData.email || session?.user?.email || 'N/A'}</div>
+        <div className='text-xl font-semibold mb-1'>
+          {profileData.username || session?.user?.name || 'N/A'}
+        </div>
+        <div className='text-gray-400'>
+          {profileData.email || session?.user?.email || 'N/A'}
+        </div>
       </div>
 
       {/* Form Detail Profil */}
@@ -176,9 +199,15 @@ const ProfilePages = () => {
             placeholder='Full Name'
             {...register('full_name')}
             readOnly={!isEditing}
-            className={`bg-[#34D399] rounded-md p-3 text-sm text-black placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditing ? 'cursor-not-allowed' : ''} ${isEditing ? 'relative z-50' : ''}`}
+            className={`bg-[#34D399] rounded-md p-3 text-sm text-black placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              !isEditing ? 'cursor-not-allowed' : ''
+            } ${isEditing ? 'relative z-50' : ''}`}
           />
-          {errors.full_name && <p className='text-red-500 text-xs mt-1'>{errors.full_name.message}</p>}
+          {errors.full_name && (
+            <p className='text-red-500 text-xs mt-1'>
+              {errors.full_name.message}
+            </p>
+          )}
         </div>
 
         {/* Gender Dropdown */}
@@ -186,7 +215,9 @@ const ProfilePages = () => {
           <label className='text-white text-sm'>Gender</label>
           <div className='relative'>
             <select
-              className={`block appearance-none w-full bg-[#34D399] border border-gray-700 text-sm text-black py-3 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:bg-[#34D399] focus:border-gray-500 ${!isEditing ? 'cursor-not-allowed' : ''} ${isEditing ? 'relative z-50' : ''}`}
+              className={`block appearance-none w-full bg-[#34D399] border border-gray-700 text-sm text-black py-3 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:bg-[#34D399] focus:border-gray-500 ${
+                !isEditing ? 'cursor-not-allowed' : ''
+              } ${isEditing ? 'relative z-50' : ''}`}
               {...register('gender')}
               disabled={!isEditing}
             >
@@ -195,10 +226,18 @@ const ProfilePages = () => {
               <option value='Female'>Female</option>
             </select>
             <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[#D9D9D9]'>
-              <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/></svg>
+              <svg
+                className='fill-current h-4 w-4'
+                xmlns='http://www.w3.org/2000/svg'
+                viewBox='0 0 20 20'
+              >
+                <path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z' />
+              </svg>
             </div>
           </div>
-          {errors.gender && <p className='text-red-500 text-xs mt-1'>{errors.gender.message}</p>}
+          {errors.gender && (
+            <p className='text-red-500 text-xs mt-1'>{errors.gender.message}</p>
+          )}
         </div>
 
         {/* Address Textarea */}
@@ -209,9 +248,15 @@ const ProfilePages = () => {
             rows={4}
             {...register('address')}
             readOnly={!isEditing}
-            className={`bg-[#34D399] rounded-md p-3 text-sm text-black placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${!isEditing ? 'cursor-not-allowed' : ''} ${isEditing ? 'relative z-50' : ''}`}
+            className={`bg-[#34D399] rounded-md p-3 text-sm text-black placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
+              !isEditing ? 'cursor-not-allowed' : ''
+            } ${isEditing ? 'relative z-50' : ''}`}
           ></textarea>
-          {errors.address && <p className='text-red-500 text-xs mt-1'>{errors.address.message}</p>}
+          {errors.address && (
+            <p className='text-red-500 text-xs mt-1'>
+              {errors.address.message}
+            </p>
+          )}
         </div>
 
         {/* Edit/Save/Cancel Buttons */}
@@ -246,14 +291,12 @@ const ProfilePages = () => {
 
       {/* Sign Out Button */}
       <div className='flex justify-end mt-8 cursor-pointer'>
-      <Button
-        onClick={() =>
-            signOut({callbackUrl: '/homepage',redirect: true} )
-        }
+        <Button
+          onClick={() => signOut({ callbackUrl: '/homepage', redirect: true })}
           className='px-4 py-2 text-sm bg-red-600 hover:bg-red-700 rounded-md cursor-pointer'
-      >
+        >
           Sign Out
-      </Button>
+        </Button>
       </div>
     </div>
   );
@@ -268,4 +311,4 @@ export default ProfilePages;
       pointer-events: none !important;
     }
   `}
-</style>
+</style>;
