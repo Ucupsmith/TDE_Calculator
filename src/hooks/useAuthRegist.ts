@@ -5,21 +5,19 @@ import { z } from 'zod';
 const authRegisterSchema = z.object({
   username: z
     .string({
-      required_error: 'name is requiered!',
-      invalid_type_error: 'name must be a string!'
+      required_error: 'Name is required!',
+      invalid_type_error: 'Name must be a string!'
     })
-    .min(10, { message: `name must have at least 10 character's` })
-    .max(50, { message: `name must have max 50 length character's` })
-    .toLowerCase()
-    .regex(/^[a-zA-Zs]+$/, {
+    .min(3, { message: 'Name must have at least 3 characters' })
+    .max(50, { message: 'Name must have max 50 characters' })
+    .regex(/^[a-zA-Z\s]+$/, {
       message: 'Name can only contain letters and spaces'
     }),
   email: z
     .string({
-      required_error: 'Email is requiered!',
+      required_error: 'Email is required!',
       invalid_type_error: 'Email is invalid!'
     })
-    .min(1, { message: `Email must have at least 10 character's` })
     .email({ message: 'Email format is invalid' })
     .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
       message: 'Email must be a valid format'
@@ -30,18 +28,23 @@ const authRegisterSchema = z.object({
   }),
   number_phone: z
     .string({
-      required_error: 'Phone number cannot be null!'
+      required_error: 'Phone number is required!'
     })
     .min(10, { message: 'Phone number must be at least 10 digits' })
-    .max(25, { message: 'Phone number must be under 25 digits' })
-    .regex(/^[0-9\s\-]{10,25}$/, {
+    .max(15, { message: 'Phone number must be under 15 digits' })
+    .regex(/^[0-9\s\-]{10,15}$/, {
       message: 'Phone number can contain numbers, spaces, and dashes only.'
     }),
   password: z
-    .string({ invalid_type_error: '', required_error: '' })
-    .min(10, { message: 'Password must be at least 8 characters' })
-    .max(25, { message: 'Password must be less than 100 characters' })
-    .regex(/[0-9]/, { message: 'At least one number is required' })
+    .string({ 
+      required_error: 'Password is required!',
+      invalid_type_error: 'Password must be a string!'
+    })
+    .min(8, { message: 'Password must be at least 8 characters' })
+    .max(25, { message: 'Password must be less than 25 characters' })
+    .regex(/[0-9]/, { message: 'Password must contain at least one number' })
+    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+    .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
     .regex(/^\S+$/, { message: 'Password must not contain spaces' })
 });
 
@@ -57,11 +60,11 @@ export const useAuthRegister = () => {
   } = useForm<AuthRegistType>({
     resolver: zodResolver(authRegisterSchema),
     defaultValues: {
-      username: undefined,
-      email: undefined,
+      username: '',
+      email: '',
       select_number: '+62',
-      number_phone: undefined,
-      password: undefined
+      number_phone: '',
+      password: ''
     }
   });
   return {

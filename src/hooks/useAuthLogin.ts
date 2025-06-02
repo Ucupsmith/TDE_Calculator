@@ -5,22 +5,23 @@ import { z } from 'zod';
 const authLoginSchema = z.object({
   email: z
     .string({
-      required_error: 'Email is requiered!',
+      required_error: 'Email is required!',
       invalid_type_error: 'Email is invalid!'
     })
-    .min(1, { message: `Email must have at least 10 character's` })
     .email({ message: 'Email format is invalid' })
     .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
       message: 'Email must be a valid format'
     }),
   password: z
-    .string({ invalid_type_error: '', required_error: '' })
-    .min(10, { message: 'Password must be at least 8 characters' })
-    .max(25, { message: 'Password must be less than 100 characters' })
-    .regex(/[0-9]/, { message: 'At least one number is required' })
-    .regex(/[^a-zA-Z0-9]/, {
-      message: 'At least one special character is required'
+    .string({ 
+      required_error: 'Password is required!',
+      invalid_type_error: 'Password must be a string!'
     })
+    .min(8, { message: 'Password must be at least 8 characters' })
+    .max(25, { message: 'Password must be less than 25 characters' })
+    .regex(/[0-9]/, { message: 'Password must contain at least one number' })
+    .regex(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+    .regex(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
     .regex(/^\S+$/, { message: 'Password must not contain spaces' })
 });
 
@@ -36,8 +37,8 @@ export const useAuthLogin = () => {
   } = useForm<AuthLoginType>({
     resolver: zodResolver(authLoginSchema),
     defaultValues: {
-      email: undefined,
-      password: undefined
+      email: '',
+      password: ''
     }
   });
   return {
