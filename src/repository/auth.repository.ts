@@ -1,5 +1,5 @@
-import { error } from 'console';
-import baseAxios from '../utils/common/axios';
+import Email from 'next-auth/providers/email';
+import baseAxios from '@/utils/common/axios';
 
 const authService = baseAxios(
   `${process.env.NEXT_PUBLIC_API_URL ?? `http://localhost:8000`}/user/v1`
@@ -39,7 +39,9 @@ export const registerUser = async (params: {
   try {
     const response = await authService.post(
       '/users/register',
-      { ...params },
+      {
+        ...params
+      },
       {
         headers: {
           'Content-Type': 'application/json',
@@ -49,18 +51,14 @@ export const registerUser = async (params: {
     );
     if (response.data) {
       return response.data;
+    } else {
+      throw new Error('No data received from server!');
     }
-    throw new Error('No data received from server');
-  } catch (error: any) {
-    console.error('Registration error:', error);
-    if (error.response) {
-      throw error.response.data;
-    }
-    throw new Error('An error occurred during registration');
+  } catch (error) {
+    console.log(`error fetching data : ${error}`);
   }
 };
 
-// New function to request password reset
 export const requestPasswordReset = async (email: string): Promise<any> => {
   try {
     const response = await authService.post(
@@ -75,7 +73,6 @@ export const requestPasswordReset = async (email: string): Promise<any> => {
     );
     return response.data;
   } catch (error: any) {
-    console.error('Error requesting password reset:', error);
     if (error.response) {
       throw error.response.data;
     }
@@ -83,7 +80,6 @@ export const requestPasswordReset = async (email: string): Promise<any> => {
   }
 };
 
-// New function to reset password with token and new password
 export const resetPassword = async (
   token: string,
   newPassword: string
@@ -93,8 +89,11 @@ export const resetPassword = async (
       token: token,
       newPassword: newPassword
     });
-    return response.data; // Assuming backend returns data on success
+    return response.data;
   } catch (error: any) {
-    console.error('Error resetting password:', error);
+    if (error.response) {
+      throw error.response.data;
+    }
+    throw new Error('An error occurred while resetting password');
   }
 };
