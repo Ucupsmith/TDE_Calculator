@@ -23,7 +23,7 @@ const Article: React.FC<ArticleProps> = ({
       transition={{ duration: 0.5 }}
     >
       <motion.h1 
-        className="text-3xl font-bold mb-6"
+        className="text-3xl font-bold mb-6 text-[#34D399]"
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
