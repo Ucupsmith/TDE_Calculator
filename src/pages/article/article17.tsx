@@ -1,46 +1,193 @@
 import React from "react";
-import Navbar from "@/components/navbar/Navbar";       
-import Image from "next/image"; 
-import BmiTable from "@/components/ArticleComponent/BmiTable";
-import AktivitasTable from "@/components/ArticleComponent/AktivitasTable";
-import ExitButton from "@/components/ArticleComponent/exitButton";
+import Article from "@/components/ArticleComponent/Article";
 
-const Article14 = () => {
-    return(
-    <>
-        <ExitButton/>
-        <div className="lg:pt-40 pt-10 font-poppins">
-             <div className="flex justify-center">
-                <Image 
-                    src="/lari.svg" 
-                    alt="gambar orang lari" 
-                    width={400} 
-                    height={400}/>
-            </div>
-            <div>
-                <h1 className="text-2xl text-center font-bold pb-5 pl-10 mt-10 text-[#34D399]">Understanding TDEE: The Key to Managing <br/> Your Daily Calorie Needs</h1>
-                <h3 className="pl-10"><span className="font-bold text-lg">TDEE </span> <span className="italic">(Total Daily Energy Expenditure)</span> adalah jumlah total kalori yang dibakar oleh tubuh dalam satu hari. Ini mencakup seluruh aktivitas tubuh, mulai dari metabolisme basal (BMR)—yakni energi yang dibutuhkan untuk fungsi vital seperti bernapas dan detak jantung saat istirahat—hingga pencernaan makanan, serta aktivitas fisik seperti berjalan, bekerja, dan berolahraga. Dengan kata lain, TDEE menggambarkan seberapa banyak energi yang dibutuhkan tubuh untuk mempertahankan fungsi harian secara keseluruhan.</h3>
-                <h2 className="font-bold pt-10 pl-10 text-xl">1.BMI - Body Mass Index</h2>
-                <p className="pl-10 mt-5">BMI (Indeks Massa Tubuh) digunakan untuk mengetahui apakah berat badan seseorang ideal atau tidak berdasarkan tinggi badan.</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Rumus BMI:</p>
-                <p className="text-center pl-10 mt-5 italic">BMI = Berat Badan (kg) / (Tinggi Badan (m))²</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Kategori BMI:</p>
-                <BmiTable/>
-                <h2 className="font-bold pt-20 pl-10 text-xl">2.BMR - Basal Metabolic Rate</h2>
-                <p className="pl-10 mt-5">BMR adalah jumlah kalori yang dibutuhkan tubuh untuk menjalankan fungsi dasar saat istirahat (seperti bernapas, detak jantung, dll).</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Rumus BMR:</p>
-                <p className="text-center pl-10 mt-5 italic">BMR = 10 x berat (kg) + 6.25 x tinggi (cm) - 5 x umur + 5</p>
-                <p className="text-center pt-5 pl-10 text-gray-500 text-sm italic">(Untuk Pria)</p>
-                <p className="pt-5 text-center pl-10 mt-5 italic">BMR = 10 x berat (kg) + 6.25 x tinggi (cm) - 5 x umur - 161</p>
-                 <p className="text-center pt-5 pl-10 text-gray-500 text-sm italic">(Untuk Wanita)</p>
-                 <h2 className="font-bold pt-20 pl-10 text-xl">3.Cara Menghitung TDEE</h2>
-                 <p className="text-center pl-10 mt-5 italic">Setelah dapat BMR, kalikan dengan faktor aktivitas fisik:</p>
-                 <AktivitasTable></AktivitasTable>
+const Article17 = () => {
+  return (
+    <Article
+      title="TDEE dan Nutrisi untuk Vegetarian/Vegan"
+      imageSrc="/tdee17.jpg"
+      content={
+        <div className="space-y-6 pb-20">
+          <p className="text-white text-lg leading-relaxed">
+            Total Daily Energy Expenditure (TDEE) untuk vegetarian dan vegan
+            memerlukan perhatian khusus dalam hal asupan nutrisi. Memahami
+            kebutuhan energi dan nutrisi penting membantu dalam mencapai
+            keseimbangan gizi yang optimal.
+          </p>
+          
+          <h2 className="text-2xl font-semibold text-[#34D399]">Kebutuhan Energi</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Pertimbangan khusus untuk TDEE vegetarian/vegan:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Kepadatan Energi
+              <ul className="list-disc pl-6 mt-2">
+                <li>Makanan nabati cenderung rendah kalori</li>
+                <li>Perlu porsi lebih besar</li>
+                <li>Fokus pada makanan padat nutrisi</li>
+                <li>Snacking sehat</li>
+              </ul>
+            </li>
+            <li>Distribusi Makronutrien
+              <ul className="list-disc pl-6 mt-2">
+                <li>Karbohidrat: 45-65%</li>
+                <li>Protein: 15-25%</li>
+                <li>Lemak: 20-35%</li>
+                <li>Serat: 25-35g/hari</li>
+              </ul>
+            </li>
+            <li>Frekuensi Makan
+              <ul className="list-disc pl-6 mt-2">
+                <li>5-6 kali makan kecil</li>
+                <li>Snack bergizi</li>
+                <li>Timing makan</li>
+                <li>Porsi seimbang</li>
+              </ul>
+            </li>
+          </ul>
 
-         </div>
+          <h2 className="text-2xl font-semibold text-[#34D399]">Sumber Protein</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Sumber protein nabati berkualitas tinggi:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Kacang-kacangan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Tempe: 20g protein/100g</li>
+                <li>Tahu: 8g protein/100g</li>
+                <li>Edamame: 11g protein/100g</li>
+                <li>Kacang merah: 9g protein/100g</li>
+              </ul>
+            </li>
+            <li>Biji-bijian
+              <ul className="list-disc pl-6 mt-2">
+                <li>Quinoa: 4g protein/100g</li>
+                <li>Amaranth: 4g protein/100g</li>
+                <li>Biji chia: 17g protein/100g</li>
+                <li>Biji rami: 18g protein/100g</li>
+              </ul>
+            </li>
+            <li>Sayuran
+              <ul className="list-disc pl-6 mt-2">
+                <li>Brokoli: 3g protein/100g</li>
+                <li>Bayam: 3g protein/100g</li>
+                <li>Kale: 3g protein/100g</li>
+                <li>Jamur: 3g protein/100g</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Nutrisi Penting</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Nutrisi yang perlu diperhatikan:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Vitamin B12
+              <ul className="list-disc pl-6 mt-2">
+                <li>Suplemen: 2.4mcg/hari</li>
+                <li>Makanan fortifikasi</li>
+                <li>Pemeriksaan rutin</li>
+                <li>Gejala defisiensi</li>
+              </ul>
+            </li>
+            <li>Zat Besi
+              <ul className="list-disc pl-6 mt-2">
+                <li>Sumber nabati</li>
+                <li>Penyerapan optimal</li>
+                <li>Vitamin C</li>
+                <li>Monitor kadar</li>
+              </ul>
+            </li>
+            <li>Kalsium
+              <ul className="list-disc pl-6 mt-2">
+                <li>Sayuran hijau</li>
+                <li>Tahu fortifikasi</li>
+                <li>Susu nabati</li>
+                <li>Kebutuhan: 1000mg/hari</li>
+              </ul>
+            </li>
+            <li>Omega-3
+              <ul className="list-disc pl-6 mt-2">
+                <li>Biji chia</li>
+                <li>Biji rami</li>
+                <li>Kacang walnut</li>
+                <li>Alga</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Perencanaan Makanan</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Strategi perencanaan makanan:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Variasi Makanan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Warna berbeda</li>
+                <li>Tekstur bervariasi</li>
+                <li>Rasa seimbang</li>
+                <li>Nutrisi lengkap</li>
+              </ul>
+            </li>
+            <li>Persiapan Makanan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Meal prep</li>
+                <li>Bumbu dasar</li>
+                <li>Snack sehat</li>
+                <li>Porsi seimbang</li>
+              </ul>
+            </li>
+            <li>Tips Praktis
+              <ul className="list-disc pl-6 mt-2">
+                <li>Baca label</li>
+                <li>Belanja cerdas</li>
+                <li>Resep kreatif</li>
+                <li>Substitusi bahan</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Aktivitas Fisik</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Panduan aktivitas fisik untuk vegetarian/vegan:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Jenis Olahraga
+              <ul className="list-disc pl-6 mt-2">
+                <li>Kardio</li>
+                <li>Latihan kekuatan</li>
+                <li>Fleksibilitas</li>
+                <li>Keseimbangan</li>
+              </ul>
+            </li>
+            <li>Nutrisi Olahraga
+              <ul className="list-disc pl-6 mt-2">
+                <li>Pre-workout</li>
+                <li>Intra-workout</li>
+                <li>Post-workout</li>
+                <li>Hidrasi</li>
+              </ul>
+            </li>
+            <li>Pemulihan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Protein</li>
+                <li>Karbohidrat</li>
+                <li>Antioksidan</li>
+                <li>Istirahat</li>
+              </ul>
+            </li>
+          </ul>
+
+          <p className="mt-6 text-white text-lg leading-relaxed">
+            Dengan perencanaan yang tepat, diet vegetarian/vegan dapat memenuhi
+            semua kebutuhan nutrisi dan mendukung TDEE yang optimal. Kunci
+            keberhasilannya adalah variasi makanan, perencanaan yang baik, dan
+            pemantauan nutrisi secara teratur.
+          </p>
         </div>
-        <Navbar />
-    </>)
 }
+    />
+  );
+};
 
-export default Article14;
+export default Article17;

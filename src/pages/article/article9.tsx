@@ -2,48 +2,180 @@ import React from "react";
 import Article from "@/components/ArticleComponent/Article";
 
 const Article9 = () => {
-  const content = (
-    <>
-      <div className="space-y-8">
-        <section>
-          <h2 className="font-bold text-xl mb-4">TDEE sebagai Fondasi Rencana Makan</h2>
-          <p className="text-gray-700 mb-4">
-            Perencanaan gizi harian yang efektif dimulai dengan pemahaman tentang kebutuhan energi tubuh Anda. Di sinilah Total Daily Energy Expenditure (TDEE) menjadi panduan utama. TDEE adalah perkiraan jumlah kalori yang Anda bakar setiap hari, dan angka ini menjadi dasar untuk menentukan berapa banyak kalori yang perlu Anda konsumsi.
-          </p>
-          <p className="text-gray-700 mb-4">
-            Apakah tujuan Anda adalah menurunkan berat badan, menambah massa otot, atau hanya menjaga berat badan saat ini, TDEE membantu Anda menetapkan target kalori yang realistis. Tanpa mengetahui TDEE, sulit untuk secara konsisten mencapai tujuan nutrisi Anda.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="font-bold text-xl mb-4">Mengubah TDEE Menjadi Rencana Praktis</h2>
-          <p className="text-gray-700 mb-4">
-            Setelah Anda memiliki angka TDEE (dan mungkin menyesuaikannya untuk tujuan Anda), langkah selanjutnya adalah menerjemahkannya menjadi rencana makan harian.
-          </p>
-          <ul className="list-disc pl-6 space-y-2">
-            <li><span className="font-semibold">Alokasikan Kalori:</span> Bagi total kalori harian Anda ke dalam beberapa waktu makan (sarapan, makan siang, makan malam, camilan).</li>
-            <li><span className="font-semibold">Pertimbangkan Makronutrien:</span> Tentukan rasio atau gram makronutrien (protein, karbohidrat, lemak) yang sesuai dengan tujuan dan preferensi Anda.</li>
-            <li><span className="font-semibold">Pilih Makanan Bergizi:</span> Isi rencana makan Anda dengan makanan utuh yang kaya nutrisi untuk memastikan Anda mendapatkan vitamin dan mineral yang dibutuhkan.</li>
-            <li><span className="font-semibold">Fleksibilitas:</span> Rencana makan harus fleksibel dan bisa disesuaikan dengan jadwal dan situasi sosial Anda.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 className="font-bold text-xl mb-4">Memantau dan Beradaptasi</h2>
-          <p className="text-gray-700 mb-4">
-            Rencana gizi bukanlah sesuatu yang kaku. Pantau bagaimana tubuh Anda merespons (berat badan, tingkat energi, performa latihan) dan sesuaikan asupan kalori atau komposisi makronutrien Anda berdasarkan progres yang Anda lihat.
-          </p>
-        </section>
-      </div>
-    </>
-  );
-
   return (
     <Article
       title="Peran TDEE dalam Perencanaan Gizi Harian"
-      content={content}
       imageSrc="/tdee9.webp"
-      showBmiTable={false}
+      content={
+        <div className="space-y-6 pb-20">
+          <p className="text-white text-lg leading-relaxed">
+            Total Daily Energy Expenditure (TDEE) merupakan dasar penting dalam perencanaan gizi harian.
+            Dengan memahami TDEE, Anda dapat merencanakan asupan nutrisi yang tepat untuk memenuhi kebutuhan
+            energi dan nutrisi tubuh secara optimal.
+          </p>
+          
+          <h2 className="text-2xl font-semibold text-[#34D399]">Dasar Perencanaan Gizi</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Prinsip dasar dalam merencanakan gizi berdasarkan TDEE:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Menghitung kebutuhan kalori harian</li>
+            <li>Mendistribusikan makronutrien dengan tepat</li>
+            <li>Menyesuaikan dengan aktivitas fisik</li>
+            <li>Mempertimbangkan tujuan kesehatan</li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Distribusi Makronutrien</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Panduan distribusi makronutrien berdasarkan TDEE:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Protein
+              <ul className="list-disc pl-6 mt-2">
+                <li>15-30% dari total kalori</li>
+                <li>1.6-2.2g per kg berat badan</li>
+                <li>Distribusikan merata sepanjang hari</li>
+                <li>Prioritaskan sumber protein berkualitas</li>
+              </ul>
+            </li>
+            <li>Karbohidrat
+              <ul className="list-disc pl-6 mt-2">
+                <li>45-65% dari total kalori</li>
+                <li>Fokus pada karbohidrat kompleks</li>
+                <li>Sesuaikan dengan aktivitas fisik</li>
+                <li>Pertahankan glikogen otot</li>
+              </ul>
+            </li>
+            <li>Lemak
+              <ul className="list-disc pl-6 mt-2">
+                <li>20-35% dari total kalori</li>
+                <li>Prioritaskan lemak sehat</li>
+                <li>Jaga keseimbangan omega-3 dan omega-6</li>
+                <li>Hindari lemak trans</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Perencanaan Makan</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Strategi perencanaan makan berdasarkan TDEE:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Jadwal Makan
+              <ul className="list-disc pl-6 mt-2">
+                <li>3-6 kali makan per hari</li>
+                <li>Interval 2-4 jam antar makan</li>
+                <li>Sesuaikan dengan aktivitas</li>
+                <li>Pertahankan konsistensi</li>
+              </ul>
+            </li>
+            <li>Porsi Makan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Kontrol porsi sesuai TDEE</li>
+                <li>Gunakan alat ukur yang tepat</li>
+                <li>Perhatikan kepadatan kalori</li>
+                <li>Jaga keseimbangan nutrisi</li>
+              </ul>
+            </li>
+            <li>Pemilihan Makanan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Prioritaskan makanan utuh</li>
+                <li>Variasi sumber nutrisi</li>
+                <li>Perhatikan kualitas makanan</li>
+                <li>Batasi makanan olahan</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Penyesuaian Aktivitas</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Menyesuaikan asupan nutrisi dengan aktivitas:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Hari Latihan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Tingkatkan asupan karbohidrat</li>
+                <li>Prioritaskan protein</li>
+                <li>Jaga hidrasi</li>
+                <li>Timing nutrisi yang tepat</li>
+              </ul>
+            </li>
+            <li>Hari Istirahat
+              <ul className="list-disc pl-6 mt-2">
+                <li>Kurangi asupan karbohidrat</li>
+                <li>Pertahankan protein</li>
+                <li>Fokus pada recovery</li>
+                <li>Jaga keseimbangan nutrisi</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Monitoring dan Evaluasi</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Cara memantau dan mengevaluasi perencanaan gizi:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Tracking Nutrisi
+              <ul className="list-disc pl-6 mt-2">
+                <li>Catat asupan makanan</li>
+                <li>Monitor makronutrien</li>
+                <li>Evaluasi kepatuhan</li>
+                <li>Sesuaikan jika perlu</li>
+              </ul>
+            </li>
+            <li>Evaluasi Progress
+              <ul className="list-disc pl-6 mt-2">
+                <li>Ukur berat badan</li>
+                <li>Monitor komposisi tubuh</li>
+                <li>Evaluasi energi</li>
+                <li>Perhatikan performa</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Tips Implementasi</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Tips untuk mengimplementasikan perencanaan gizi:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Persiapkan makanan sebelumnya</li>
+            <li>Buat jadwal makan yang realistis</li>
+            <li>Gunakan aplikasi tracking</li>
+            <li>Jaga konsistensi</li>
+            <li>Bersikap fleksibel</li>
+            <li>Perhatikan sinyal tubuh</li>
+            <li>Rayakan pencapaian kecil</li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Pertimbangan Kesehatan</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Hal-hal yang perlu diperhatikan untuk kesehatan:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Konsultasi dengan profesional
+              <ul className="list-disc pl-6 mt-2">
+                <li>Dokter untuk evaluasi kesehatan</li>
+                <li>Ahli gizi untuk rencana makan</li>
+                <li>Personal trainer untuk program latihan</li>
+              </ul>
+            </li>
+            <li>Pertahankan kesehatan umum
+              <ul className="list-disc pl-6 mt-2">
+                <li>Monitor tekanan darah</li>
+                <li>Jaga kesehatan jantung</li>
+                <li>Perhatikan kesehatan pencernaan</li>
+                <li>Evaluasi kesehatan secara berkala</li>
+              </ul>
+            </li>
+          </ul>
+
+          <p className="mt-6 text-white text-lg leading-relaxed">
+            Menggunakan TDEE sebagai dasar perencanaan gizi harian membantu Anda mencapai tujuan kesehatan
+            dengan cara yang terstruktur dan berkelanjutan. Ingat bahwa perencanaan gizi yang baik adalah
+            tentang keseimbangan, konsistensi, dan fleksibilitas dalam menjalani gaya hidup sehat.
+          </p>
+      </div>
+      }
     />
   );
 };
