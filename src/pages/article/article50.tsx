@@ -1,46 +1,186 @@
 import React from "react";
-import Navbar from "@/components/navbar/Navbar";       
-import Image from "next/image"; 
-import BmiTable from "@/components/ArticleComponent/BmiTable";
-import AktivitasTable from "@/components/ArticleComponent/AktivitasTable";
-import ExitButton from "@/components/ArticleComponent/exitButton";
+import Article from "@/components/ArticleComponent/Article";
 
-const Article14 = () => {
-    return(
-    <>
-        <ExitButton/>
-        <div className="lg:pt-40 pt-10 font-poppins">
-             <div className="flex justify-center">
-                <Image 
-                    src="/lari.svg" 
-                    alt="gambar orang lari" 
-                    width={400} 
-                    height={400}/>
-            </div>
-            <div>
-                <h1 className="text-2xl text-center font-bold pb-5 pl-10 mt-10 text-[#34D399]">Understanding TDEE: The Key to Managing <br/> Your Daily Calorie Needs</h1>
-                <h3 className="pl-10"><span className="font-bold text-lg">TDEE </span> <span className="italic">(Total Daily Energy Expenditure)</span> adalah jumlah total kalori yang dibakar oleh tubuh dalam satu hari. Ini mencakup seluruh aktivitas tubuh, mulai dari metabolisme basal (BMR)—yakni energi yang dibutuhkan untuk fungsi vital seperti bernapas dan detak jantung saat istirahat—hingga pencernaan makanan, serta aktivitas fisik seperti berjalan, bekerja, dan berolahraga. Dengan kata lain, TDEE menggambarkan seberapa banyak energi yang dibutuhkan tubuh untuk mempertahankan fungsi harian secara keseluruhan.</h3>
-                <h2 className="font-bold pt-10 pl-10 text-xl">1.BMI - Body Mass Index</h2>
-                <p className="pl-10 mt-5">BMI (Indeks Massa Tubuh) digunakan untuk mengetahui apakah berat badan seseorang ideal atau tidak berdasarkan tinggi badan.</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Rumus BMI:</p>
-                <p className="text-center pl-10 mt-5 italic">BMI = Berat Badan (kg) / (Tinggi Badan (m))²</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Kategori BMI:</p>
-                <BmiTable/>
-                <h2 className="font-bold pt-20 pl-10 text-xl">2.BMR - Basal Metabolic Rate</h2>
-                <p className="pl-10 mt-5">BMR adalah jumlah kalori yang dibutuhkan tubuh untuk menjalankan fungsi dasar saat istirahat (seperti bernapas, detak jantung, dll).</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Rumus BMR:</p>
-                <p className="text-center pl-10 mt-5 italic">BMR = 10 x berat (kg) + 6.25 x tinggi (cm) - 5 x umur + 5</p>
-                <p className="text-center pt-5 pl-10 text-gray-500 text-sm italic">(Untuk Pria)</p>
-                <p className="pt-5 text-center pl-10 mt-5 italic">BMR = 10 x berat (kg) + 6.25 x tinggi (cm) - 5 x umur - 161</p>
-                 <p className="text-center pt-5 pl-10 text-gray-500 text-sm italic">(Untuk Wanita)</p>
-                 <h2 className="font-bold pt-20 pl-10 text-xl">3.Cara Menghitung TDEE</h2>
-                 <p className="text-center pl-10 mt-5 italic">Setelah dapat BMR, kalikan dengan faktor aktivitas fisik:</p>
-                 <AktivitasTable></AktivitasTable>
+const Article50 = () => {
+  return (
+    <Article
+      title="TDEE dan Kesehatan Sistem Imun"
+      imageSrc="/tdee50.jpg"
+      content={
+        <div className="space-y-6 pb-20">
+          <p className="text-white text-lg leading-relaxed">
+            Total Daily Energy Expenditure (TDEE) memainkan peran penting dalam
+            mendukung kesehatan sistem imun. Keseimbangan energi yang tepat dan
+            nutrisi yang optimal sangat penting untuk fungsi imun yang baik.
+            Pemahaman tentang hubungan ini dapat membantu meningkatkan pertahanan
+            tubuh terhadap penyakit.
+          </p>
 
-         </div>
+          <h2 className="text-2xl font-semibold text-[#34D399]">Hubungan TDEE dan Sistem Imun</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Aspek penting dalam hubungan TDEE dan sistem imun:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Energi dan Imunitas
+              <ul className="list-disc pl-6 mt-2">
+                <li>Metabolisme sel imun</li>
+                <li>Produksi antibodi</li>
+                <li>Respons inflamasi</li>
+                <li>Pemulihan</li>
+              </ul>
+            </li>
+            <li>Nutrisi Imun
+              <ul className="list-disc pl-6 mt-2">
+                <li>Protein</li>
+                <li>Vitamin</li>
+                <li>Mineral</li>
+                <li>Antioksidan</li>
+              </ul>
+            </li>
+            <li>Faktor Lingkungan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Stres</li>
+                <li>Tidur</li>
+                <li>Aktivitas fisik</li>
+                <li>Paparan patogen</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Nutrisi untuk Imunitas</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Panduan nutrisi untuk mendukung sistem imun:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Makronutrien
+              <ul className="list-disc pl-6 mt-2">
+                <li>Protein berkualitas</li>
+                <li>Karbohidrat kompleks</li>
+                <li>Lemak sehat</li>
+                <li>Serat</li>
+              </ul>
+            </li>
+            <li>Mikronutrien
+              <ul className="list-disc pl-6 mt-2">
+                <li>Vitamin C</li>
+                <li>Vitamin D</li>
+                <li>Zinc</li>
+                <li>Selenium</li>
+              </ul>
+            </li>
+            <li>Nutrisi Spesifik
+              <ul className="list-disc pl-6 mt-2">
+                <li>Probiotik</li>
+                <li>Prebiotik</li>
+                <li>Antioksidan</li>
+                <li>Asam lemak omega-3</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Aktivitas Fisik</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Strategi aktivitas fisik untuk imunitas:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Jenis Latihan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Cardio moderat</li>
+                <li>Latihan beban</li>
+                <li>Yoga</li>
+                <li>Stretching</li>
+              </ul>
+            </li>
+            <li>Intensitas
+              <ul className="list-disc pl-6 mt-2">
+                <li>Moderat</li>
+                <li>Konsistensi</li>
+                <li>Recovery</li>
+                <li>Progresif</li>
+              </ul>
+            </li>
+            <li>Pemulihan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Istirahat</li>
+                <li>Nutrisi</li>
+                <li>Hidrasi</li>
+                <li>Stretching</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Lifestyle Sehat</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Kebiasaan hidup untuk mendukung imunitas:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Tidur
+              <ul className="list-disc pl-6 mt-2">
+                <li>Kualitas tidur</li>
+                <li>Durasi tidur</li>
+                <li>Ritme sirkadian</li>
+                <li>Rutinitas tidur</li>
+              </ul>
+            </li>
+            <li>Manajemen Stres
+              <ul className="list-disc pl-6 mt-2">
+                <li>Relaksasi</li>
+                <li>Meditasi</li>
+                <li>Hobi</li>
+                <li>Dukungan sosial</li>
+              </ul>
+            </li>
+            <li>Kebersihan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Cuci tangan</li>
+                <li>Kebersihan makanan</li>
+                <li>Lingkungan bersih</li>
+                <li>Vaksinasi</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Tips Praktis</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Tips untuk meningkatkan imunitas:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Nutrisi
+              <ul className="list-disc pl-6 mt-2">
+                <li>Makan seimbang</li>
+                <li>Variasi makanan</li>
+                <li>Hidrasi cukup</li>
+                <li>Suplemen jika perlu</li>
+              </ul>
+            </li>
+            <li>Aktivitas
+              <ul className="list-disc pl-6 mt-2">
+                <li>Olahraga teratur</li>
+                <li>Paparan sinar matahari</li>
+                <li>Istirahat cukup</li>
+                <li>Manajemen stres</li>
+              </ul>
+            </li>
+            <li>Pencegahan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Vaksinasi</li>
+                <li>Kebersihan</li>
+                <li>Hindari kontak</li>
+                <li>Masker jika perlu</li>
+              </ul>
+            </li>
+          </ul>
+
+          <p className="mt-6 text-white text-lg leading-relaxed">
+            Memahami dan mengelola TDEE dengan baik dapat membantu meningkatkan
+            kesehatan sistem imun. Dengan menerapkan strategi nutrisi, aktivitas
+            fisik, dan gaya hidup yang tepat, kita dapat memperkuat pertahanan
+            tubuh dan meningkatkan kesejahteraan secara keseluruhan.
+          </p>
         </div>
-        <Navbar />
-    </>)
 }
+    />
+  );
+};
 
-export default Article14;
+export default Article50;

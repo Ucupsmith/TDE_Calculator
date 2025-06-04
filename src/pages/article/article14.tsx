@@ -1,46 +1,176 @@
 import React from "react";
-import Navbar from "@/components/navbar/Navbar";       
-import Image from "next/image"; 
-import BmiTable from "@/components/ArticleComponent/BmiTable";
-import AktivitasTable from "@/components/ArticleComponent/AktivitasTable";
-import ExitButton from "@/components/ArticleComponent/exitButton";
+import Article from "@/components/ArticleComponent/Article";
 
 const Article14 = () => {
-    return(
-    <>
-        <ExitButton/>
-        <div className="lg:pt-40 pt-10 font-poppins">
-             <div className="flex justify-center">
-                <Image 
-                    src="/lari.svg" 
-                    alt="gambar orang lari" 
-                    width={400} 
-                    height={400}/>
-            </div>
-            <div>
-                <h1 className="text-2xl text-center font-bold pb-5 pl-10 mt-10 text-[#34D399]">Understanding TDEE: The Key to Managing <br/> Your Daily Calorie Needs</h1>
-                <h3 className="pl-10"><span className="font-bold text-lg">TDEE </span> <span className="italic">(Total Daily Energy Expenditure)</span> adalah jumlah total kalori yang dibakar oleh tubuh dalam satu hari. Ini mencakup seluruh aktivitas tubuh, mulai dari metabolisme basal (BMR)—yakni energi yang dibutuhkan untuk fungsi vital seperti bernapas dan detak jantung saat istirahat—hingga pencernaan makanan, serta aktivitas fisik seperti berjalan, bekerja, dan berolahraga. Dengan kata lain, TDEE menggambarkan seberapa banyak energi yang dibutuhkan tubuh untuk mempertahankan fungsi harian secara keseluruhan.</h3>
-                <h2 className="font-bold pt-10 pl-10 text-xl">1.BMI - Body Mass Index</h2>
-                <p className="pl-10 mt-5">BMI (Indeks Massa Tubuh) digunakan untuk mengetahui apakah berat badan seseorang ideal atau tidak berdasarkan tinggi badan.</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Rumus BMI:</p>
-                <p className="text-center pl-10 mt-5 italic">BMI = Berat Badan (kg) / (Tinggi Badan (m))²</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Kategori BMI:</p>
-                <BmiTable/>
-                <h2 className="font-bold pt-20 pl-10 text-xl">2.BMR - Basal Metabolic Rate</h2>
-                <p className="pl-10 mt-5">BMR adalah jumlah kalori yang dibutuhkan tubuh untuk menjalankan fungsi dasar saat istirahat (seperti bernapas, detak jantung, dll).</p>
-                <p className="text-center pt-10 pl-10 mt-5 text-lg font-bold">Rumus BMR:</p>
-                <p className="text-center pl-10 mt-5 italic">BMR = 10 x berat (kg) + 6.25 x tinggi (cm) - 5 x umur + 5</p>
-                <p className="text-center pt-5 pl-10 text-gray-500 text-sm italic">(Untuk Pria)</p>
-                <p className="pt-5 text-center pl-10 mt-5 italic">BMR = 10 x berat (kg) + 6.25 x tinggi (cm) - 5 x umur - 161</p>
-                 <p className="text-center pt-5 pl-10 text-gray-500 text-sm italic">(Untuk Wanita)</p>
-                 <h2 className="font-bold pt-20 pl-10 text-xl">3.Cara Menghitung TDEE</h2>
-                 <p className="text-center pl-10 mt-5 italic">Setelah dapat BMR, kalikan dengan faktor aktivitas fisik:</p>
-                 <AktivitasTable></AktivitasTable>
+  return (
+    <Article
+      title="TDEE dan Penuaan"
+      imageSrc="/tdee14.jpg"
+      content={
+        <div className="space-y-6 pb-20">
+          <p className="text-white text-lg leading-relaxed">
+            Total Daily Energy Expenditure (TDEE) mengalami perubahan signifikan seiring
+            bertambahnya usia. Memahami perubahan ini membantu dalam menjaga kesehatan
+            dan kualitas hidup di usia lanjut.
+          </p>
+          
+          <h2 className="text-2xl font-semibold text-[#34D399]">Perubahan Metabolisme</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Faktor-faktor yang mempengaruhi perubahan metabolisme:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Penurunan Massa Otot
+              <ul className="list-disc pl-6 mt-2">
+                <li>Sarkopenia (kehilangan massa otot)</li>
+                <li>Penurunan BMR</li>
+                <li>Penurunan kekuatan</li>
+                <li>Penurunan mobilitas</li>
+              </ul>
+            </li>
+            <li>Perubahan Hormonal
+              <ul className="list-disc pl-6 mt-2">
+                <li>Penurunan hormon pertumbuhan</li>
+                <li>Perubahan hormon tiroid</li>
+                <li>Perubahan hormon seks</li>
+                <li>Perubahan insulin</li>
+              </ul>
+            </li>
+            <li>Aktivitas Fisik
+              <ul className="list-disc pl-6 mt-2">
+                <li>Penurunan NEAT</li>
+                <li>Penurunan intensitas latihan</li>
+                <li>Perubahan pola aktivitas</li>
+                <li>Penurunan mobilitas</li>
+              </ul>
+            </li>
+          </ul>
 
-         </div>
+          <h2 className="text-2xl font-semibold text-[#34D399]">Penyesuaian Nutrisi</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Strategi nutrisi untuk usia lanjut:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Kebutuhan Kalori
+              <ul className="list-disc pl-6 mt-2">
+                <li>Penurunan 5-10% per dekade</li>
+                <li>Fokus pada kualitas nutrisi</li>
+                <li>Porsi lebih kecil</li>
+                <li>Frekuensi makan lebih sering</li>
+              </ul>
+            </li>
+            <li>Protein
+              <ul className="list-disc pl-6 mt-2">
+                <li>Kebutuhan lebih tinggi (1.2-1.5g/kg)</li>
+                <li>Distribusi merata sepanjang hari</li>
+                <li>Sumber protein berkualitas</li>
+                <li>Suplemen jika diperlukan</li>
+              </ul>
+            </li>
+            <li>Mikronutrien
+              <ul className="list-disc pl-6 mt-2">
+                <li>Vitamin D</li>
+                <li>Kalsium</li>
+                <li>Vitamin B12</li>
+                <li>Zinc</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Latihan untuk Usia Lanjut</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Rekomendasi latihan untuk mempertahankan TDEE:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Latihan Kekuatan
+              <ul className="list-disc pl-6 mt-2">
+                <li>2-3 kali per minggu</li>
+                <li>Fokus pada gerakan fungsional</li>
+                <li>Intensitas moderat</li>
+                <li>Perhatian pada bentuk</li>
+              </ul>
+            </li>
+            <li>Latihan Kardio
+              <ul className="list-disc pl-6 mt-2">
+                <li>3-5 kali per minggu</li>
+                <li>Intensitas rendah-sedang</li>
+                <li>Durasi 20-30 menit</li>
+                <li>Pilih aktivitas low-impact</li>
+              </ul>
+            </li>
+            <li>Latihan Fleksibilitas
+              <ul className="list-disc pl-6 mt-2">
+                <li>Yoga atau stretching</li>
+                <li>Peningkatan mobilitas</li>
+                <li>Pencegahan cedera</li>
+                <li>Peningkatan keseimbangan</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Strategi Hidup Sehat</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Tips untuk menjaga kesehatan di usia lanjut:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Gaya Hidup
+              <ul className="list-disc pl-6 mt-2">
+                <li>Tidur yang cukup</li>
+                <li>Manajemen stres</li>
+                <li>Aktivitas sosial</li>
+                <li>Hobi yang aktif</li>
+              </ul>
+            </li>
+            <li>Pola Makan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Makan teratur</li>
+                <li>Hidrasi cukup</li>
+                <li>Makanan utuh</li>
+                <li>Porsi seimbang</li>
+              </ul>
+            </li>
+            <li>Pemeriksaan Kesehatan
+              <ul className="list-disc pl-6 mt-2">
+                <li>Check-up rutin</li>
+                <li>Monitor berat badan</li>
+                <li>Pemeriksaan darah</li>
+                <li>Konsultasi gizi</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold text-[#34D399]">Mitos dan Fakta</h2>
+          <p className="text-white text-lg leading-relaxed">
+            Mitos dan fakta tentang TDEE di usia lanjut:
+          </p>
+          <ul className="list-disc pl-6 space-y-3 text-white text-lg">
+            <li>Mitos Umum
+              <ul className="list-disc pl-6 mt-2">
+                <li>Penurunan metabolisme tidak bisa dihindari</li>
+                <li>Latihan berbahaya di usia lanjut</li>
+                <li>Protein tinggi berbahaya</li>
+                <li>Berat badan naik adalah normal</li>
+              </ul>
+            </li>
+            <li>Fakta Penting
+              <ul className="list-disc pl-6 mt-2">
+                <li>Latihan dapat memperlambat penurunan metabolisme</li>
+                <li>Protein penting untuk massa otot</li>
+                <li>Aktivitas fisik aman dengan panduan</li>
+                <li>Berat badan dapat dikelola</li>
+              </ul>
+            </li>
+          </ul>
+
+          <p className="mt-6 text-white text-lg leading-relaxed">
+            Memahami perubahan TDEE seiring penuaan membantu dalam membuat keputusan
+            yang tepat tentang nutrisi dan aktivitas fisik. Dengan pendekatan yang
+            tepat, penurunan metabolisme dapat diperlambat dan kualitas hidup dapat
+            dipertahankan di usia lanjut.
+          </p>
         </div>
-        <Navbar />
-    </>)
 }
+    />
+  );
+};
 
 export default Article14;

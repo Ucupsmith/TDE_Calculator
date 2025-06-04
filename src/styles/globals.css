@@ -12,6 +12,7 @@ html {
   scroll-padding-top: 100px;
   scrollbar-color: green;
   scroll-behavior: smooth;
+  background-color: #132A2E;
 }
 body {
   height: 100%;
@@ -58,4 +59,32 @@ body {
   visibility: hidden !important;
   opacity: 0 !important;
   display: none !important;
+}
+
+/* globals.css */
+@keyframes rgb-glow {
+  0% {
+    border-color: #ff0000;
+    box-shadow: 0 0 8px #ff0000;
+  }
+  25% {
+    border-color: #00ff00;
+    box-shadow: 0 0 8px #00ff00;
+  }
+  50% {
+    border-color: #0000ff;
+    box-shadow: 0 0 8px #0000ff;
+  }
+  75% {
+    border-color: #ff00ff;
+    box-shadow: 0 0 8px #ff00ff;
+  }
+  100% {
+    border-color: #ff0000;
+    box-shadow: 0 0 8px #ff0000;
+  }
+}
+
+.rgb-hover-effect:hover {
+  animation: rgb-glow 3s linear infinite;
 }
