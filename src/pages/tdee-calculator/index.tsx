@@ -1,5 +1,5 @@
 import TdeeCalculationComponent from '@/components/tdee-calculation/TdeeCalculationComponent';
-import { Goal } from '@/generated/prisma';
+
 import { TdeeFormType, useTdeeForm } from '@/hooks/useTdeeCalculation';
 import {
   saveTdeeCalculation,
@@ -28,6 +28,8 @@ export interface SaveTdeeCalculationInterface {
   userId: number;
   tdee_result: number;
   accessToken: string;
+  goal: string;
+
 }
 
 const ActivityLevel = [
@@ -124,7 +126,8 @@ const TdeeCalculatorPage = () => {
       const payload: SaveTdeeCalculationInterface = {
         userId: userId,
         tdee_result: calculateTdee.tdee,
-        accessToken: accessToken
+        accessToken: accessToken,
+        goal: goal
       };
       const response = await saveTdeeCalculationToHome(payload);
       console.log('response save tdee', response);

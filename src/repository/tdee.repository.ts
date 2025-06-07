@@ -101,6 +101,7 @@ export const saveTdeeCalculationToHome = async (params: {
   userId: number;
   tdee_result: number;
   accessToken: string;
+  goal: string;
 }): Promise<any> => {
   try {
     const response = await tdeeService.post(
