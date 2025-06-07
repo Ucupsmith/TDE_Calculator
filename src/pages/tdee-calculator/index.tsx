@@ -29,7 +29,6 @@ export interface SaveTdeeCalculationInterface {
   tdee_result: number;
   accessToken: string;
   goal: string;
-
 }
 
 const ActivityLevel = [
@@ -111,6 +110,7 @@ const TdeeCalculatorPage = () => {
           activity_level: 'Sedentary'
         });
       }
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     },
     [reset]
   );
@@ -127,7 +127,7 @@ const TdeeCalculatorPage = () => {
         userId: userId,
         tdee_result: calculateTdee.tdee,
         accessToken: accessToken,
-        goal: goal
+        goal: calculateTdee.goal
       };
       const response = await saveTdeeCalculationToHome(payload);
       console.log('response save tdee', response);
