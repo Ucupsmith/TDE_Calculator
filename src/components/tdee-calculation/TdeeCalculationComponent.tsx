@@ -77,7 +77,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
           <Card className='w-full md:w-[60%] md:h-60 h-32 rounded-[20px] md:rounded-2xl flex flex-col justify-center items-center bg-[#132A2E] border border-green-500'>
             <CardBody className='w-full flex flex-col gap-2 items-center justify-center'>
               <Typography className='font-bold font-poppins text-4xl text-green-500'>
-                {Math.round(tdee).toLocaleString('id-ID', {
+                {Math.ceil(tdee).toLocaleString('id-ID', {
                   style: 'decimal'
                 })}
               </Typography>
@@ -133,7 +133,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                             : 'text-red-900'
                 }`}
               >
-                {Math.floor(bmi).toLocaleString('id-ID', {
+                {Math.ceil(bmi).toLocaleString('id-ID', {
                   style: 'decimal'
                 })}
               </Typography>
@@ -157,9 +157,17 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
             </CardBody>
           </Card>
           <Typography className='md:w-72 font-poppins font-extralight text-white text-xs md:text-lg capitalize text-center'>
-            TDEE adalah jumlah total kalori yang dibakar tubuh Anda dalam
-            sehari, termasuk dari aktivitas dasar (seperti bernapas dan mencerna
-            makanan) hingga aktivitas fisik.
+            {bmi < 18.5
+              ? 'Berat badan kamu di bawah normal (Underweight), pertimbangkan untuk meningkatkan asupan nutrisi.'
+              : bmi <= 23.9
+                ? 'Berat badan kamu ideal, pertahankan pola hidup sehat!'
+                : bmi <= 24.9
+                  ? 'Berat badan kamu mulai mendekati batas atas ideal, tetap jaga pola makan dan olahraga.'
+                  : bmi <= 29.9
+                    ? 'Kamu berada dalam kategori Overweight. Perhatikan pola makan dan aktivitas fisik.'
+                    : bmi <= 31.0
+                      ? 'Kamu berada dalam kategori Obesitas kelas 1. Disarankan mulai program penurunan berat badan.'
+                      : 'Kamu berada dalam kategori Obesitas kelas 2 atau lebih. Konsultasikan dengan ahli gizi atau dokter.'}
           </Typography>
         </div>
       </div>

@@ -1,125 +1,159 @@
-import { Button, Card, CardBody, Typography } from '@material-tailwind/react';
-import React, { useState } from 'react';
+import { CustomFoodsProps } from '@/pages/meal-plan';
+import {
+  Avatar,
+  Button,
+  Card,
+  CardBody,
+  Typography
+} from '@material-tailwind/react';
+import React, { useEffect, useState } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import TrashBin from '@/assets/homepage/trashbinremv.png';
+import Image from 'next/image';
+import { Pagination } from 'swiper/modules';
+import { type Swiper as SwiperInstance } from 'swiper';
 
-interface CustomInput {
-  imagemeal: string;
-  customeal: string;
-  mealkalori: string;
-  amountmeal: number;
+interface MealCustomInterface {
+  data: CustomFoodsProps[];
+  onDelete: (mealName: string) => void;
 }
-const MealPlanSection2 = () => {
-  const [buttonClicked, setButtonClicked] = useState<boolean>(false);
-  const [count, setCount] = useState<number>(0);
-  const [formInput, setFormInput] = useState<CustomInput>({
-    imagemeal: '',
-    customeal: '',
-    mealkalori: '',
-    amountmeal: 0
-  });
-  const { imagemeal, customeal, mealkalori, amountmeal } = formInput;
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormInput((prevState) => ({ ...prevState, [name]: value }));
-  };
-  const handleClickCustom = () => {
-    setButtonClicked(!buttonClicked);
-  };
-  const handleIncrement = () => {
-    setCount(count + 1);
-  };
-  const handleDecrement = () => {
-    setCount(count > 0 ? count - 1 : 0);
-  };
+interface CustomMealPagination {
+  totalSlides: number;
+  activeSlides: number;
+  onClick: (idx: number) => void;
+}
+
+const CustomMealPagination: React.FC<CustomMealPagination> = ({
+  totalSlides,
+  activeSlides,
+  onClick
+}) => {
   return (
-    <div className='flex flex-col gap-2 w-full items-start justify-between px-2'>
-      <Typography className='font-poppins font-semibold text-lg md:text-2xl text-green-500 capitalize'>
-        custom personal meal
-      </Typography>
-      <Button
-        onClick={handleClickCustom}
-        className='border rounded-xl border-green-500 py-3 px-2 w-32 h-15 md:w-40 bg-[#132A2E] text-sm md:text-lg  text-green-500'
-      >
-        {buttonClicked ? '- close meal' : '+ add meal'}
-      </Button>
-      {buttonClicked && (
-        <Card className='w-full border border-green-500 rounded-xl'>
-          <CardBody className='flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3'>
-            <div className='flex flex-col gap-2 w-full'>
-              <label className='text-green-500 font-poppins font-normal text-lg md:text-xl capitalize'>
-                custom meal image
-              </label>
-              <input
-                name='avatar'
-                value={imagemeal}
-                onChange={handleOnChange}
-                type='file'
-                className='border flex items-center justify-center text-center border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2 focus:border-2 focus:border-green-500 '
-                placeholder='custom meal'
+    <div className='flex w-full justify-center items-center gap-4'>
+      {totalSlides !== 0 && totalSlides !== null
+        ? Array.from({ length: totalSlides }).map((_, idx: number) => {
+            return (
+              <div
+                onClick={() => {
+                  onClick(idx);
+                }}
+                key={idx}
+                className={`md:hidden flex cursor-pointer ${
+                  activeSlides !== idx
+                    ? 'rounded-[75px] h-2 w-2 bg-[#E9E9E9]'
+                    : 'rounded-[75px] w-7 md:w-10 h-2 bg-green-500'
+                }`}
               />
-            </div>
-            <div className='flex flex-col gap-2 w-full'>
-              <label className='text-green-500 font-poppins font-normal text-lg md:text-xl capitalize'>
-                custom meal
-              </label>
-              <input
-                name='customeal'
-                value={customeal}
-                onChange={handleOnChange}
-                type='text'
-                className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2'
-                placeholder='custom meal'
-              />
-            </div>
-            <div className='flex flex-col gap-2 w-full'>
-              <label className='text-green-500 font-poppins font-normal text-lg md:text-xl capitalize'>
-                meal kalori
-              </label>
-              <input
-                name='mealkalori'
-                value={mealkalori}
-                onChange={handleOnChange}
-                type='text'
-                className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2'
-                placeholder='custom meal'
-              />
-            </div>
-            <div className='flex flex-col gap-2 w-full'>
-              <label className='text-green-500 font-poppins font-normal text-lg md:text-xl capitalize'>
-                amount meal
-              </label>
-              <div className='flex flex-row w-full gap-2 justify-between items-center'>
-                <div
-                  onClick={handleDecrement}
-                  className='border flex items-center justify-center border-green-500 rounded-full w-7 h-5 text-red-900'
-                >
-                  -
-                </div>
-                <input
-                  name='amountmeal'
-                  type='number'
-                  onChange={handleOnChange}
-                  value={amountmeal}
-                  className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2 text-center'
-                />
-                <div
-                  onClick={handleIncrement}
-                  className='border flex items-center justify-center border-green-500 rounded-full w-7 h-5 text-green-500'
-                >
-                  +
-                </div>
-              </div>
-              <div className='w-full justify-center flex flex-col items-center py-3'>
-                <Button className='border border-green-500 rounded-xl bg-green-500 w-40 h-10 text-white px-3 py-2 capitalize'>
-                  save
-                </Button>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      )}
+            );
+          })
+        : null}
     </div>
   );
 };
 
-export default MealPlanSection2;
+const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
+  console.log('data custom get food', data);
+  const [activeSlides, setActiveSlides] = useState<number>(0);
+  const [swiperInstance, setSwiperInstance] = useState<SwiperInstance | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (swiperInstance !== null) {
+      swiperInstance.on('slideChange', () => {
+        setActiveSlides(swiperInstance.realIndex);
+      });
+    }
+  }, [swiperInstance]);
+
+  const handlePaginationClicked = (idx: number): void => {
+    setActiveSlides(idx);
+    if (swiperInstance !== null) {
+      swiperInstance.slideToLoop(idx);
+    }
+
+    if (swiperInstance !== null) {
+      swiperInstance.autoplay.start();
+    }
+  };
+  return (
+    <div className='w-full flex flex-col items-center justify-center gap-3'>
+      <Swiper
+        breakpoints={{
+          320: { slidesPerView: 1 },
+          720: { slidesPerView: 3 },
+          1440: { slidesPerView: 5 }
+        }}
+        className='w-full gap-10'
+        spaceBetween={20}
+        modules={[Pagination]}
+        onSwiper={(swiper) => {
+          setSwiperInstance(swiper);
+        }}
+      >
+        <div className='flex flex-col gap-2 px-3'>
+          <Typography className='font-poppins font-semibold text-lg md:text-xl text-green-800 capitalise'>
+            your custom will appear here!
+          </Typography>
+          {data?.length > 0 && data?.length !== 0 && data?.length !== null ? (
+            data?.map((meal, idx: number) => {
+              const totalCal = Number(meal.unit) * meal.calories;
+              return (
+                <SwiperSlide key={idx} className='w-full'>
+                  <input type='checkbox' className='sr-only' />
+                  <div className='flex flex-row gap-10'>
+                    <Card className='w-56 cursor-pointer rounded-xl bg-white peer-checked:ring-blue-500 border-green-500  peer-checked:grayscale-0 active:scale-95 transition-all gap-10'>
+                      <CardBody className='w-80 flex h-40 flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 border-[3px] rounded-lg border-green-500'>
+                        <div className='w-full flex flex-row justify-end'>
+                          <Image
+                            src={TrashBin}
+                            alt=''
+                            className='w-5 h-5'
+                            onClick={() => {
+                              onDelete(meal.name);
+                            }}
+                          />
+                        </div>
+                        <div className='w-full flex justify-center gap-2'>
+                          <Typography
+                            className={`text-white font-poppins font-semibold text-xl md:text-xl capitalize md:${meal.name.length > 8 && `${meal.name?.slice(0, 7)} text-[18px]`}`}
+                          >
+                            {meal.name}
+                          </Typography>
+                        </div>
+                        <div className='flex flex-row gap-2 w-full justify-center'>
+                          <Typography className='text-white font-poppins font-semibold text-xs md:text-lg'>
+                            {`${meal.unit} portion`}
+                          </Typography>
+                        </div>
+                        <div className='flex flex-row gap-2 w-full items-center justify-center'>
+                          <Typography className='text-green-500 font-poppins font-normal text-xs md:text-xl capitalize'>
+                            {totalCal} cal
+                          </Typography>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </div>
+                </SwiperSlide>
+              );
+            })
+          ) : (
+            <div className='w-full border rounded-lg h-40 flex flex-col items-center justify-center border-green-500'>
+              <Typography className='text-xl text-white font-poppins font-semibold md:text-lg capitalize'>
+                no custom food
+              </Typography>
+            </div>
+          )}
+        </div>
+      </Swiper>
+      <CustomMealPagination
+        activeSlides={activeSlides}
+        totalSlides={data.length}
+        onClick={handlePaginationClicked}
+      />
+    </div>
+  );
+};
+
+export default MealPlanCustom;
