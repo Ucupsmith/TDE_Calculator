@@ -4,7 +4,7 @@ import { Button, Input, Typography } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 // Import necessary functions and types from mealService
 import { getMealHistory, updateMeal } from "@/services/mealService";
-import type { MealHistory, MealHistoryFood as ServiceMealHistoryFood } from "@/services/mealService"; // Alias imported type
+import type { MealHistory, MealHistoryFood as ServiceMealHistoryFood, MealUpdatePayload, MealUpdateFoodPayload } from "@/services/mealService"; // Alias imported type, import new types
 
 // Define a local interface for Food with quantity for editing purposes
 // This extends the base MealHistoryFood with a quantity field for the UI
@@ -34,14 +34,18 @@ const EditMealPage = () => {
 
       try {
         setLoading(true);
-        const history = await getMealHistory();
+        // Pass userId to getMealHistory
+        // Assuming currentUserId is available globally or from context/auth
+        // For now, using a hardcoded value like in index.tsx
+        const currentUserId = 1; // TEMPORARY: Use hardcoded ID
+        const history = await getMealHistory(currentUserId);
         const specificMeal = history.find(m => m.id === mealId);
 
         if (specificMeal) {
           // Map the fetched foods to include a default quantity for editing
           const editableFoods: EditableMealHistoryFood[] = specificMeal.foods.map(food => ({
             ...food,
-            quantity: 1, // Assuming a default quantity of 1 if not provided by backend
+            quantity: food.quantity ?? 0, // Use actual quantity from backend, default to 0 if null/undefined
           }));
 
           setMeal({
@@ -75,8 +79,8 @@ const EditMealPage = () => {
     setMeal({ ...meal, foods: newFoods });
   };
 
-  const handleRemoveFood = (idToRemove: number) => {
-    if (!meal) return;
+  const handleRemoveFood = (idToRemove: number | null) => {
+    if (!meal || idToRemove === null) return;
     const newFoods = meal.foods.filter(food => food.id !== idToRemove);
     setMeal({ ...meal, foods: newFoods });
   };
@@ -84,29 +88,21 @@ const EditMealPage = () => {
   const handleSave = async () => {
     if (!meal) return;
 
-    // Prepare updated data
-    const updatedData: Partial<MealHistory> = {
-      // We need to send the updated foods list back.
-      // Note: Backend updateMeal needs to handle this list and recalculate total calories, etc.
-      foods: meal.foods.map(food => ({ // Map back to service type, omitting 'quantity'
-        id: food.id, // Assuming food.id is the ID of the food item within this history entry
-        name: food.name,
-        calories: food.calories, // This might need adjustment if calories depend on quantity
-        unit: food.unit,
-        imageUrl: food.imageUrl,
-        mealType: food.mealType,
-        // Backend will need quantity info, but current service type doesn't have it.
-        // This is a point of mismatch with the backend API as currently defined/assumed.
-        // A proper backend API would accept foods with quantity.
-        // For this example, we'll send the current structure, assuming backend handles it or needs modification.
-      })),
-      // Removed caption from updatedData
-      // caption: caption,
+    // Prepare updated data with the new payload type
+    const updatedData: MealUpdatePayload = {
+      // Map foods to send only necessary update info (id and new quantity)
+      foods: meal.foods
+        .filter(food => food.quantity > 0 && food.id !== null) // Filter out items with quantity 0 AND ensure id is not null
+        .map(food => ({
+          id: food.id as number, // Cast to number as we filtered out nulls
+          quantity: food.quantity, // The updated quantity
+          // Backend will process this list to update/delete DailyMealFoodEntry entries
+        })), // Structure matches MealUpdatePayload
+      // Add other updateable fields here if any
     };
 
     try {
       // Call API to update meal
-      // Note: The backend needs to handle updates to the foods array and derived fields
       await updateMeal(meal.id, updatedData);
       toast.success("Meal updated successfully!");
       router.push("/meal-history"); // Redirect back to meal history
@@ -120,24 +116,23 @@ const EditMealPage = () => {
     router.push("/meal-history"); // Redirect back without saving
   };
 
-  // Keep grouping function
-  const groupFoodsByMealType = (foods: EditableMealHistoryFood[]) => {
+  // Group foods by isCustom status
+  const groupFoodsByIsCustom = (foods: EditableMealHistoryFood[]) => {
     return foods.reduce((acc, food) => {
-      if (!acc[food.mealType]) {
-        acc[food.mealType] = [];
+      const key = food.isCustom ? 'custom' : 'standard';
+      if (!acc[key]) {
+        acc[key] = [];
       }
-      acc[food.mealType].push(food);
+      acc[key].push(food);
       return acc;
     }, {} as Record<string, EditableMealHistoryFood[]>);
   };
 
-  // Keep label function
-  const getMealTypeLabel = (type: string) => {
+  // Keep label function (adjust for isCustom grouping if needed)
+  const getFoodGroupLabel = (type: string) => {
     const labels: Record<string, string> = {
-      breakfast: 'Breakfast',
-      lunch: 'Lunch',
-      dinner: 'Dinner',
-      snack: 'Snack'
+      standard: 'Standard Foods',
+      custom: 'Custom Foods',
     };
     return labels[type] || type;
   };
@@ -175,7 +170,7 @@ const EditMealPage = () => {
           {/* Summary Info Display (Read-only) */}
            <div className="flex flex-wrap gap-4 text-sm">
               <div className="bg-[#1e3a3d] px-3 py-1 rounded-lg">
-                <p className="text-gray-400">Calories: <span className="text-white font-bold">{meal.calories}</span></p>
+                <p className="text-gray-400">Calories: <span className="text-white font-bold">{meal.totalCalories}</span></p>
               </div>
               <div className="bg-[#1e3a3d] px-3 py-1 rounded-lg">
                 <p className="text-gray-400">TDEE Result: <span className="text-white font-bold">{meal.tdeeResult}</span></p>
@@ -189,14 +184,14 @@ const EditMealPage = () => {
           <div>
             <Typography className="text-white mb-4">Foods Consumed:</Typography>
             <div className="grid gap-4">
-              {Object.entries(groupFoodsByMealType(meal.foods)).map(([mealType, foods]) => (
-                <div key={mealType} className="bg-[#132A2E] rounded-lg p-4">
-                  <h3 className="text-[#34D399] font-semibold mb-3">{getMealTypeLabel(mealType)}</h3>
+              {Object.entries(groupFoodsByIsCustom(meal.foods)).map(([groupType, foods]) => (
+                <div key={groupType} className="bg-[#132A2E] rounded-lg p-4">
+                  <h3 className="text-[#34D399] font-semibold mb-3">{getFoodGroupLabel(groupType)}</h3>
                   <div className="space-y-3">
                     {foods.map((food) => (
                       <div key={food.id} className="flex items-center gap-4 p-3 rounded-lg bg-[#1e3a3d]"> {/* Added background for clarity */}
                          <img
-                            src={food.imageUrl}
+                            src={food.imageUrl ?? ''}
                             alt={food.name}
                             className="w-10 h-10 object-cover rounded-full"
                           />
