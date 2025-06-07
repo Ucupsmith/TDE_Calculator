@@ -35,7 +35,7 @@ const LoginComponent = (): JSX.Element => {
   } = useAuthLogin();
   useEffect(() => {
     if (errorParams === 'CredentialsSignin') {
-      setErrorMessage('Account not found or incorrect passwor');
+      setErrorMessage('Invalid email or password.');
     } else if (errorParams === 'OAuthAccountNotLinked') {
       setErrorMessage(
         'This email is already registered with another provider.'
@@ -148,7 +148,7 @@ const LoginComponent = (): JSX.Element => {
               )}
               <div className='flex flex-row gap-1'>
                 <Typography className='font-semibold font-poppins md:text-sm text-[12px] text-white'>
-                  Don’t have an Account?
+                  Don't have an Account?
                 </Typography>
                 <Typography
                   onClick={async () => await push('/auth/register')}
