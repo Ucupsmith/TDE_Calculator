@@ -1,5 +1,5 @@
 import TdeeCalculationComponent from '@/components/tdee-calculation/TdeeCalculationComponent';
-import { Goal } from '@/generated/prisma';
+
 import { TdeeFormType, useTdeeForm } from '@/hooks/useTdeeCalculation';
 import {
   saveTdeeCalculation,
