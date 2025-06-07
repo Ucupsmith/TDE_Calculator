@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Dialog, Typography } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
+import { mealService } from "@/services/mealService";
+import { getSession } from "next-auth/react";
 
 export function ButtonEdit({ onClick }: { onClick: () => void }) {
   return (
@@ -156,234 +158,48 @@ interface Meal {
 
 const MealHistory = () => {
   const router = useRouter();
-  const [mealHistory, setMealHistory] = useState<Meal[]>([
-        {
-            id: 1,
-            date: "1 April 2025",
-      calories: 1500,
-      foods: [
-        {
-          name: "rice",
-          weight: 100,
-          image: "/images/rice.png",
-        },
-        {
-          name: "Chicken Breast",
-          weight: 100,
-          image: "/images/breast.png",
-        },
-        {
-          name: "Tempe",
-          weight: 100,
-          image: "/images/tempe.png",
-        },
-        {
-          name: "Tofu",
-          weight: 100,
-          image: "/images/tofu.png",
-        }
-      ],
-      caption: "Great Progress! You reached 78% of your goal today!",
-        },
-        {
-            id: 2,
-            date: "2 April 2025",
-      calories: 1500,
-      foods: [
-        {
-          name: "rice",
-          weight: 100,
-          image: "/images/rice.png",
-        },
-        {
-          name: "Chicken Breast",
-          weight: 100,
-          image: "/images/breast.png",
-        },
-        {
-          name: "Tempe",
-          weight: 100,
-          image: "/images/tempe.png",
-        },
-        {
-          name: "Tofu",
-          weight: 100,
-          image: "/images/tofu.png",
-        }
-      ],
-      caption: "Great Progress! You reached 78% of your goal today!",
-        },
-         {
-            id: 3,
-            date: "3 April 2025",
-      calories: 1500,
-      foods: [
-        {
-          name: "rice",
-          weight: 100,
-          image: "/images/rice.png",
-        },
-        {
-          name: "Chicken Breast",
-          weight: 100,
-          image: "/images/breast.png",
-        },
-        {
-          name: "Tempe",
-          weight: 100,
-          image: "/images/tempe.png",
-        },
-        {
-          name: "Tofu",
-          weight: 100,
-          image: "/images/tofu.png",
-        }
-      ],
-      caption: "Great Progress! You reached 78% of your goal today!",
-        },
-         {
-            id: 4,
-            date: "4 April 2025",
-      calories: 1500,
-      foods: [
-        {
-          name: "rice",
-          weight: 100,
-          image: "/images/rice.png",
-        },
-        {
-          name: "Chicken Breast",
-          weight: 100,
-          image: "/images/breast.png",
-        },
-        {
-          name: "Tempe",
-          weight: 100,
-          image: "/images/tempe.png",
-        },
-        {
-          name: "Tofu",
-          weight: 100,
-          image: "/images/tofu.png",
-        }
-      ],
-      caption: "Great Progress! You reached 78% of your goal today!",
-    },
-    {
-      id: 5,
-      date: "5 April 2025",
-      calories: 1500,
-      foods: [
-        {
-          name: "rice",
-          weight: 100,
-          image: "/images/rice.png",
-        },
-        {
-          name: "Chicken Breast",
-          weight: 100,
-          image: "/images/breast.png",
-        },
-        {
-          name: "Tempe",
-          weight: 100,
-          image: "/images/tempe.png",
-        },
-        {
-          name: "Tofu",
-          weight: 100,
-          image: "/images/tofu.png",
-        }
-      ],
-      caption: "Great Progress! You reached 78% of your goal today!",
-    },
-    {
-      id: 6,
-      date: "6 April 2025",
-      calories: 1500,
-      foods: [
-        {
-          name: "rice",
-          weight: 100,
-          image: "/images/rice.png",
-        },
-        {
-          name: "Chicken Breast",
-          weight: 100,
-          image: "/images/breast.png",
-        },
-        {
-          name: "Tempe",
-          weight: 100,
-          image: "/images/tempe.png",
-        },
-        {
-          name: "Tofu",
-          weight: 100,
-          image: "/images/tofu.png",
-        }
-      ],
-      caption: "Great Progress! You reached 78% of your goal today!",
-    },
-    {
-      id: 7,
-      date: "7 April 2025",
-      calories: 1500,
-      foods: [
-        {
-          name: "rice",
-          weight: 100,
-          image: "/images/rice.png",
-        },
-        {
-          name: "Chicken Breast",
-          weight: 100,
-          image: "/images/breast.png",
-        },
-        {
-          name: "Tempe",
-          weight: 100,
-          image: "/images/tempe.png",
-        },
-        {
-          name: "Tofu",
-          weight: 100,
-          image: "/images/tofu.png",
-        }
-      ],
-      caption: "Great Progress! You reached 78% of your goal today!",
-    },
-    {
-      id: 8,
-      date: "8 April 2025",
-      calories: 1500,
-      foods: [
-        {
-          name: "rice",
-          weight: 100,
-          image: "/images/rice.png",
-        },
-        {
-          name: "Chicken Breast",
-          weight: 100,
-          image: "/images/breast.png",
-        },
-        {
-          name: "Tempe",
-          weight: 100,
-          image: "/images/tempe.png",
-        },
-        {
-          name: "Tofu",
-          weight: 100,
-          image: "/images/tofu.png",
-        }
-      ],
-      caption: "Great Progress! You reached 78% of your goal today!",
-    }
-  ]);
+  const [mealHistory, setMealHistory] = useState<Meal[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<Meal | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMealHistory = async () => {
+    try {
+      const session = await getSession();
+      const userId = session?.user?.userId;
+      const tdeeId = session?.user?.tdeeId;
+
+      if (!userId) {
+        toast.error("User information not found");
+        router.push("/auth/login");
+        return;
+      }
+
+      if (!tdeeId) {
+        toast.error("Please calculate your TDEE first");
+        router.push("/tdee-calculator");
+        return;
+      }
+
+      const response = await mealService.getMealHistory({
+        userId: userId.toString(),
+        tdeeId: tdeeId
+      });
+
+      if (response && response.history) {
+        setMealHistory(response.history);
+      }
+    } catch (error) {
+      console.error("Error fetching meal history:", error);
+      toast.error("Failed to fetch meal history");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMealHistory();
+  }, []);
 
   const handleEdit = (mealId: number) => {
     router.push(`/meal-history/${mealId}/edit`);
@@ -394,16 +210,40 @@ const MealHistory = () => {
     setDeleteModalOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (mealToDelete) {
-      setMealHistory(prevMeals => prevMeals.filter(meal => meal.id !== mealToDelete.id));
-      toast.success("Meal deleted successfully!");
-      setDeleteModalOpen(false);
-      setMealToDelete(null);
+      try {
+        const session = await getSession();
+        const userId = session?.user?.userId;
+
+        if (!userId) {
+          toast.error("User information not found");
+          router.push("/auth/login");
+          return;
+        }
+
+        await mealService.deleteMeal(mealToDelete.id, userId.toString());
+        setMealHistory(prevMeals => prevMeals.filter(meal => meal.id !== mealToDelete.id));
+        toast.success("Meal deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting meal:", error);
+        toast.error("Failed to delete meal");
+      } finally {
+        setDeleteModalOpen(false);
+        setMealToDelete(null);
+      }
     }
   };
 
-     return (
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Typography className="text-white">Loading...</Typography>
+      </div>
+    );
+  }
+
+  return (
     <div className="container mx-auto px-4">
       <motion.h1 
         initial={{ opacity: 0, y: -20 }}
@@ -416,82 +256,92 @@ const MealHistory = () => {
       
       <div className="grid gap-4">
         <AnimatePresence mode="popLayout">
-        {mealHistory.map((meal) => (
-            <motion.div 
-            key={meal.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ 
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
-                duration: 0.3 
-              }}
-              className="border-2 border-[#34D399] rounded-lg p-4 mb-4 shadow-lg hover:shadow-[#34D399]/20 transition-shadow"
+          {mealHistory.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center text-gray-400 py-8"
             >
+              No meal history found
+            </motion.div>
+          ) : (
+            mealHistory.map((meal) => (
+              <motion.div 
+                key={meal.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{ 
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30,
+                  duration: 0.3 
+                }}
+                className="border-2 border-[#34D399] rounded-lg p-4 mb-4 shadow-lg hover:shadow-[#34D399]/20 transition-shadow"
+              >
                 <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                        <h2 className="text-lg text-white font-semibold">{meal.date}</h2>
-                        <p className="text-gray-500 font-bold">Calories: {meal.calories}</p>
-                </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <h2 className="text-lg text-white font-semibold">{meal.date}</h2>
+                    <p className="text-gray-500 font-bold">Calories: {meal.calories}</p>
+                  </motion.div>
 
-                <motion.div 
-                  className="flex gap-2"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <ButtonEdit onClick={() => handleEdit(meal.id)} />
-                  <ButtonDelete onClick={() => handleDeleteClick(meal)} />
-                </motion.div>
+                  <motion.div 
+                    className="flex gap-2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <ButtonEdit onClick={() => handleEdit(meal.id)} />
+                    <ButtonDelete onClick={() => handleDeleteClick(meal)} />
+                  </motion.div>
                 </div>
 
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-              {meal.foods.map((food, index) => (
+                <motion.div 
+                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  {meal.foods.map((food, index) => (
+                    <motion.div 
+                      key={`${meal.id}-${food.name}-${index}`}
+                      className="flex items-center p-3 rounded-lg hover:bg-[#34D399]/5 transition-colors"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                    >
+                      <motion.img
+                        src={food.image}
+                        alt={food.name}
+                        className="w-8 h-8 object-cover rounded-full"
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                      />
+                      <div className="ml-3">
+                        <p className="text-white font-medium">{food.name}</p>
+                        <p className="text-gray-400 text-sm">{food.weight}g</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {meal.caption && (
                   <motion.div 
-                  key={`${meal.id}-${food.name}-${index}`}
-                    className="flex items-center p-3 rounded-lg hover:bg-[#34D399]/5 transition-colors"
+                    className="mt-4 p-3 bg-[#34D399]/10 rounded-lg"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index }}
-                >
-                    <motion.img
-                    src={food.image}
-                    alt={food.name}
-                    className="w-8 h-8 object-cover rounded-full"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  />
-                  <div className="ml-3">
-                    <p className="text-white font-medium">{food.name}</p>
-                    <p className="text-gray-400 text-sm">{food.weight}g</p>
-                  </div>
+                    transition={{ delay: 0.5 }}
+                  >
+                    <p className="text-[#34D399] italic">{meal.caption}</p>
                   </motion.div>
-              ))}
+                )}
               </motion.div>
-
-            {meal.caption && (
-                <motion.div 
-                  className="mt-4 p-3 bg-[#34D399]/10 rounded-lg"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                <p className="text-[#34D399] italic">{meal.caption}</p>
-                </motion.div>
-            )}
-            </motion.div>
-        ))}
+            ))
+          )}
         </AnimatePresence>
       </div>
 

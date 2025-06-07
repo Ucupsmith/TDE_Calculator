@@ -3,6 +3,7 @@ import Navbar from "@/components/navbar/Navbar";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
+import { getArticles, Article, createArticle, updateArticle, deleteArticle, getImageUrl } from "@/services/articleService";
 
 const ArticleCard = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -12,10 +13,35 @@ const ArticleCard = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [hasEnteredView, setHasEnteredView] = useState(false);
   const [glowId, setGlowId] = useState<number | null>(null);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const articleCardRef = useRef<HTMLDivElement>(null);
   const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
+
+  const fetchArticles = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await getArticles();
+      setArticles(data);
+    } catch (err: any) {
+      console.error('Error fetching articles:', err);
+      setError(
+        err.response 
+          ? `Error ${err.response.status}: ${err.response.data?.message || 'Failed to fetch articles'}`
+          : 'Failed to connect to the server. Please check if the backend is running.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArticles();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -58,61 +84,8 @@ const ArticleCard = () => {
     setGlowId(null);
   };
 
-  const articles = [
-    { id: 1, title: "Memahami TDEE: Kunci Mengelola Kebutuhan Kalori Harian Anda", imageSrc: "/tdee1.png", authorName: "Darrell Wijaya", authorImage: "/joko.jpg" },
-    { id: 2, title: "BMI dan BMR: Dasar Perhitungan TDEE", imageSrc: "/tdee2.jpg", authorName: "Darrell Wijaya", authorImage: "/joko.jpg" },
-    { id: 3, title: "Menghitung TDEE: Panduan Lengkap", imageSrc: "/tdee3.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 4, title: "Mengenal Faktor Aktivitas dalam Perhitungan TDEE", imageSrc: "/tdee4.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 5, title: "Strategi Mengatur Pola Makan Berdasarkan TDEE", imageSrc: "/tdee5.jpeg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 6, title: "Pentingnya TDEE untuk Program Penurunan Berat Badan", imageSrc: "/tdee6.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 7, title: "TDEE untuk Meningkatkan Massa Otot", imageSrc: "/tdee7.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 8, title: "Menjaga Berat Badan Ideal dengan Memahami TDEE", imageSrc: "/tdee8.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 9, title: "Peran TDEE dalam Perencanaan Gizi Harian", imageSrc: "/tdee9.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 10, title: "TDEE dan Kaitannya dengan Metabolisme Tubuh", imageSrc: "/tdee10.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 11, title: "Menghitung TDEE untuk Berbagai Jenis Olahraga", imageSrc: "/tdee11.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 12, title: "TDEE dan Pemilihan Jenis Makanan yang Tepat", imageSrc: "/tdee12.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 13, title: "TDEE dan Nutrisi untuk Atlet", imageSrc: "/tdee13.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 14, title: "TDEE dan Penuaan", imageSrc: "/tdee14.png", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 15, title: "TDEE dan Kehamilan", imageSrc: "/tdee15.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 16, title: "TDEE dan Penyakit Kronis", imageSrc: "/tdee16.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 17, title: "TDEE dan Nutrisi untuk Vegetarian/Vegan", imageSrc: "/tdee17.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 18, title: "TDEE dan Nutrisi untuk Atlet", imageSrc: "/tdee18.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 19, title: "TDEE dan Nutrisi untuk Remaja", imageSrc: "/tdee19.png", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 20, title: "TDEE dan Nutrisi untuk Lansia", imageSrc: "/tdee20.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 21, title: "Perbedaan Detail antara TDEE, BMR, dan RMR", imageSrc: "/tdee21.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 22, title: "Menghitung TDEE untuk Berbagai Bentuk Tubuh", imageSrc: "/tdee22.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 23, title: "TDEE dan Kaitannya dengan Kesehatan Hormonal", imageSrc: "/tdee23.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 24, title: "Mengapa TDEE Penting untuk Perjalanan Kesehatan Anda", imageSrc: "/tdee24.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 25, title: "Memanfaatkan TDEE untuk Mencapai Tujuan Penurunan Berat", imageSrc: "/tdee25.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 26, title: "Kesalahan Umum dalam Perhitungan TDEE", imageSrc: "/tdee26.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 27, title: "Menyesuaikan TDEE Sesuai Perubahan Musim", imageSrc: "/tdee27.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 28, title: "Menggunakan TDEE untuk Program Weight Loss Efektif", imageSrc: "/tdee28.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 29, title: "TDEE dan Konsistensi: Kunci Sukses Jangka Panjang", imageSrc: "/tdee29.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 30, title: "Mengintegrasikan TDEE dalam Gaya Hidup Sehat", imageSrc: "/tdee30.png", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 31, title: "TDEE untuk Performa Optimal dalam Olahraga Endurance", imageSrc: "/tdee31.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 32, title: "Bagaimana TDEE Mempengaruhi Tingkat Energi Anda", imageSrc: "/tdee32.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 33, title: "TDEE: Relevansinya dengan Gizi Harian", imageSrc: "/tdee33.png", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 34, title: "Pengaruh TDEE pada Kebiasaan Makan", imageSrc: "/tdee34.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 35, title: "Hubungan Antara TDEE dan Makronutrien", imageSrc: "/tdee35.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 36, title: "Menghitung TDEE untuk Latihan Intensitas Tinggi", imageSrc: "/tdee36.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 37, title: "Peran TDEE dalam Menjaga Kesehatan Optimal", imageSrc: "/tdee37.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 38, title: "TDEE dan Perannya dalam Kesehatan Metabolik", imageSrc: "/tdee38.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 39, title: "Mengapa TDEE Anda Mungkin Lebih Tinggi dari Perkiraan", imageSrc: "/tdee39.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 40, title: "Cara Mengintegrasikan TDEE dalam Gaya Hidup Anda", imageSrc: "/tdee40.jpeg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 41, title: "TDEE untuk Penurunan Berat Badan Cepat", imageSrc: "/tdee41.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 42, title: "TDEE dan Pengaruhnya pada Mood", imageSrc: "/tdee42.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 43, title: "Menghitung TDEE untuk Anak-anak dan Remaja", imageSrc: "/tdee43.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 44, title: "Peran TDEE dalam Pemulihan Pasca-Latihan", imageSrc: "/tdee44.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 45, title: "TDEE: Panduan untuk Vegetarian dan Vegan", imageSrc: "/tdee45.png", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 46, title: "Mengoptimalkan TDEE untuk Peningkatan Performa", imageSrc: "/tdee46.png", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 47, title: "TDEE dan Kesehatan Mental", imageSrc: "/tdee47.webp", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 48, title: "TDEE dan Kualitas Tidur", imageSrc: "/tdee48.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 49, title: "TDEE dan Manajemen Stres", imageSrc: "/tdee49.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-    { id: 50, title: "TDEE dan Kesehatan Sistem Imun", imageSrc: "/tdee50.jpg", authorName: "Arya Riyanto", authorImage: "/nilon.jpg" },
-  ];
-
   const filteredArticles = articles.filter(article => {
-    const searchContent = article.title + article.authorName;
+    const searchContent = article.title + (article.author?.name || '');
     return searchContent.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
@@ -151,6 +124,52 @@ const ArticleCard = () => {
       }
     })
   };
+
+  const handleCreateArticle = async (formData: FormData) => {
+    try {
+      const article = await createArticle(formData);
+      // Handle success (e.g., show notification, redirect)
+    } catch (error) {
+      // Handle error
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#34D399]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen text-[#34D399]">
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          className="h-16 w-16 text-[#34D399] opacity-75" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor"
+        >
+          <path 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            strokeWidth={1.5} 
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+          />
+        </svg>
+        <p className="text-lg font-medium mt-4">{error}</p>
+        <p className="text-sm text-gray-500 mb-4">Please check if the backend server is running</p>
+        <button
+          onClick={fetchArticles}
+          className="px-4 py-2 bg-[#34D399] text-white rounded-lg hover:bg-[#2bbd8c] transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -245,18 +264,18 @@ const ArticleCard = () => {
             }}
           >
             {filteredArticles.map((article, index) => {
-              const isGlowing = glowId === article.id;
+              const isGlowing = glowId === article.article_id;
               return (
                 <motion.div
-                  key={article.id}
+                  key={article.article_id}
                   custom={index}
                   variants={cardVariants}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onTouchStart={() => handleTouchStart(article.id)}
+                  onTouchStart={() => handleTouchStart(article.article_id)}
                   onTouchEnd={handleTouchEnd}
                   onTouchCancel={handleTouchEnd}
-                  onClick={() => router.push(`/article/${article.id}`)}
+                  onClick={() => router.push(`/article/${article.article_id}`)}
                   className={`rounded-lg shadow-lg overflow-hidden cursor-pointer border transition duration-300 ${
                     isGlowing
                       ? "ring-4 ring-offset-2 ring-[#34D399] border-[#34D399]"
@@ -265,12 +284,16 @@ const ArticleCard = () => {
                 >
                   <div className="relative w-full h-48">
                     <Image
-                      src={article.imageSrc}
+                      src={getImageUrl(article.image_path)}
                       alt={article.title}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover object-center"
                       priority={index < 4}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/default-article.jpg';
+                      }}
                     />
                   </div>
                   <div className="p-4">
@@ -279,13 +302,13 @@ const ArticleCard = () => {
                     </h3>
                     <div className="flex items-center space-x-2 mt-2">
                       <Image
-                        src={article.authorImage}
-                        alt={article.authorName}
+                        src={article.author?.profile_image || '/default-avatar.jpg'}
+                        alt={article.author?.name || 'Author'}
                         width={30}
                         height={30}
                         className="rounded-full"
                       />
-                      <p className="text-xs text-[#666666] font-medium">{article.authorName}</p>
+                      <p className="text-xs text-[#666666] font-medium">{article.author?.name || 'Unknown Author'}</p>
                     </div>
                   </div>
                 </motion.div>

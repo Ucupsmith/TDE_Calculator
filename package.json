@@ -1,6 +1,7 @@
 {
   "name": "front-end",
   "version": "0.1.0",
+  "homepage": "http://tdeecalculation.xyz/",
   "private": true,
   "scripts": {
     "dev": "next dev",

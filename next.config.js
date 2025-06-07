@@ -1,22 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    webpack: (config) => {
-        config.module.rules.push({
-            test: /\.(ts|tsx)$/,
-            use: [
-                {
-                    loader: 'ts-loader',
-                    options: {
-                        transpileOnly: true,
-                    },
-                },
-            ],
-        });
-        return config;
-    },
-    images: {
-        domains: ['localhost'],
-    },
-}
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/images/articleImages/**',
+      },
+    ],
+  },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.tsx?$/,
+      use: [
+        {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true,
+          },
+        },
+      ],
+    });
+    return config;
+  },
+};
 
-module.exports = nextConfig; 
+module.exports = nextConfig;
