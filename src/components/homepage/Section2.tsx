@@ -10,6 +10,7 @@ import {
   getTdeeCalculationHome
 } from '@/repository/tdee.repository';
 import { useSession } from 'next-auth/react';
+import { useTdee } from '@/common/TdeeProvider';
 
 export interface TdeeProps {
   tdeeId?: string;
@@ -29,6 +30,7 @@ interface TdeePayloadDelete {
 }
 const Section2: React.FC = () => {
   const { data: session } = useSession();
+  const { setTdeeId } = useTdee();
   const userId = session?.user.userId as number;
   console.log('userId:', userId);
   // const { tdeeId } = useParams();
@@ -40,7 +42,7 @@ const Section2: React.FC = () => {
     threshold: 0.2
   });
 
-  const fetchDataTdee =(async (): Promise<void> => {
+  const fetchDataTdee = async (): Promise<void> => {
     if (!userId) {
       console.log(
         'fetchDataTdee: userId is falsy at the start of the function, returning early.'
@@ -52,9 +54,13 @@ const Section2: React.FC = () => {
       userId: userId,
       accessToken: session?.user?.accessToken as string
     };
-
     try {
       const historyData = await getTdeeCalculationHome(payload);
+      if (historyData.length > 0) {
+        const latestTdee = historyData[historyData.length - 1]; // Ambil data terbaru
+        setTdeeId(latestTdee.tdeeId); // ✅ Simpan ke context
+      }
+      console.log('getTdeeCalculation home menyala:', historyData);
       if (historyData && Array.isArray(historyData)) {
         setTdeeDisplay(historyData);
         setError(null); // Clear error jika berhasil
@@ -73,10 +79,8 @@ const Section2: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  })
-  ;
-
-  const deleteTdeeCalculation = (async (tdeeId: number) => {
+  };
+  const deleteTdeeCalculation = async (tdeeId: number) => {
     try {
       const payload: TdeePayloadDelete = {
         userId: userId,
@@ -91,21 +95,17 @@ const Section2: React.FC = () => {
         prev.filter((item) => Number(item.tdeeId) !== tdeeId)
       );
       await deleteSaveTdee(payload);
-      fetchDataTdee(); // Call fetchDataTdee after deletion
+      fetchDataTdee();
     } catch (error) {
       console.error('Error deleting TDEE data:', error);
-      // Handle error (e.g., show toast) if needed
     }
-  });
+  };
   useEffect(() => {
     if (userId) {
       fetchDataTdee();
     }
     void deleteTdeeCalculation;
   }, [userId]);
-
-  // Removed this empty useEffect hook:
-  // useEffect(() => {}, [inView]);
 
   return (
     <div className='w-full md:py-0 py-3 px-4 flex flex-col justify-center items-center gap-3'>
