@@ -22,12 +22,13 @@ export const getTdeeCalcualation = async (id: string): Promise<any> => {
 };
 
 export const tdeeCalculation = async (params: {
+  tdeeId?: number;
   gender: 'Male' | 'Female';
   weight: number;
   height: number;
   age: number;
   activity_level: string | any;
-  region?: string;
+  region?: 'asia';
   goal: 'LoseWeight' | 'MaintainWeight' | 'GainWeight';
 }): Promise<any> => {
   try {
@@ -101,6 +102,7 @@ export const saveTdeeCalculationToHome = async (params: {
   userId: number;
   tdee_result: number;
   accessToken: string;
+  goal?: string;
 }): Promise<any> => {
   try {
     const response = await tdeeService.post(
