@@ -23,6 +23,8 @@ import React, { useEffect, useState } from 'react';
 import DangerButton from '@/assets/mealplan/dangerbutton.svg';
 import LoadingMealPlan from '@/assets/mealplan/loadingmealplanpng-removebg-preview.png';
 import Image from 'next/image';
+import MealPlanEmptyState from '@/assets/mealplan/malplanemptystate-removebg-preview.png';
+import Link from 'next/link';
 
 interface MealRemainingResponse {
   totalCalories: number;
@@ -39,7 +41,7 @@ interface MealCalculate {
 }
 
 export interface CustomFoodsProps {
-  id?: number;
+  id: number;
   name: string;
   calories: number;
   unit: string | number;
@@ -59,7 +61,7 @@ interface MainFoodsPayload {
 }
 
 interface MealPayload {
-  id?: number;
+  id: number;
   name: string;
   calories: number;
   unit: string | number;
@@ -127,7 +129,6 @@ const MealPlanPage = () => {
       return;
     }
     try {
-      const timeOut = setTimeout(() => 5000);
       setLoading(true);
       const payload: MealCalculate = {
         tdeeId: tdeeId,
@@ -141,7 +142,6 @@ const MealPlanPage = () => {
         setMealRemaining(null);
         console.log('MealRemaining null:', response);
       }
-      return clearTimeout(timeOut);
     } catch (error) {
       console.log(`error get meal remaining: ${error}`);
     } finally {
@@ -188,6 +188,7 @@ const MealPlanPage = () => {
   const handleSelectedFoods = (food: MealPayload, checked: boolean): void => {
     if (checked === true) {
       const payload: MealPayload = {
+        id: food.id,
         name: food.name,
         calories: food.calories,
         unit: food.unit,
@@ -224,6 +225,7 @@ const MealPlanPage = () => {
 
   const handleSaveCustomFood = (data: CustomMealType) => {
     const payload: CustomFoodsProps = {
+      id: Number(data.id),
       isCustom: true,
       name: data.name,
       calories: data.calories,
@@ -318,9 +320,21 @@ const MealPlanPage = () => {
           </div>
         </div>
       ) : (
-        <Typography className='text-3xl text-green-500 font-poppins font-semibold capitalize'>
-          you have not calculate tdee
-        </Typography>
+        <div className='w-full flex flex-row justify-center'>
+          <div className='flex flex-col items-center gap-1 justify-center border-[5px] border-green-900 w-72 h-60 bg-[#132A2E] rounded-lg ring-green-500'>
+            <Image
+              src={MealPlanEmptyState}
+              alt={String(MealPlanEmptyState)}
+              className='w-32'
+            />
+            <Typography className='text-2xl md:text-3xl text-green-500 font-poppins font-semibold capitalize text-center'>
+              you have not calculate tdee
+            </Typography>
+            <Typography className='text-xs md:text-3xl text-green-500 font-poppins font-semibold capitalize text-center underline'>
+              <Link href={`/tdee-calculator`}> calculate your tdee now!</Link>
+            </Typography>
+          </div>
+        </div>
       )}
       <div className='border-2 border-b-green-500 w-full'></div>
       <div className='flex flex-col gap-2 w-full items-start justify-between px-2'>

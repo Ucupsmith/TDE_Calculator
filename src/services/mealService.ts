@@ -54,63 +54,101 @@ interface ApiError {
   data?: any;
 }
 
-// NOTE: The backend should aggregate data from UserMealSelection and TdeeCalculation
-// to return data in the MealHistory format for the frontend.
-
 // Get meal history
 export const getMealHistory = async (): Promise<MealHistory[]> => {
   try {
-    // TODO: Implement actual API call when backend is ready
-    // const response = await api.get<MealHistory[]>('/history');
-    // return response.data;
-
-    // TEMPORARY: Using dummy data structure for frontend development
-    // REMOVE THIS SECTION ONCE BACKEND API IS READY
     const dummyMealHistory: MealHistory[] = [
       {
         id: 1,
-        date: "1 April 2025",
+        date: '1 April 2025',
         calories: 1500, // Example total calories
         foods: [
-          { id: 1, name: "nasi", calories: 129, unit: "1 porsi", imageUrl: "/images/nasi.png", mealType: "lunch" },
-          { id: 2, name: "dada ayam", calories: 195, unit: "1 porsi", imageUrl: "/images/dada_ayam.png", mealType: "lunch" },
-          { id: 3, name: "tempe", calories: 175, unit: "1 buah", imageUrl: "/images/tempe.png", mealType: "lunch" },
+          {
+            id: 1,
+            name: 'nasi',
+            calories: 129,
+            unit: '1 porsi',
+            imageUrl: '/images/nasi.png',
+            mealType: 'lunch'
+          },
+          {
+            id: 2,
+            name: 'dada ayam',
+            calories: 195,
+            unit: '1 porsi',
+            imageUrl: '/images/dada_ayam.png',
+            mealType: 'lunch'
+          },
+          {
+            id: 3,
+            name: 'tempe',
+            calories: 175,
+            unit: '1 buah',
+            imageUrl: '/images/tempe.png',
+            mealType: 'lunch'
+          }
         ],
-        caption: "Day 1 progress!",
+        caption: 'Day 1 progress!',
         goal: 2000,
         tdee: 2500,
         tdeeResult: 2300,
-        calorieRemaining: 800,
+        calorieRemaining: 800
       },
       {
         id: 2,
-        date: "2 April 2025",
+        date: '2 April 2025',
         calories: 1800, // Example total calories
         foods: [
-          { id: 4, name: "brokoli", calories: 32, unit: "1 porsi", imageUrl: "/images/brokoli.png", mealType: "dinner" },
-          { id: 5, name: "wortel", calories: 41, unit: "1 porsi", imageUrl: "/images/wortel.png", mealType: "dinner" },
-          { id: 6, name: "salmon", calories: 208, unit: "100g", imageUrl: "/images/salmon.png", mealType: "dinner" },
+          {
+            id: 4,
+            name: 'brokoli',
+            calories: 32,
+            unit: '1 porsi',
+            imageUrl: '/images/brokoli.png',
+            mealType: 'dinner'
+          },
+          {
+            id: 5,
+            name: 'wortel',
+            calories: 41,
+            unit: '1 porsi',
+            imageUrl: '/images/wortel.png',
+            mealType: 'dinner'
+          },
+          {
+            id: 6,
+            name: 'salmon',
+            calories: 208,
+            unit: '100g',
+            imageUrl: '/images/salmon.png',
+            mealType: 'dinner'
+          }
         ],
-        caption: "Day 2 progress!",
+        caption: 'Day 2 progress!',
         goal: 2000,
         tdee: 2500,
         tdeeResult: 2450,
-        calorieRemaining: 650,
-      },
+        calorieRemaining: 650
+      }
     ];
     return Promise.resolve(dummyMealHistory); // Simulate async call with Promise
     // END OF TEMPORARY DUMMY DATA
-
   } catch (error) {
     console.error('Error fetching meal history:', error);
     // Handle API errors vs network errors
     const axiosError = error as AxiosError<ApiError>;
-    throw axiosError.response?.data || axiosError.message || 'Failed to fetch meal history';
+    throw (
+      axiosError.response?.data ||
+      axiosError.message ||
+      'Failed to fetch meal history'
+    );
   }
 };
 
 // Save meal plan to history (sends aggregated daily data to backend)
-export const saveMealPlanToHistory = async (mealPlan: Omit<MealHistory, 'id'>): Promise<MealHistory> => {
+export const saveMealPlanToHistory = async (
+  mealPlan: Omit<MealHistory, 'id'>
+): Promise<MealHistory> => {
   try {
     // TODO: Implement actual API call when backend is ready
     // This API call should send the aggregated daily meal data
@@ -123,11 +161,14 @@ export const saveMealPlanToHistory = async (mealPlan: Omit<MealHistory, 'id'>): 
     // In a real scenario, you'd typically update frontend state or refetch history here
     return Promise.resolve(dummySavedMeal); // Simulate async call
     // END OF TEMPORARY DUMMY
-
   } catch (error) {
     console.error('Error saving meal plan to history:', error);
-     const axiosError = error as AxiosError<ApiError>;
-    throw axiosError.response?.data || axiosError.message || 'Failed to save meal plan';
+    const axiosError = error as AxiosError<ApiError>;
+    throw (
+      axiosError.response?.data ||
+      axiosError.message ||
+      'Failed to save meal plan'
+    );
   }
 };
 
@@ -142,16 +183,20 @@ export const deleteMeal = async (mealId: number): Promise<void> => {
     console.log(`Simulating deleteMeal for ID: ${mealId}`);
     return Promise.resolve(); // Simulate async call
     // END OF TEMPORARY DUMMY
-
   } catch (error) {
     console.error('Error deleting meal:', error);
-     const axiosError = error as AxiosError<ApiError>;
-    throw axiosError.response?.data || axiosError.message || 'Failed to delete meal';
+    const axiosError = error as AxiosError<ApiError>;
+    throw (
+      axiosError.response?.data || axiosError.message || 'Failed to delete meal'
+    );
   }
 };
 
 // Update meal (updates a specific daily entry)
-export const updateMeal = async (mealId: number, mealData: Partial<MealHistory>): Promise<MealHistory> => {
+export const updateMeal = async (
+  mealId: number,
+  mealData: Partial<MealHistory>
+): Promise<MealHistory> => {
   try {
     // TODO: Implement actual API call when backend is ready
     // This API call should update the specific daily history entry by ID
@@ -159,14 +204,18 @@ export const updateMeal = async (mealId: number, mealData: Partial<MealHistory>)
     // return response.data;
 
     // TEMPORARY: Dummy implementation
-    const dummyUpdatedMeal: MealHistory = { id: mealId, ...mealData } as MealHistory; // Simulate finding and updating
-     console.log(`Simulating updateMeal for ID: ${mealId}`, dummyUpdatedMeal);
-     return Promise.resolve(dummyUpdatedMeal); // Simulate async call
+    const dummyUpdatedMeal: MealHistory = {
+      id: mealId,
+      ...mealData
+    } as MealHistory; // Simulate finding and updating
+    console.log(`Simulating updateMeal for ID: ${mealId}`, dummyUpdatedMeal);
+    return Promise.resolve(dummyUpdatedMeal); // Simulate async call
     // END OF TEMPORARY DUMMY
-
   } catch (error) {
     console.error('Error updating meal:', error);
-     const axiosError = error as AxiosError<ApiError>;
-    throw axiosError.response?.data || axiosError.message || 'Failed to update meal';
+    const axiosError = error as AxiosError<ApiError>;
+    throw (
+      axiosError.response?.data || axiosError.message || 'Failed to update meal'
+    );
   }
-}; 
+};

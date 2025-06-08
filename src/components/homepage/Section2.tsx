@@ -11,6 +11,7 @@ import {
 } from '@/repository/tdee.repository';
 import { useSession } from 'next-auth/react';
 import { useTdee } from '@/common/TdeeProvider';
+import { CustomSlidesPagination } from '../custom-pagination/CustomPaginationSlides';
 
 export interface TdeeProps {
   tdeeId?: string;
@@ -150,7 +151,7 @@ const Section2: React.FC = () => {
         <Typography className='text-white'>Loading TDEE data...</Typography>
       )}
       {error && <Typography className='text-red-500'>{error}</Typography>}
-      <div className='w-full px-3'>
+      <div className='w-full gap-2'>
         <CardBMI
           data={TdeeDisplay}
           loading={isLoading}
