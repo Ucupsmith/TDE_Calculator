@@ -32,6 +32,12 @@ const RegisterComponent = (): JSX.Element => {
     null
   );
   const [isRegist, setIsRegist] = useState<RegisterProps | boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const {
     register,
     handleSubmit,
@@ -180,13 +186,18 @@ const RegisterComponent = (): JSX.Element => {
               <div className='flex flex-col gap-1'>
                 <Input
                   crossOrigin={''}
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
                   placeholder='please insert a password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
                     className: 'hidden'
                   }}
                   {...register('password')}
+                  icon={
+                    <span onClick={togglePasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showPassword ? '👁️' : '🔒'}
+                    </span>
+                  }
                 />
                 {errors.password && (
                   <Typography className='font-poppins font-normal text-sm md:text-lg text-red-900'>
@@ -205,6 +216,12 @@ const RegisterComponent = (): JSX.Element => {
               >
                 {!isLoading ? 'Sign Up Now' : 'Sign up ...'}
               </Button>
+              <Typography
+                onClick={async () => await push('/auth/login')}
+                className='text-sm md:text-lg text-blue-800 underline cursor-pointer'
+              >
+                Login here!
+              </Typography>
               {!isLoading && registeredUser && (
                 <div className='flex flex-row gap-1 w-44 md:w-72 h-14 rounded-md border border-none bg-white items-center justify-center'>
                   <Image src={Checklist} alt={''} className='w-6' />
@@ -219,14 +236,6 @@ const RegisterComponent = (): JSX.Element => {
                     Account Already Exist!
                   </Typography>
                 </div>
-              )}
-              {registeredUser && (
-                <Typography
-                  onClick={async () => await push('/auth/login')}
-                  className='text-sm md:text-lg text-blue-800 underline cursor-pointer'
-                >
-                  Login here!
-                </Typography>
               )}
               <Typography className='font-semibold font-poppins text-[12px] text-white'>
                 or

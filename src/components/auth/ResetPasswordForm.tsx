@@ -12,6 +12,11 @@ import { z } from 'zod'; // Assuming Zod is used for schema validation
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPassword } from '@/repository/auth.repository'; // Make sure this function exists and works
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { setLocalStorage } from '@/utils/common/localStorage';
+import { getToken } from 'next-auth/jwt';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline'; // Import ArrowLeftIcon from heroicons
 
 // Define form schema using Zod
 const resetPasswordSchema = z.object({
@@ -41,6 +46,16 @@ const ResetPasswordForm = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false); // State to track success
+  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // New state for confirm password visibility
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   const onSubmit = async (data: ResetPasswordFormType) => {
     console.log('onSubmit called', data);
@@ -99,6 +114,13 @@ const ResetPasswordForm = () => {
               Enter your new password below
             </Typography>
           </div>
+          <button
+            onClick={() => router.push('/auth/login')}
+            className='flex items-center text-white hover:text-gray-300'
+          >
+            <ArrowLeftIcon className='h-5 w-5 mr-1' /> {/* Use ArrowLeftIcon */}
+            Back to Login
+          </button>
           <form onSubmit={handleSubmit(onSubmit)} className='md:w-96 w-72 flex flex-col px-3 gap-4'>
             {/* Password input fields */}
             <div className='w-full flex flex-col items-center justify-center gap-4'> {/* Adjust gap as needed */}
@@ -107,7 +129,7 @@ const ResetPasswordForm = () => {
                   New Password
                 </label>
                 <Input
-                  type='password' // Use type password
+                  type={showPassword ? 'text' : 'password'} // Use dynamic type based on state
                   placeholder='Enter new password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
@@ -116,6 +138,11 @@ const ResetPasswordForm = () => {
                   crossOrigin={''}
                   {...register('password')}
                   disabled={isLoading || resetSuccess}
+                  icon={ // Add icon to toggle visibility
+                    <span onClick={togglePasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showPassword ? '👁️' : '🔒'} {/* Using emojis for simplicity, replace with proper icons */}
+                    </span>
+                  }
                 />
                 {errors.password && (
                   <Typography color="red" className='font-poppins font-normal text-sm mt-1'>
@@ -128,7 +155,7 @@ const ResetPasswordForm = () => {
                   Confirm New Password
                 </label>
                 <Input
-                  type='password' // Use type password
+                  type={showConfirmPassword ? 'text' : 'password'} // Use dynamic type based on state
                   placeholder='Confirm new password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
@@ -137,6 +164,11 @@ const ResetPasswordForm = () => {
                   crossOrigin={''}
                   {...register('confirmPassword')}
                   disabled={isLoading || resetSuccess}
+                  icon={ // Add icon to toggle visibility
+                    <span onClick={toggleConfirmPasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showConfirmPassword ? '👁️' : '🔒'} {/* Using emojis for simplicity, replace with proper icons */}
+                    </span>
+                  }
                 />
                 {errors.confirmPassword && (
                   <Typography color="red" className='font-poppins font-normal text-sm mt-1'>
