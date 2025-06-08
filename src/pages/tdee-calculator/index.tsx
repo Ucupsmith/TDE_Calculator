@@ -79,16 +79,12 @@ const TdeeCalculatorPage = () => {
         } else {
           setCalculateTdee(null);
         }
-        console.log('calculateTdee', calculateTdee);
-        console.log('payload Tdee Success!', payloadTdee);
         if (!payloadTdee || typeof payloadTdee !== 'object') {
-          console.warn('TDEE payloadTdee invalid or empty:', payloadTdee);
           setCalculateTdee(null);
           return;
         }
 
         if (typeof payloadTdee === 'string') {
-          console.warn('TDEE calculation returned error message:', payloadTdee);
           setCalculateTdee(null);
           return;
         }
@@ -97,14 +93,9 @@ const TdeeCalculatorPage = () => {
           setCalculateTdee(payloadTdee);
           setIsModalOpen(true);
         } else {
-          console.warn(
-            'TDEE calculation response missing data property:',
-            payloadTdee
-          );
           setCalculateTdee(null);
         }
       } catch (error) {
-        console.error('Error fetching TDEE:', error);
         setCalculateTdee(null);
       } finally {
         setIsLoading(false);
@@ -125,7 +116,6 @@ const TdeeCalculatorPage = () => {
     const session = await getSession();
     const accessToken = session?.user.accessToken as string;
     const userId = session?.user.userId as number;
-    console.log(accessToken);
     try {
       setIsLoading(true);
       const payload: SaveTdeeCalculationInterface = {
@@ -135,23 +125,13 @@ const TdeeCalculatorPage = () => {
         goal: calculateTdee.goal
       };
       const response = await saveTdeeCalculationToHome(payload);
-      console.log('response save tdee', response);
       if (response) {
-        console.log('Berhasil menyimpan TDEE ke home.');
         if (response.data && response.data.id) {
           setTdeeId(response.data.id);
-          console.log('TDEE ID set in context/localStorage:', response.data.id);
-        } else {
-          console.warn('response.data.id is missing from backend response!', response);
         }
-      } else {
-        console.warn('Gagal menyimpan:', response);
       }
-      console.log('accessToken:', session?.user.accessToken);
-      console.log(response);
       return response;
     } catch (error) {
-      console.error('Error saat menyimpan:', error);
     } finally {
       setIsLoading(false);
     }

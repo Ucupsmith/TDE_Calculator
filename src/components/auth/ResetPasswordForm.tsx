@@ -58,14 +58,6 @@ const ResetPasswordForm = () => {
   };
 
   const onSubmit = async (data: ResetPasswordFormType) => {
-    console.log('onSubmit called', data);
-    // Check if token exists - Temporarily commented out for slicing view
-    // if (!token || typeof token !== 'string') {
-    //     setMessage('Invalid or missing reset token.');
-    //     setIsError(true);
-    //     return; // Stop the submission
-    // }
-
     setIsLoading(true);
     setMessage(null);
     setIsError(false);
@@ -82,7 +74,6 @@ const ResetPasswordForm = () => {
       // Removed automatic redirect to allow user to click the button
 
     } catch (error: any) {
-      console.error('Password reset failed:', error);
       // Display error message from backend if available, otherwise a generic one
       setMessage(error.response?.data?.message || 'Terjadi kesalahan saat mereset password.');
       setIsError(true);

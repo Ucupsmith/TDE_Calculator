@@ -44,8 +44,6 @@ const ProfilePages = () => {
       if (status === 'authenticated') {
         try {
           if (!session?.user.accessToken) {
-            console.error('Access token not available');
-            setLoading(false);
             return;
           }
           const payload: PayloadProfile = {
@@ -55,7 +53,6 @@ const ProfilePages = () => {
           const response = await getProfile(payload);
           const data = await response;
           if (!data) {
-            console.log('data null:', data);
           } else {
             setProfileData(data);
           }
@@ -72,7 +69,6 @@ const ProfilePages = () => {
           setProfileData(data);
           return data;
         } catch (error) {
-          console.error('Error fetching profile:', error);
           setLoading(false);
         }
       } else if (status === 'unauthenticated') {
@@ -84,21 +80,17 @@ const ProfilePages = () => {
   }, [session, status, setValue]);
 
   const handleEdit = () => {
-    console.log('handleEdit called');
     if (!session?.user.accessToken) {
-      console.error('Access token not available in handleEdit');
       return;
     }
     // Store the access token in localStorage when entering edit mode
     localStorage.setItem('user.accessToken', session.user.accessToken);
     setIsEditing(true);
-    console.log('isEditing set to true');
   };
 
   const onSubmit = async (data: ProfileFormType) => {
     try {
       if (!session?.user.accessToken) {
-        console.error('Access token not available');
         return;
       }
 
@@ -121,7 +113,6 @@ const ProfilePages = () => {
         reset(updatedData.data);
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
     }
   };
 

@@ -140,10 +140,8 @@ const MealPlanPage = () => {
         setMealRemaining(response);
       } else {
         setMealRemaining(null);
-        console.log('MealRemaining null:', response);
       }
     } catch (error) {
-      console.log(`error get meal remaining: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -158,7 +156,6 @@ const MealPlanPage = () => {
         setMainFoods([]);
       }
     } catch (error) {
-      console.log(`Error Retrieving Data Foods : ${error}`);
     } finally {
       setLoading(false);
     }
@@ -174,13 +171,10 @@ const MealPlanPage = () => {
         };
         const response = await addMainUserFoods(payload);
         if (response) {
-          console.log('berhasil ke kirim ke server!', response);
         } else {
           setSelectedFoods([]);
         }
-        console.log('error fetching data:', response);
       } catch (error) {
-        console.log('error retrieving data:', error);
       }
     }
   };
@@ -216,18 +210,9 @@ const MealPlanPage = () => {
   };
 
   useEffect(() => {
-    console.log('MealPlanPage useEffect triggered:');
-    console.log('Status:', status);
-    console.log('userId:', userId);
-    console.log('tdeeId:', tdeeId);
-    console.log('accessToken:', accessToken);
-
     if (userId && tdeeId && accessToken) {
-      console.log('All conditions met in MealPlanPage, fetching meal data and foods...');
       void fetchDataGetMeal();
       void fetchDataFoods();
-    } else {
-      console.log('Conditions not met in MealPlanPage, not fetching initial data.');
     }
   }, [userId, tdeeId, accessToken, status]);
 

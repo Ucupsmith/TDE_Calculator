@@ -67,17 +67,14 @@ const RegisterComponent = (): JSX.Element => {
         email: data.email,
         password: data.password
       });
-      console.log(response);
       if (response !== null) {
         setIsRegisteredUser(response);
       }
       reset();
     } catch (error: any) {
-      console.log(`fetch Data Error : ${error}`);
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data.message;
-        console.log('Axios error response:', status, message);
         if (status === 400 && message === 'Email Already Exist!') {
           setIsRegist(false);
           setIsRegisteredUser(null);
