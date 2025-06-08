@@ -1,3 +1,4 @@
+import { getTdeeCalcualation } from '@/repository/tdee.repository';
 import axios, { AxiosError } from 'axios';
 
 const API_URL = 'http://localhost:8000/user/v1/meal-selections';
@@ -55,95 +56,7 @@ interface ApiError {
 }
 
 // Get meal history
-export const getMealHistory = async (): Promise<MealHistory[]> => {
-  try {
-    const dummyMealHistory: MealHistory[] = [
-      {
-        id: 1,
-        date: '1 April 2025',
-        calories: 1500, // Example total calories
-        foods: [
-          {
-            id: 1,
-            name: 'nasi',
-            calories: 129,
-            unit: '1 porsi',
-            imageUrl: '/images/nasi.png',
-            mealType: 'lunch'
-          },
-          {
-            id: 2,
-            name: 'dada ayam',
-            calories: 195,
-            unit: '1 porsi',
-            imageUrl: '/images/dada_ayam.png',
-            mealType: 'lunch'
-          },
-          {
-            id: 3,
-            name: 'tempe',
-            calories: 175,
-            unit: '1 buah',
-            imageUrl: '/images/tempe.png',
-            mealType: 'lunch'
-          }
-        ],
-        caption: 'Day 1 progress!',
-        goal: 2000,
-        tdee: 2500,
-        tdeeResult: 2300,
-        calorieRemaining: 800
-      },
-      {
-        id: 2,
-        date: '2 April 2025',
-        calories: 1800, // Example total calories
-        foods: [
-          {
-            id: 4,
-            name: 'brokoli',
-            calories: 32,
-            unit: '1 porsi',
-            imageUrl: '/images/brokoli.png',
-            mealType: 'dinner'
-          },
-          {
-            id: 5,
-            name: 'wortel',
-            calories: 41,
-            unit: '1 porsi',
-            imageUrl: '/images/wortel.png',
-            mealType: 'dinner'
-          },
-          {
-            id: 6,
-            name: 'salmon',
-            calories: 208,
-            unit: '100g',
-            imageUrl: '/images/salmon.png',
-            mealType: 'dinner'
-          }
-        ],
-        caption: 'Day 2 progress!',
-        goal: 2000,
-        tdee: 2500,
-        tdeeResult: 2450,
-        calorieRemaining: 650
-      }
-    ];
-    return Promise.resolve(dummyMealHistory); // Simulate async call with Promise
-    // END OF TEMPORARY DUMMY DATA
-  } catch (error) {
-    console.error('Error fetching meal history:', error);
-    // Handle API errors vs network errors
-    const axiosError = error as AxiosError<ApiError>;
-    throw (
-      axiosError.response?.data ||
-      axiosError.message ||
-      'Failed to fetch meal history'
-    );
-  }
-};
+export const getMealHistory = () => {};
 
 // Save meal plan to history (sends aggregated daily data to backend)
 export const saveMealPlanToHistory = async (
