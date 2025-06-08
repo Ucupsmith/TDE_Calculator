@@ -54,7 +54,7 @@ const LoginComponent = (): JSX.Element => {
         const session = await getSession();
         const token = session?.user.accessToken;
         if (token) {
-          localStorage.setItem(token, 'accessToken');
+          localStorage.setItem('accessToken', token);
         }
         console.log(session?.user.accessToken);
       }
