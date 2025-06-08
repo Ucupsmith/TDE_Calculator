@@ -60,6 +60,7 @@ const ProfilePages = () => {
             setProfileData(data);
           }
           setValue('full_name', data.data.full_name || '');
+          setValue('phone_number', data.data.phone_number || '');
           setValue(
             'gender',
             data.data.gender === 'Male' || data.data.gender === 'Female'
@@ -108,6 +109,7 @@ const ProfilePages = () => {
         full_name: data.full_name,
         gender: data.gender,
         address: data.address,
+        phone_number: data.phone_number,
         accessToken: accessToken
       });
 
@@ -127,6 +129,7 @@ const ProfilePages = () => {
     if (profileData) {
       reset({
         full_name: profileData.full_name || '',
+        phone_number: profileData.phone_number || '',
         gender:
           profileData.gender === 'Male' || profileData.gender === 'Female'
             ? profileData.gender
@@ -187,8 +190,22 @@ const ProfilePages = () => {
       {/* Form Detail Profil */}
       <div className='flex flex-col space-y-4'>
         {/* Phone Number (Display Only) */}
-        <div className='bg-[#34D399] rounded-md p-3 text-center text-black'>
-          {profileData.phone_number || 'N/A'}
+        <div className='flex flex-col gap-1'>
+          <label className='text-white text-sm'>Phone Number</label>
+          <input
+            type='text'
+            placeholder='Phone Number'
+            {...register('phone_number')}
+            readOnly={!isEditing}
+            className={`bg-[#34D399] rounded-md p-3 text-sm text-black placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              !isEditing ? 'cursor-not-allowed' : ''
+            } ${isEditing ? 'relative z-50' : ''}`}
+          />
+          {errors.phone_number && (
+            <p className='text-red-500 text-xs mt-1'>
+              {errors.phone_number.message}
+            </p>
+          )}
         </div>
 
         {/* Full Name Input */}
