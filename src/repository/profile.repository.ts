@@ -22,7 +22,7 @@ export const getProfile = async (params: {
     }
     return response.data;
   } catch (error) {
-    // console.log(`Error Get Profile Data :${error}`); // Removed console.log
+    console.log(`Error Get Profile Data :${error}`);
   }
 };
 
@@ -34,7 +34,7 @@ export const updateProfile = async (params: {
   accessToken?: string;
 }): Promise<any> => {
   try {
-    // console.log('Updating profile with params:', params); // Removed console.log
+    console.log('Updating profile with params:', params); // Debug log
 
     const response = await profileService.patch('/profiles/', params, {
       headers: {
@@ -44,13 +44,13 @@ export const updateProfile = async (params: {
       }
     });
 
-    // console.log('Profile update response:', response.data); // Removed console.log
+    console.log('Profile update response:', response.data); // Debug log
     return response.data;
   } catch (error) {
-    // console.error('Error updating profile:', error); // Removed console.error
+    console.error('Error updating profile:', error);
     if (axios.isAxiosError(error)) {
-      // console.error('Response data:', error.response?.data); // Removed console.error
-      // console.error('Response status:', error.response?.status); // Removed console.error
+      console.error('Response data:', error.response?.data);
+      console.error('Response status:', error.response?.status);
     }
     throw error;
   }

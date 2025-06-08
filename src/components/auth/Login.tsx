@@ -61,6 +61,7 @@ const LoginComponent = (): JSX.Element => {
         if (token) {
           localStorage.setItem('accessToken', token);
         }
+        console.log(session?.user.accessToken);
       }
       reset();
       return result;

@@ -140,8 +140,10 @@ const MealPlanPage = () => {
         setMealRemaining(response);
       } else {
         setMealRemaining(null);
+        console.log('MealRemaining null:', response);
       }
     } catch (error) {
+      console.log(`error get meal remaining: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -156,6 +158,7 @@ const MealPlanPage = () => {
         setMainFoods([]);
       }
     } catch (error) {
+      console.log(`Error Retrieving Data Foods : ${error}`);
     } finally {
       setLoading(false);
     }
@@ -171,6 +174,7 @@ const MealPlanPage = () => {
         };
         const response = await addMainUserFoods(payload);
         if (response) {
+          console.log('berhasil ke kirim ke server!', response);
         } else {
           setSelectedFoods([]);
         }

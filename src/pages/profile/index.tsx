@@ -44,6 +44,7 @@ const ProfilePages = () => {
       if (status === 'authenticated') {
         try {
           if (!session?.user.accessToken) {
+            setLoading(false);
             return;
           }
           const payload: PayloadProfile = {
@@ -53,6 +54,7 @@ const ProfilePages = () => {
           const response = await getProfile(payload);
           const data = await response;
           if (!data) {
+            console.log('data null:', data);
           } else {
             setProfileData(data);
           }
@@ -69,6 +71,7 @@ const ProfilePages = () => {
           setProfileData(data);
           return data;
         } catch (error) {
+          console.error('Error fetching profile:', error);
           setLoading(false);
         }
       } else if (status === 'unauthenticated') {
@@ -80,7 +83,9 @@ const ProfilePages = () => {
   }, [session, status, setValue]);
 
   const handleEdit = () => {
+    console.log('handleEdit called');
     if (!session?.user.accessToken) {
+      console.error('Access token not available in handleEdit');
       return;
     }
     // Store the access token in localStorage when entering edit mode
@@ -91,6 +96,7 @@ const ProfilePages = () => {
   const onSubmit = async (data: ProfileFormType) => {
     try {
       if (!session?.user.accessToken) {
+        console.error('Access token not available');
         return;
       }
 
@@ -120,12 +126,12 @@ const ProfilePages = () => {
     if (profileData) {
       reset({
         full_name: profileData.full_name || '',
-        phone_number: profileData.phone_number || '',
         gender:
           profileData.gender === 'Male' || profileData.gender === 'Female'
             ? profileData.gender
             : undefined,
-        address: profileData.address || ''
+        address: profileData.address || '',
+        phone_number: profileData.phone_number || ''
       });
     }
     setIsEditing(false);
@@ -181,22 +187,8 @@ const ProfilePages = () => {
       {/* Form Detail Profil */}
       <div className='flex flex-col space-y-4'>
         {/* Phone Number (Display Only) */}
-        <div className='flex flex-col gap-1'>
-          <label className='text-white text-sm'>Phone Number</label>
-          <input
-            type='text'
-            placeholder='Phone Number'
-            {...register('phone_number')}
-            readOnly={!isEditing}
-            className={`bg-[#34D399] rounded-md p-3 text-sm text-black placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              !isEditing ? 'cursor-not-allowed' : ''
-            } ${isEditing ? 'relative z-50' : ''}`}
-          />
-          {errors.phone_number && (
-            <p className='text-red-500 text-xs mt-1'>
-              {errors.phone_number.message}
-            </p>
-          )}
+        <div className='bg-[#34D399] rounded-md p-3 text-center text-black'>
+          {profileData.phone_number || 'N/A'}
         </div>
 
         {/* Full Name Input */}

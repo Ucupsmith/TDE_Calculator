@@ -213,12 +213,6 @@ const RegisterComponent = (): JSX.Element => {
               >
                 {!isLoading ? 'Sign Up Now' : 'Sign up ...'}
               </Button>
-              <Typography
-                onClick={async () => await push('/auth/login')}
-                className='text-sm md:text-lg text-blue-800 underline cursor-pointer'
-              >
-                Login here!
-              </Typography>
               {!isLoading && registeredUser && (
                 <div className='flex flex-row gap-1 w-44 md:w-72 h-14 rounded-md border border-none bg-white items-center justify-center'>
                   <Image src={Checklist} alt={''} className='w-6' />
@@ -233,6 +227,14 @@ const RegisterComponent = (): JSX.Element => {
                     Account Already Exist!
                   </Typography>
                 </div>
+              )}
+              {registeredUser && (
+                <Typography
+                  onClick={async () => await push('/auth/login')}
+                  className='text-sm md:text-lg text-blue-800 underline cursor-pointer'
+                >
+                  Login here!
+                </Typography>
               )}
               <Typography className='font-semibold font-poppins text-[12px] text-white'>
                 or
