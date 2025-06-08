@@ -11,7 +11,7 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 
 export interface MealResponse {
-  id?: number;
+  id: number;
   name: string;
   calories: number;
   unit: string;
@@ -24,6 +24,7 @@ interface MealPayload {
   calories: number;
   unit: string;
   isCustom?: boolean;
+  id: number;
 }
 
 interface MealPlanProps {
@@ -84,9 +85,17 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                       >
                         <div className='border-[3px] border-seeds-green rounded-lg  flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3'>
                           <div className='flex flex-col gap-2 w-full items-center justify-center'>
-                            <img
-                              src={food.imageUrl}
-                              alt=''
+                            <Image
+                              src={
+                                food.imageUrl
+                                  ? food.imageUrl.startsWith('http')
+                                    ? food.imageUrl
+                                    : food.imageUrl.startsWith('/images/')
+                                      ? `http://localhost:8000${food.imageUrl}`
+                                      : `http://localhost:8000/images/${food.imageUrl}`
+                                  : `http://localhost:8000${food.imageUrl}`
+                              }
+                              alt={food.imageUrl}
                               width={50}
                               height={200}
                               className='flex items-center justify-center text-center bg-[#132A2E] w-40 h-20 text-white px-3 py-2'
@@ -142,9 +151,7 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
           )}
         </div>
       ) : (
-        <div className='flex flex-col items-center justify-center h-36 w-20'>
-          <Typography className=''>no result food found</Typography>
-        </div>
+        loading
       )}
     </div>
   );

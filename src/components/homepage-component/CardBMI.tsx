@@ -5,6 +5,9 @@ import { TdeeProps } from '../homepage/Section2';
 import Image from 'next/image';
 import TrashBin from '@/assets/homepage/trashbinremv.png';
 import { useTdee } from '@/common/TdeeProvider';
+import { CustomSlidesPagination } from '../custom-pagination/CustomPaginationSlides';
+import { Swiper as SwiperInstance } from 'swiper';
+import { Autoplay } from 'swiper/modules';
 
 interface PropsCardBmi {
   data: TdeeProps[];
@@ -13,8 +16,32 @@ interface PropsCardBmi {
 }
 
 const CardBMI: React.FC<PropsCardBmi> = ({ data, onDelete }) => {
+  const [activeSlides, setActiveSlides] = useState<number>(0);
+  const [swiperInstance, setSwiperInstance] = useState<SwiperInstance | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (swiperInstance !== null) {
+      swiperInstance.on('slideChange', () => {
+        setActiveSlides(swiperInstance.realIndex);
+      });
+    }
+  }, [swiperInstance]);
+
+  const handlePaginationClicked = (idx: number): void => {
+    setActiveSlides(idx);
+    if (swiperInstance !== null) {
+      swiperInstance.slideToLoop(idx);
+    }
+
+    if (swiperInstance !== null) {
+      swiperInstance.autoplay.start();
+    }
+  };
+
   return (
-    <div className='flex flex-row px-3'>
+    <div className='w-full flex flex-col gap-2 justify-center px-3'>
       <Swiper
         breakpoints={{
           320: { slidesPerView: 1 },
@@ -27,6 +54,9 @@ const CardBMI: React.FC<PropsCardBmi> = ({ data, onDelete }) => {
         pagination={{
           dynamicBullets: true
         }}
+        autoplay={{ delay: 5000 }}
+        modules={[Autoplay]}
+        onSwiper={(Swiper) => setSwiperInstance(Swiper)}
       >
         {data?.length > 0 ? (
           data?.map((item, idx: number) => {
@@ -72,6 +102,11 @@ const CardBMI: React.FC<PropsCardBmi> = ({ data, onDelete }) => {
           </div>
         )}
       </Swiper>
+      <CustomSlidesPagination
+        activeSlides={activeSlides}
+        onClick={handlePaginationClicked}
+        totalSlides={data?.length}
+      />
     </div>
   );
 };

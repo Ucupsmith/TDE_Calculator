@@ -11,7 +11,25 @@ interface TdeeContextProps {
 
 const TdeeContext = createContext<TdeeContextProps | null>(null);
 export const TdeeProvider: React.FC<TdeeProps> = ({ children }) => {
-  const [tdeeId, setTdeeId] = useState<number | null>(null);
+  const [tdeeId, setTdeeIdState] = useState<number | null>(() => {
+    if (typeof window !== 'undefined') {
+      const storedTdeeId = localStorage.getItem('tdeeId');
+      return storedTdeeId ? Number(storedTdeeId) : null;
+    }
+    return null;
+  });
+
+  const setTdeeId = (newTdeeId: number | null) => {
+    setTdeeIdState(newTdeeId);
+    if (typeof window !== 'undefined') {
+      if (newTdeeId !== null) {
+        localStorage.setItem('tdeeId', String(newTdeeId));
+      } else {
+        localStorage.removeItem('tdeeId');
+      }
+    }
+  };
+
   return (
     <TdeeContext.Provider value={{ tdeeId, setTdeeId }}>
       {children}
