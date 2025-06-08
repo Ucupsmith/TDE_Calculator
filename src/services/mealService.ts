@@ -1,3 +1,4 @@
+import { getTdeeCalcualation } from '@/repository/tdee.repository';
 import axios, { AxiosError } from 'axios';
 
 const API_URL = 'http://localhost:8000/user/v1'; // Base URL updated to include '/user/v1'
@@ -58,36 +59,8 @@ interface ApiError {
   data?: any;
 }
 
-// Define a type for the food items expected in the update payload
-export interface MealUpdateFoodPayload {
-  id: number; // ID of the DailyMealFoodEntry
-  quantity: number; // The updated quantity
-  // Add other fields here if the backend expects them for update
-  // e.g., isCustom: boolean; customName?: string; customCalories?: number;
-}
-
-// Define a type for the meal data expected in the update payload
-export interface MealUpdatePayload {
-  // Include only the fields that can be updated for a meal history entry
-  foods: MealUpdateFoodPayload[];
-  // Add other top-level fields here if they can be updated (e.g., caption, date - but date is read-only in UI)
-}
-
-// NOTE: The backend now aggregates data from DailyMealHistory and DailyMealFoodEntry.
-
-// Get meal history - Now accepts userId as a parameter again, sent as a query parameter
-export const getMealHistory = async (userId: number): Promise<MealHistory[]> => {
-  try {
-    const response = await api.get<MealHistory[]>(`/meal-plans/history?userId=${userId}`); // Send userId as query parameter
-    return response.data;
-
-  } catch (error) {
-    console.error('Error fetching meal history:', error);
-    // Handle API errors vs network errors
-    const axiosError = error as AxiosError<ApiError>;
-    throw axiosError.response?.data || axiosError.message || 'Failed to fetch meal history';
-  }
-};
+// Get meal history
+export const getMealHistory = () => {};
 
 // Save meal plan to history (sends aggregated daily data to backend)
 export const saveMealPlanToHistory = async (mealPlan: Omit<MealHistory, 'id'>): Promise<MealHistory> => {
@@ -125,19 +98,3 @@ export const deleteMeal = async (mealId: number): Promise<void> => {
 
 // Update meal (updates a specific daily entry)
 // Now accepts a payload with the updated foods list
-export const updateMeal = async (mealId: number, mealData: MealUpdatePayload): Promise<MealHistory> => {
-  try {
-    // TODO: Implement actual API call when backend is ready
-    // This API call should update the specific daily history entry by ID and its related food entries
-    const response = await api.put<MealHistory>(`/meal-plans/history/${mealId}`, mealData);
-    return response.data;
-
-    // TEMPORARY: Dummy implementation - REMOVED
-    // ... existing code ...
-
-  } catch (error) {
-    console.error('Error updating meal:', error);
-     const axiosError = error as AxiosError<ApiError>;
-    throw axiosError.response?.data || axiosError.message || 'Failed to update meal';
-  }
-}; 
