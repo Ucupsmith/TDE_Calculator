@@ -16,6 +16,7 @@ import {
 import { getSession, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTdee } from '@/common/TdeeProvider';
 import LoadingTdee from '@/assets/tdee-calculator/loadingTdee.png';
 
 interface TdeeCalculateInterface {
@@ -59,6 +60,7 @@ const TdeeCalculatorPage = () => {
   const formWatch = watch();
   const [calculateTdee, setCalculateTdee] =
     useState<TdeeCalculateInterface | null>(null);
+  const { setTdeeId } = useTdee();
   const fetchDataTdee = useCallback(
     async (data: TdeeFormType): Promise<void> => {
       try {
@@ -136,6 +138,12 @@ const TdeeCalculatorPage = () => {
       console.log('response save tdee', response);
       if (response) {
         console.log('Berhasil menyimpan TDEE ke home.');
+        if (response.data && response.data.id) {
+          setTdeeId(response.data.id);
+          console.log('TDEE ID set in context/localStorage:', response.data.id);
+        } else {
+          console.warn('response.data.id is missing from backend response!', response);
+        }
       } else {
         console.warn('Gagal menyimpan:', response);
       }

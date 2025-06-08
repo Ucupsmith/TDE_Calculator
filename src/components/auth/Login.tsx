@@ -25,6 +25,11 @@ const LoginComponent = (): JSX.Element => {
   const searchParams = useSearchParams();
   const errorParams = searchParams.get('error');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const {
     register,
@@ -111,7 +116,7 @@ const LoginComponent = (): JSX.Element => {
               </label>
               <div className='flex flex-col gap-1'>
                 <Input
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
                   placeholder='please insert your password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
@@ -119,6 +124,11 @@ const LoginComponent = (): JSX.Element => {
                   }}
                   crossOrigin={''}
                   {...register('password')}
+                  icon={
+                    <span onClick={togglePasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showPassword ? '👁️' : '🔒'}
+                    </span>
+                  }
                 />
                 {errors.password && (
                   <Typography className='font-poppins font-normal text-red-900 text-sm md:text-lg'>
