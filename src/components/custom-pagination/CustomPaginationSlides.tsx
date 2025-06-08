@@ -7,7 +7,7 @@ interface CustomSlidesPagination {
   onClick: (idx: number) => void;
 }
 
-const CustomSlidesPagination: React.FC<CustomSlidesPagination> = ({
+export const CustomSlidesPagination: React.FC<CustomSlidesPagination> = ({
   totalSlides,
   activeSlides,
   onClick
