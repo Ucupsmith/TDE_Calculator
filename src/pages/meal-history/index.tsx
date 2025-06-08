@@ -3,8 +3,8 @@ import { Button, Dialog, Typography } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
-import { mealService } from "@/services/mealService";
-import { getSession } from "next-auth/react";
+import { getMealHistory, deleteMeal } from "@/services/mealService";
+import type { MealHistory, MealHistoryFood } from "@/services/mealService";
 
 export function ButtonEdit({ onClick }: { onClick: () => void }) {
   return (
@@ -142,70 +142,35 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, m
   );
 };
 
-interface Food {
-  name: string;
-  weight: number;
-  image: string;
-}
-
-interface Meal {
-  id: number;
-  date: string;
-  calories: number;
-  foods: Food[];
-  caption: string;
-}
-
 const MealHistory = () => {
   const router = useRouter();
-  const [mealHistory, setMealHistory] = useState<Meal[]>([]);
+  const [mealHistory, setMealHistory] = useState<MealHistory[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [mealToDelete, setMealToDelete] = useState<Meal | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchMealHistory = async () => {
-    try {
-      const session = await getSession();
-      const userId = session?.user?.userId;
-      const tdeeId = session?.user?.tdeeId;
-
-      if (!userId) {
-        toast.error("User information not found");
-        router.push("/auth/login");
-        return;
-      }
-
-      if (!tdeeId) {
-        toast.error("Please calculate your TDEE first");
-        router.push("/tdee-calculator");
-        return;
-      }
-
-      const response = await mealService.getMealHistory({
-        userId: userId.toString(),
-        tdeeId: tdeeId
-      });
-
-      if (response && response.history) {
-        setMealHistory(response.history);
-      }
-    } catch (error) {
-      console.error("Error fetching meal history:", error);
-      toast.error("Failed to fetch meal history");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [mealToDelete, setMealToDelete] = useState<MealHistory | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchMealHistory();
   }, []);
 
+  const fetchMealHistory = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getMealHistory();
+      setMealHistory(data);
+    } catch (error) {
+      toast.error("Failed to fetch meal history");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleEdit = (mealId: number) => {
     router.push(`/meal-history/${mealId}/edit`);
   };
 
-  const handleDeleteClick = (meal: Meal) => {
+  const handleDeleteClick = (meal: MealHistory) => {
     setMealToDelete(meal);
     setDeleteModalOpen(true);
   };
@@ -213,21 +178,12 @@ const MealHistory = () => {
   const handleDeleteConfirm = async () => {
     if (mealToDelete) {
       try {
-        const session = await getSession();
-        const userId = session?.user?.userId;
-
-        if (!userId) {
-          toast.error("User information not found");
-          router.push("/auth/login");
-          return;
-        }
-
-        await mealService.deleteMeal(mealToDelete.id, userId.toString());
+        await deleteMeal(mealToDelete.id);
         setMealHistory(prevMeals => prevMeals.filter(meal => meal.id !== mealToDelete.id));
         toast.success("Meal deleted successfully!");
       } catch (error) {
-        console.error("Error deleting meal:", error);
         toast.error("Failed to delete meal");
+        console.error(error);
       } finally {
         setDeleteModalOpen(false);
         setMealToDelete(null);
@@ -235,10 +191,30 @@ const MealHistory = () => {
     }
   };
 
-  if (loading) {
+  const groupFoodsByMealType = (foods: MealHistoryFood[]) => {
+    return foods.reduce((acc, food) => {
+      if (!acc[food.mealType]) {
+        acc[food.mealType] = [];
+      }
+      acc[food.mealType].push(food);
+      return acc;
+    }, {} as Record<string, MealHistoryFood[]>);
+  };
+
+  const getMealTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      breakfast: 'Breakfast',
+      lunch: 'Lunch',
+      dinner: 'Dinner',
+      snack: 'Snack'
+    };
+    return labels[type] || type;
+  };
+
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Typography className="text-white">Loading...</Typography>
+      <div className="container mx-auto px-4 flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#34D399]"></div>
       </div>
     );
   }
@@ -254,18 +230,14 @@ const MealHistory = () => {
         Meal Plan History
       </motion.h1>
       
-      <div className="grid gap-4">
-        <AnimatePresence mode="popLayout">
-          {mealHistory.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center text-gray-400 py-8"
-            >
-              No meal history found
-            </motion.div>
-          ) : (
-            mealHistory.map((meal) => (
+      {mealHistory.length === 0 ? (
+        <div className="text-center text-gray-400 py-8">
+          No meal history found. Start tracking your meals!
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          <AnimatePresence mode="popLayout">
+            {mealHistory.map((meal) => (
               <motion.div 
                 key={meal.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -286,7 +258,17 @@ const MealHistory = () => {
                     transition={{ delay: 0.2 }}
                   >
                     <h2 className="text-lg text-white font-semibold">{meal.date}</h2>
-                    <p className="text-gray-500 font-bold">Calories: {meal.calories}</p>
+                    <div className="flex flex-wrap gap-2 text-sm">
+                      <div className="bg-[#1e3a3d] px-3 py-1 rounded-lg">
+                        <p className="text-gray-400">Calories: <span className="text-white font-bold">{meal.calories}</span></p>
+                      </div>
+                      <div className="bg-[#1e3a3d] px-3 py-1 rounded-lg">
+                        <p className="text-gray-400">TDEE Result: <span className="text-white font-bold">{meal.tdeeResult}</span></p>
+                      </div>
+                      <div className="bg-[#1e3a3d] px-3 py-1 rounded-lg">
+                        <p className="text-gray-400">Remaining: <span className="text-white font-bold">{meal.calorieRemaining}</span></p>
+                      </div>
+                    </div>
                   </motion.div>
 
                   <motion.div 
@@ -301,49 +283,46 @@ const MealHistory = () => {
                 </div>
 
                 <motion.div 
-                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4"
+                  className="grid gap-4 mb-4"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  {meal.foods.map((food, index) => (
-                    <motion.div 
-                      key={`${meal.id}-${food.name}-${index}`}
-                      className="flex items-center p-3 rounded-lg hover:bg-[#34D399]/5 transition-colors"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 * index }}
-                    >
-                      <motion.img
-                        src={food.image}
-                        alt={food.name}
-                        className="w-8 h-8 object-cover rounded-full"
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                      />
-                      <div className="ml-3">
-                        <p className="text-white font-medium">{food.name}</p>
-                        <p className="text-gray-400 text-sm">{food.weight}g</p>
+                  {Object.entries(groupFoodsByMealType(meal.foods)).map(([mealType, foods]) => (
+                    <div key={mealType} className="bg-[#132A2E] rounded-lg p-4">
+                      <h3 className="text-[#34D399] font-semibold mb-3">{getMealTypeLabel(mealType)}</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {foods.map((food: MealHistoryFood) => (
+                          <motion.div 
+                            key={food.id}
+                            className="flex items-center p-3 rounded-lg hover:bg-[#34D399]/5 transition-colors"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                          >
+                            <motion.img
+                              src={food.imageUrl}
+                              alt={food.name}
+                              className="w-8 h-8 object-cover rounded-full"
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                            />
+                            <div className="ml-3">
+                              <p className="text-white font-medium">{food.name}</p>
+                              <p className="text-gray-400 text-sm">{food.calories} calories • {food.unit}</p>
+                            </div>
+                          </motion.div>
+                        ))}
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </motion.div>
 
-                {meal.caption && (
-                  <motion.div 
-                    className="mt-4 p-3 bg-[#34D399]/10 rounded-lg"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <p className="text-[#34D399] italic">{meal.caption}</p>
-                  </motion.div>
-                )}
               </motion.div>
-            ))
-          )}
-        </AnimatePresence>
-      </div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
 
       <DeleteModal
         isOpen={deleteModalOpen}

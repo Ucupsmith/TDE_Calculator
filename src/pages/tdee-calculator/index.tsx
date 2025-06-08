@@ -15,6 +15,7 @@ import {
 } from '@material-tailwind/react';
 import { getSession, useSession } from 'next-auth/react';
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTdeeCalculator } from '@/hooks/useTdeeCalculator';
 
 interface TdeeCalculateInterface {
   bmi: number;
@@ -28,6 +29,7 @@ export interface SaveTdeeCalculationInterface {
   userId: number;
   tdee_result: number;
   accessToken: string;
+  goal: string;
 }
 
 const ActivityLevel = [
@@ -56,62 +58,8 @@ const TdeeCalculatorPage = () => {
   const formWatch = watch();
   const [calculateTdee, setCalculateTdee] =
     useState<TdeeCalculateInterface | null>(null);
-  const fetchDataTdee = useCallback(
-    async (data: TdeeFormType): Promise<void> => {
-      setIsLoading(true);
-      try {
-        const payloadTdee = await tdeeCalculation({
-          gender: data.gender,
-          age: data.age,
-          weight: data.weight,
-          height: data.height,
-          goal: data.goal,
-          activity_level: data.activity_level
-        });
-        if (payloadTdee !== null && payloadTdee !== 0) {
-          setCalculateTdee(payloadTdee);
-          setIsModalOpen(payloadTdee);
-        } else {
-          setCalculateTdee(null);
-        }
-        console.log('calculateTdee', calculateTdee);
-        console.log('payload Tdee Success!', payloadTdee);
-        if (!payloadTdee || typeof payloadTdee !== 'object') {
-          console.warn('TDEE payloadTdee invalid or empty:', payloadTdee);
-          setCalculateTdee(null);
-          return;
-        }
+  const { fetchDataTdee } = useTdeeCalculator();
 
-        if (typeof payloadTdee === 'string') {
-          console.warn('TDEE calculation returned error message:', payloadTdee);
-          setCalculateTdee(null);
-          return;
-        }
-
-        if (payloadTdee) {
-          setCalculateTdee(payloadTdee);
-          setIsModalOpen(true);
-        } else {
-          console.warn(
-            'TDEE calculation response missing data property:',
-            payloadTdee
-          );
-          setCalculateTdee(null);
-        }
-      } catch (error) {
-        console.error('Error fetching TDEE:', error);
-        setCalculateTdee(null);
-      } finally {
-        setIsLoading(false);
-        reset({
-          goal: 'MaintainWeight',
-          gender: 'Male',
-          activity_level: 'Sedentary'
-        });
-      }
-    },
-    [reset]
-  );
   const handleSaveTdee = async () => {
     if (!calculateTdee) {
       return;
@@ -124,7 +72,8 @@ const TdeeCalculatorPage = () => {
       const payload: SaveTdeeCalculationInterface = {
         userId: userId,
         tdee_result: calculateTdee.tdee,
-        accessToken: accessToken
+        accessToken: accessToken,
+        goal: calculateTdee.goal
       };
       const response = await saveTdeeCalculationToHome(payload);
       console.log('response save tdee', response);
@@ -140,13 +89,22 @@ const TdeeCalculatorPage = () => {
       console.error('Error saat menyimpan:', error);
     }
   };
+
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    calculateTdee();
+  }, [calculateTdee]);
+
   useEffect(() => {
-    void fetchDataTdee;
-    void saveTdeeCalculationToHome;
-  }, []);
+    if (userId) {
+      fetchDataTdee();
+    }
+  }, [userId, fetchDataTdee]);
+
   const handleButtonClick = (): void => {
     setButtonClicked(!buttonClicked);
   };
+
   return (
     <div className='w-full md:items-center h-auto flex flex-col justify-evenly gap-3 md:space-y-10 '>
       <Typography className='text-center flex items-center justify-center md:hidden text-[#34D399] font-poppins font-semibold text-lg md:text-4xl capitalize h-20'>

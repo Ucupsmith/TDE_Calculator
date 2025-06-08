@@ -2,6 +2,22 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    domains: [
+      'localhost',
+      'slashdot.org',
+      'consent.google.com',
+      'markets.businessinsider.com',
+      'www.businessinsider.com',
+      'coinpaper.com',
+      'www.erlang.org',
+      'cdn.vox-cdn.com',
+      'a.fsdn.com',
+      'i.insider.com',
+      'res.cloudinary.com',
+      'pict.sindonews.net',
+      'images.unsplash.com',
+      'seeds-bucket-new.s3.ap-southeast-3.amazonaws.com'
+    ],
     remotePatterns: [
       {
         protocol: 'http',
@@ -13,18 +29,18 @@ const nextConfig = {
   },
   webpack: (config) => {
     config.module.rules.push({
-      test: /\.tsx?$/,
+      test: /\.(ts|tsx)$/,
       use: [
         {
           loader: 'ts-loader',
           options: {
-            transpileOnly: true,
-          },
-        },
-      ],
+            transpileOnly: true
+          }
+        }
+      ]
     });
     return config;
-  },
+  }
 };
 
 module.exports = nextConfig;

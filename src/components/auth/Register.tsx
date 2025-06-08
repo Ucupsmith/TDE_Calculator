@@ -9,29 +9,22 @@ import Google from '@/assets/auth/Google.svg';
 import Facebook from '@/assets/auth/Facebook.svg';
 import { useRouter } from 'next/router';
 import { AsyncCallbackSet } from 'next/dist/server/lib/async-callback-set';
-import { useAuthRegister } from '@/hooks/useAuthRegist';
+import { useAuthRegister } from '@/hooks/useAuthRegister';
 import { registerUser } from '@/repository/auth.repository';
 import Checklist from '@/assets/auth/checklist.png';
 import ErrorAlert from '@/assets/auth/error-alert-button-symbol.png';
 import { number } from 'zod';
+import type { RegisterProps } from '@/types/auth';
 
-interface RegisterProps {
-  username: string;
-  number_phone: string;
-  select_number: string;
-  password: string;
-  email: string;
-}
 const valueOption = ['+62', '+61', '+60'];
 
 const RegisterComponent = (): JSX.Element => {
   const { push } = useRouter();
   const [isLoading, setIsloading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [registeredUser, setIsRegisteredUser] = useState<RegisterProps | null>(
-    null
-  );
-  const [isRegist, setIsRegist] = useState<RegisterProps | boolean>(false);
+  const [isRegist, setIsRegist] = useState(false);
+  const [isRegisteredUser, setIsRegisteredUser] = useState(false);
+  const { registeredUser, fetchDataRegist } = useAuthRegister();
   const {
     register,
     handleSubmit,
@@ -39,18 +32,26 @@ const RegisterComponent = (): JSX.Element => {
     formState: { errors },
     watch
   } = useAuthRegister();
+
   useEffect(() => {
-    if (registeredUser !== null) {
+    if (registeredUser) {
+      setIsRegisteredUser(true);
       const timer = setTimeout(() => {
-        setIsRegisteredUser(registeredUser);
+        setIsRegist(false);
       }, 5000);
       return () => clearTimeout(timer);
     }
-    if (registeredUser !== isRegist) {
-      setIsRegist(!isRegist);
-      setIsRegisteredUser(registeredUser);
+  }, [registeredUser]);
+
+  const handleRegister = async (data: RegisterProps) => {
+    try {
+      await fetchDataRegist(data);
+      setIsRegist(true);
+    } catch (error) {
+      console.error('Registration error:', error);
     }
-  }, []);
+  };
+
   const fetchDataRegist = async (data: RegisterProps): Promise<void> => {
     try {
       setIsloading(!isLoading);
@@ -82,6 +83,7 @@ const RegisterComponent = (): JSX.Element => {
       setIsloading(false);
     }
   };
+
   return (
     <div className='md:w-full md:min-h-screen md:flex md:flex-row w-full'>
       <div className='md:w-1/2 w-full flex flex-col bg-[#132A2E] justify-around '>
@@ -199,7 +201,7 @@ const RegisterComponent = (): JSX.Element => {
             <div className='md:w-80 w-60 flex flex-col items-center gap-2'>
               <Button
                 onClick={async () => {
-                  await handleSubmit(fetchDataRegist)();
+                  await handleSubmit(handleRegister)();
                 }}
                 className='border-none w-full rounded-[25px] bg-[#144B3C]'
               >

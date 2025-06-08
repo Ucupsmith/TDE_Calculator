@@ -160,7 +160,9 @@ const ArticleCard = () => {
           />
         </svg>
         <p className="text-lg font-medium mt-4">{error}</p>
-        <p className="text-sm text-gray-500 mb-4">Please check if the backend server is running</p>
+        <p className="text-sm text-gray-500 mb-4">
+          Please check if the backend server is running
+        </p>
         <button
           onClick={fetchArticles}
           className="px-4 py-2 bg-[#34D399] text-white rounded-lg hover:bg-[#2bbd8c] transition-colors"
@@ -348,7 +350,7 @@ const ArticleCard = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="w-16 h-1 bg-[#34D399] rounded-full"></div>
-          <p className="text-sm font-medium">You've reached the end</p>
+          <p className="text-sm font-medium">You&apos;ve reached the end</p>
           <p className="text-xs opacity-75 pb-20">Thanks for exploring our articles!</p>
         </motion.div>
       </motion.div>

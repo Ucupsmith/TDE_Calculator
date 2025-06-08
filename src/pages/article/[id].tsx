@@ -6,17 +6,21 @@ import { getArticleById, Article } from '@/services/articleService';
 
 // Define a loading component
 const LoadingComponent = () => (
-    <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#34D399]"></div>
-    </div>
+  <div className='flex justify-center items-center min-h-screen'>
+    <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#34D399]'></div>
+  </div>
 );
 
 // Define a not found component
 const NotFoundComponent = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold text-[#34D399] mb-4">Article Not Found</h1>
-        <p className="text-gray-600">The article you&apos;re looking for doesn&apos;t exist.</p>
-    </div>
+  <div className='flex flex-col items-center justify-center min-h-screen'>
+    <h1 className='text-2xl font-bold text-[#34D399] mb-4'>
+      Article Not Found
+    </h1>
+    <p className='text-gray-600'>
+      The article you&apos;re looking for doesn&apos;t exist.
+    </p>
+  </div>
 );
 
 // Back button component
@@ -148,4 +152,4 @@ const ArticlePage = () => {
     );
 };
 
-export default ArticlePage; 
+export default ArticlePage;

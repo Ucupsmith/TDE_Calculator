@@ -221,7 +221,7 @@ model Article {
   author_id  Int      @map("author_id")
   created_at DateTime @default(now()) @map("created_at")
   updated_at DateTime @updatedAt @map("updated_at")
-  status     Status   @default(Pending)
+  status     String   @default("Pending") @db.VarChar(50)
   views      Int      @default(0)
   likes      Int      @default(0)
 
