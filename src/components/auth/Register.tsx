@@ -221,7 +221,10 @@ const RegisterComponent = (): JSX.Element => {
                 </div>
               )}
               {registeredUser && (
-                <Typography className='text-sm md:text-lg text-blue-800 underline'>
+                <Typography
+                  onClick={async () => await push('/auth/login')}
+                  className='text-sm md:text-lg text-blue-800 underline cursor-pointer'
+                >
                   Login here!
                 </Typography>
               )}
