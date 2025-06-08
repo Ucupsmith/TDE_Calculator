@@ -51,7 +51,7 @@ const Navbar = () => {
       icon2: ArticleIcon
     },
     {
-      label: 'Meal History',
+      label: 'History',
       navigate: '/meal-history',
       icon: MealHistory,
       icon2: MealHistroyUnclicked
@@ -93,10 +93,13 @@ const Navbar = () => {
                           <Image
                             src={nav.icon}
                             alt={nav.icon}
-                            className={`md:hidden w-5 h-7 ${
+                            className={`md:hidden w-5 h-5 ${
                               nav.icon === MealPlanIcon
                                 ? 'w-6 h-1'
-                                : nav.icon === TdeeClicked && 'w-5'
+                                : nav.icon === TdeeClicked
+                                  ? 'w-5'
+                                  : nav.icon === String(MealHistory) &&
+                                    'w-2 h-2'
                             }`}
                           />
                           <Typography
@@ -105,8 +108,8 @@ const Navbar = () => {
                               nav.navigate === '/auth/register'
                                 ? 'md:flex text-white md:border-none md:border md:rounded-[25px] md:bg-[#34D399] md:w-40 md:h-10 md:items-center md:justify-center'
                                 : nav.label === 'Meal History'
-                                ? 'text-[8px] text-[#34D399] font-semibold font-poppins md:text-white  md:text-[16px] '
-                                : ''
+                                  ? 'text-[8px] text-[#34D399] font-semibold font-poppins md:text-white md:text-[16px]'
+                                  : ''
                             }
                           
                           `}

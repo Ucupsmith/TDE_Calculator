@@ -18,7 +18,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     } else {
       // Optional: handle cases where token is missing
-      // For now, just proceed without token
+      // For now, just proceed without token  
     }
     return config;
   },

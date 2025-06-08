@@ -14,7 +14,9 @@ import {
   Typography
 } from '@material-tailwind/react';
 import { getSession, useSession } from 'next-auth/react';
+import Image from 'next/image';
 import React, { useEffect, useState, useCallback } from 'react';
+import LoadingTdee from '@/assets/tdee-calculator/loadingTdee.png';
 
 interface TdeeCalculateInterface {
   bmi: number;
@@ -59,8 +61,8 @@ const TdeeCalculatorPage = () => {
     useState<TdeeCalculateInterface | null>(null);
   const fetchDataTdee = useCallback(
     async (data: TdeeFormType): Promise<void> => {
-      setIsLoading(true);
       try {
+        setIsLoading(true);
         const payloadTdee = await tdeeCalculation({
           gender: data.gender,
           age: data.age,
@@ -123,6 +125,7 @@ const TdeeCalculatorPage = () => {
     const userId = session?.user.userId as number;
     console.log(accessToken);
     try {
+      setIsLoading(true);
       const payload: SaveTdeeCalculationInterface = {
         userId: userId,
         tdee_result: calculateTdee.tdee,
@@ -141,6 +144,8 @@ const TdeeCalculatorPage = () => {
       return response;
     } catch (error) {
       console.error('Error saat menyimpan:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -150,6 +155,18 @@ const TdeeCalculatorPage = () => {
   const handleButtonClick = (): void => {
     setButtonClicked(!buttonClicked);
   };
+  // if (isLoading) {
+  //   return (
+  //     <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-green-800'>
+  //       <div className='flex flex-col items-center justify-center gap-3 h-full'>
+  //         <Image src={LoadingTdee} alt={String(LoadingTdee)} />
+  //         <Typography className='text-white font-poppins font-semibold text-center text-lg'>
+  //           loading ...
+  //         </Typography>
+  //       </div>
+  //     </div>
+  //   );
+  // }
   return (
     <div className='w-full md:items-center h-auto flex flex-col justify-evenly gap-3 md:space-y-10 '>
       <Typography className='text-center flex items-center justify-center md:hidden text-[#34D399] font-poppins font-semibold text-lg md:text-4xl capitalize h-20'>
@@ -326,6 +343,7 @@ const TdeeCalculatorPage = () => {
           onClose={() => setIsModalOpen(false)}
           onSubmit={() => handleSubmit(fetchDataTdee)()}
           onSave={handleSaveTdee}
+          loading={isLoading}
         />
       </div>
     </div>
