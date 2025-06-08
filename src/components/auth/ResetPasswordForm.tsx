@@ -12,11 +12,6 @@ import { z } from 'zod'; // Assuming Zod is used for schema validation
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPassword } from '@/repository/auth.repository'; // Make sure this function exists and works
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { setLocalStorage } from '@/utils/common/localStorage';
-import { getToken } from 'next-auth/jwt';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline'; // Import ArrowLeftIcon from heroicons
 
 // Define form schema using Zod
 const resetPasswordSchema = z.object({
@@ -58,14 +53,6 @@ const ResetPasswordForm = () => {
   };
 
   const onSubmit = async (data: ResetPasswordFormType) => {
-    console.log('onSubmit called', data);
-    // Check if token exists - Temporarily commented out for slicing view
-    // if (!token || typeof token !== 'string') {
-    //     setMessage('Invalid or missing reset token.');
-    //     setIsError(true);
-    //     return; // Stop the submission
-    // }
-
     setIsLoading(true);
     setMessage(null);
     setIsError(false);
@@ -82,7 +69,6 @@ const ResetPasswordForm = () => {
       // Removed automatic redirect to allow user to click the button
 
     } catch (error: any) {
-      console.error('Password reset failed:', error);
       // Display error message from backend if available, otherwise a generic one
       setMessage(error.response?.data?.message || 'Terjadi kesalahan saat mereset password.');
       setIsError(true);
@@ -114,13 +100,6 @@ const ResetPasswordForm = () => {
               Enter your new password below
             </Typography>
           </div>
-          <button
-            onClick={() => router.push('/auth/login')}
-            className='flex items-center text-white hover:text-gray-300'
-          >
-            <ArrowLeftIcon className='h-5 w-5 mr-1' /> {/* Use ArrowLeftIcon */}
-            Back to Login
-          </button>
           <form onSubmit={handleSubmit(onSubmit)} className='md:w-96 w-72 flex flex-col px-3 gap-4'>
             {/* Password input fields */}
             <div className='w-full flex flex-col items-center justify-center gap-4'> {/* Adjust gap as needed */}

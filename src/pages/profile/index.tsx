@@ -44,7 +44,6 @@ const ProfilePages = () => {
       if (status === 'authenticated') {
         try {
           if (!session?.user.accessToken) {
-            console.error('Access token not available');
             setLoading(false);
             return;
           }
@@ -60,6 +59,7 @@ const ProfilePages = () => {
             setProfileData(data);
           }
           setValue('full_name', data.data.full_name || '');
+          setValue('phone_number', data.data.phone_number || '');
           setValue(
             'gender',
             data.data.gender === 'Male' || data.data.gender === 'Female'
@@ -91,7 +91,6 @@ const ProfilePages = () => {
     // Store the access token in localStorage when entering edit mode
     localStorage.setItem('user.accessToken', session.user.accessToken);
     setIsEditing(true);
-    console.log('isEditing set to true');
   };
 
   const onSubmit = async (data: ProfileFormType) => {
@@ -108,6 +107,7 @@ const ProfilePages = () => {
         full_name: data.full_name,
         gender: data.gender,
         address: data.address,
+        phone_number: data.phone_number,
         accessToken: accessToken
       });
 
@@ -119,7 +119,6 @@ const ProfilePages = () => {
         reset(updatedData.data);
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
     }
   };
 
@@ -131,7 +130,8 @@ const ProfilePages = () => {
           profileData.gender === 'Male' || profileData.gender === 'Female'
             ? profileData.gender
             : undefined,
-        address: profileData.address || ''
+        address: profileData.address || '',
+        phone_number: profileData.phone_number || ''
       });
     }
     setIsEditing(false);

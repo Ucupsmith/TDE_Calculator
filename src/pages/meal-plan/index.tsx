@@ -178,9 +178,7 @@ const MealPlanPage = () => {
         } else {
           setSelectedFoods([]);
         }
-        console.log('error fetching data:', response);
       } catch (error) {
-        console.log('error retrieving data:', error);
       }
     }
   };
@@ -216,18 +214,9 @@ const MealPlanPage = () => {
   };
 
   useEffect(() => {
-    console.log('MealPlanPage useEffect triggered:');
-    console.log('Status:', status);
-    console.log('userId:', userId);
-    console.log('tdeeId:', tdeeId);
-    console.log('accessToken:', accessToken);
-
     if (userId && tdeeId && accessToken) {
-      console.log('All conditions met in MealPlanPage, fetching meal data and foods...');
       void fetchDataGetMeal();
       void fetchDataFoods();
-    } else {
-      console.log('Conditions not met in MealPlanPage, not fetching initial data.');
     }
   }, [userId, tdeeId, accessToken, status]);
 
