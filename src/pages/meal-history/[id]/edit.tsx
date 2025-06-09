@@ -256,7 +256,9 @@ const EditMealPage = () => {
                               />
                               <Button
                                 variant='outlined'
-                                onClick={() => handleRemoveFood(food.id)}
+                                onClick={() =>
+                                  handleRemoveFood(Number(food.id))
+                                }
                                 className='text-[#D33434] border-[#D33434] p-2'
                               >
                                 <svg
