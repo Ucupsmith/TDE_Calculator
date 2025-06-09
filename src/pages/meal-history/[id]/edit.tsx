@@ -36,45 +36,39 @@ const EditMealPage = () => {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchMealData = async () => {
-      if (mealId === null) return;
-      try {
-        setLoading(true);
-        const history = await getMealHistory({ userId, accessToken });
-        if (mealHistory === null) {
-          console.log('mealHistory null');
-        }
-        setMealHistory(history);
-        const specificMeal = history.find((meal: any) => meal.id === mealId);
+  const fetchSpecificMealData = async () => {
+    if (mealId === null) return;
+    try {
+      setLoading(true);
+      const history = await getMealHistory({ userId, accessToken });
+      const specificMeal = history.find((m: any) => m.id === mealId);
 
-        if (specificMeal) {
-          // Map the fetched foods to include a default quantity for editing
-          const editableFoods: EditableMealHistoryFood[] =
-            specificMeal.foods.map((food: any) => ({
-              ...food,
-              quantity: food.quantity // Assuming a default quantity of 1 if not provided by backend
-            }));
-
-          setMeal({
-            ...specificMeal,
-            foods: editableFoods
-          });
-        } else {
-          toast.error('Meal not found');
-          router.push('/meal-history');
-        }
-      } catch (error) {
-        toast.error('Failed to fetch meal data');
-        console.error(error);
-      } finally {
-        setLoading(false);
+      if (specificMeal) {
+        console.log('Fetched specificMeal:', specificMeal);
+        const editableFoods: EditableMealHistoryFood[] =
+          specificMeal.foods.map((food: any) => ({
+            ...food,
+            quantity: food.quantity,
+          }));
+        setMeal({
+          ...specificMeal,
+          foods: editableFoods,
+        });
+      } else {
+        toast.error('Meal not found');
+        router.push('/meal-history');
       }
-    };
-    fetchMealData()
-      .then()
-      .catch(() => {});
-  }, []);
+    } catch (error) {
+      toast.error('Failed to fetch meal data');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchSpecificMealData();
+  }, [mealId, userId, accessToken]);
 
   const handleFoodQuantityChange = (index: number, quantity: number) => {
     if (!meal) return;
@@ -86,10 +80,25 @@ const EditMealPage = () => {
     setMeal({ ...meal, foods: newFoods });
   };
 
-  const handleRemoveFood = (idToRemove: number) => {
+  const handleRemoveFood = async (idToRemove: number) => {
     if (!meal) return;
-    const newFoods = meal.foods.filter((food) => food.id !== idToRemove);
-    setMeal({ ...meal, foods: newFoods });
+
+    try {
+      // Call the delete service to remove the food entry from the backend
+      await DeleteSelectionMeal({
+        foodEntryId: idToRemove,
+      });
+
+      // Update the local state to reflect the deletion
+      const newFoods = meal.foods.filter((food) => food.id !== idToRemove);
+      setMeal({ ...meal, foods: newFoods });
+      toast.success('Food item deleted successfully!');
+      // Re-fetch meal data to update remaining calories
+      await fetchSpecificMealData();
+    } catch (error) {
+      toast.error('Failed to delete food item');
+      console.error(error);
+    }
   };
 
   const handleSave = async () => {
@@ -103,11 +112,6 @@ const EditMealPage = () => {
       }
       toast.success('Meal updated successfully!');
       router.push('/meal-history');
-      for (const food of meal.foods) {
-        await DeleteSelectionMeal({
-          foodEntryId: Number(food.id)
-        });
-      }
     } catch (error) {
       toast.error('Failed to update meal');
       console.error(error);
@@ -224,7 +228,7 @@ const EditMealPage = () => {
                                     : food.imageUrl.startsWith('/images/')
                                       ? `http://localhost:8000${food.imageUrl}`
                                       : `http://localhost:8000/images/${food.imageUrl}`
-                                  : `http://localhost:8000${food.imageUrl}`
+                                  : 'https://via.placeholder.com/40'
                               }
                               alt={food.name}
                               width={40}

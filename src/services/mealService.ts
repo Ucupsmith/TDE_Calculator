@@ -19,11 +19,10 @@ export interface MealHistory {
   // Based on the formatted output in MealHistoryModel.js
   id: number;
   date: string;
-  calories: number;
+  totalCalories: number;
   foods: MealHistoryFood[];
   caption?: string;
-  goal: number;
-  tdee: number;
+  goal: string;
   tdeeResult: number;
   calorieRemaining: number;
 }
@@ -39,11 +38,14 @@ export const getMealHistory = async (params: {
   accessToken?: string;
 }): Promise<any> => {
   const { userId, accessToken } = params;
+  console.log('Debug - userId in getMealHistory (before request):', userId);
   try {
     if (accessToken === null || accessToken === '') {
       console.log('accessToken invalid');
     }
-    const response = await mealHistoryService.get(`/history?userId=${userId}`, {
+    const requestUrl = `/history?userId=${userId}`;
+    console.log('Debug - Request URL:', requestUrl);
+    const response = await mealHistoryService.get(requestUrl, {
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${accessToken}`

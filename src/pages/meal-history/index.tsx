@@ -157,13 +157,14 @@ const MealHistory = () => {
   const [mealToDelete, setMealToDelete] = useState<MealHistory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
-  const userId = Number(session?.user.userId);
-  const accessToken = session?.user.accessToken;
+  console.log('Debug - Session data:', session);
 
-  const fetchMealHistory = async () => {
+  const fetchMealHistory = async (userId: number, accessToken: string): Promise<void> => {
     try {
       setIsLoading(true);
-      const response = await getMealHistory({ userId, accessToken });
+      const payload = { userId, accessToken };
+      console.log('Debug - Payload for getMealHistory:', payload);
+      const response = await getMealHistory(payload);
       console.log('response get meal history', response);
       if (response) {
         setMealHistory(response);
@@ -192,18 +193,17 @@ const MealHistory = () => {
     if (mealToDelete) {
       try {
         const payload = {
-          userId,
+          userId: Number(session?.user.userId),
           date: date
         };
         const data = await DeleteMealHistory(payload);
         console.log('payload masuk:', payload);
         if (data) {
-          setMealToDelete(data);
+          toast.success('Meal deleted successfully!');
+          await fetchMealHistory(Number(session?.user.userId), session?.user.accessToken || '');
         } else {
-          setMealToDelete(null);
+          toast.error('Failed to delete meal');
         }
-        toast.success('Meal deleted successfully!');
-        console.log('Data Handler Delete Meal:', data);
       } catch (error) {
         toast.error('Failed to delete meal');
         console.error(error);
@@ -228,9 +228,14 @@ const MealHistory = () => {
   };
 
   useEffect(() => {
-    void fetchMealHistory();
-    void handleDeleteConfirm;
-  }, []);
+    if (session?.user?.userId && session?.user?.accessToken) {
+      const userId = Number(session.user.userId);
+      const accessToken = session.user.accessToken;
+      if (!isNaN(userId) && userId > 0) {
+        void fetchMealHistory(userId, accessToken);
+      }
+    }
+  }, [session]);
 
   if (isLoading) {
     return (
@@ -287,7 +292,13 @@ const MealHistory = () => {
                             <p className='text-gray-400'>
                               Calories:{' '}
                               <span className='text-white font-bold'>
-                                {meal.calories}
+                                {Math.ceil(meal.totalCalories).toLocaleString(
+                                  'id-ID',
+                                  {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  }
+                                )}
                               </span>
                             </p>
                           </div>
@@ -295,7 +306,13 @@ const MealHistory = () => {
                             <p className='text-gray-400'>
                               TDEE Result:{' '}
                               <span className='text-white font-bold'>
-                                {meal.tdeeResult}
+                                {Math.ceil(meal.tdeeResult).toLocaleString(
+                                  'id-ID',
+                                  {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  }
+                                )}
                               </span>
                             </p>
                           </div>
@@ -303,7 +320,13 @@ const MealHistory = () => {
                             <p className='text-gray-400'>
                               Remaining:{' '}
                               <span className='text-white font-bold'>
-                                {meal.calorieRemaining}
+                                {Math.ceil(meal.calorieRemaining).toLocaleString(
+                                  'id-ID',
+                                  {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                  }
+                                )}
                               </span>
                             </p>
                           </div>
@@ -392,7 +415,6 @@ const MealHistory = () => {
         onClose={() => {
           setDeleteModalOpen(false);
           setMealToDelete(null);
-          ``;
         }}
         onConfirm={() => handleDeleteConfirm(String(mealToDelete?.date))}
         mealDate={mealToDelete?.date.split('T')[0] || ''}

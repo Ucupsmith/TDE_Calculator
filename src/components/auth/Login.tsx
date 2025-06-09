@@ -64,8 +64,10 @@ const LoginComponent = (): JSX.Element => {
         console.log(session?.user.accessToken);
       }
       reset();
+      console.log(`login result :${result}`);
       return result;
     } catch (error) {
+      console.error(`login error : ${error}`);
       alert('An error occurred during login');
     }
   };
