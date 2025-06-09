@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import { 
@@ -9,18 +9,18 @@ import {
   deleteArticle,
   likeArticle 
 } from '../controllers/articleController';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, isAdmin, isAuthor } from '../middleware/auth';
 
-const router = express.Router();
+const router: Router = express.Router();
 
-// Configure multer for image upload
+// Configure multer for file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), 'public', 'images', 'articleImages'));
+    cb(null, 'public/images/articleImages');
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
@@ -42,11 +42,11 @@ const upload = multer({
 // Public routes
 router.get('/', getAllArticles);
 router.get('/:id', getArticleById);
-router.post('/:id/like', likeArticle);
+router.post('/:id/like', authenticateToken, likeArticle);
 
-// Protected routes (require authentication)
-router.post('/', authenticateToken, upload.single('image'), createArticle);
-router.put('/:id', authenticateToken, upload.single('image'), updateArticle);
-router.delete('/:id', authenticateToken, deleteArticle);
+// Protected routes
+router.post('/', authenticateToken, isAuthor, upload.single('image'), createArticle);
+router.put('/:id', authenticateToken, isAuthor, upload.single('image'), updateArticle);
+router.delete('/:id', authenticateToken, isAdmin, deleteArticle);
 
 export default router; 

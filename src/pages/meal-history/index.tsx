@@ -3,7 +3,7 @@ import { Button, Dialog, Typography } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
-import { getMealHistory, deleteMeal } from "@/services/mealService";
+import { getMealHistory, deleteMeal } from '@/services/mealService';
 import type { MealHistory, MealHistoryFood } from "@/services/mealService";
 
 export function ButtonEdit({ onClick }: { onClick: () => void }) {
@@ -149,18 +149,30 @@ const MealHistory = () => {
   const [mealToDelete, setMealToDelete] = useState<MealHistory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMealHistory();
-  }, []);
+  // TODO: Replace with actual logged-in user ID
+  const currentUserId = "12345"; // TEMPORARY: Using a hardcoded user ID for now
 
-  const fetchMealHistory = async () => {
+  useEffect(() => {
+    // Fetch meal history only if userId is available
+    if (currentUserId) {
+      fetchMealHistory(currentUserId);
+    } else {
+      // Handle case where user is not logged in (e.g., redirect to login)
+      setIsLoading(false); // Stop loading if no user
+      // Optionally, toast.info("Please log in to view your meal history.");
+      // router.push("/login"); // Example redirect
+    }
+  }, [currentUserId]); // Rerun effect if userId changes (e.g., after login)
+
+  const fetchMealHistory = async (userId: string) => {
     try {
       setIsLoading(true);
-      const data = await getMealHistory();
+      const data = await getMealHistory(userId);
       setMealHistory(data);
     } catch (error) {
       toast.error("Failed to fetch meal history");
       console.error(error);
+      setMealHistory([]); // Clear history on error
     } finally {
       setIsLoading(false);
     }
@@ -178,7 +190,7 @@ const MealHistory = () => {
   const handleDeleteConfirm = async () => {
     if (mealToDelete) {
       try {
-        await deleteMeal(mealToDelete.id);
+        await deleteMeal(mealToDelete.id); // deleteMeal function might also need userId
         setMealHistory(prevMeals => prevMeals.filter(meal => meal.id !== mealToDelete.id));
         toast.success("Meal deleted successfully!");
       } catch (error) {
@@ -189,26 +201,6 @@ const MealHistory = () => {
         setMealToDelete(null);
       }
     }
-  };
-
-  const groupFoodsByMealType = (foods: MealHistoryFood[]) => {
-    return foods.reduce((acc, food) => {
-      if (!acc[food.mealType]) {
-        acc[food.mealType] = [];
-      }
-      acc[food.mealType].push(food);
-      return acc;
-    }, {} as Record<string, MealHistoryFood[]>);
-  };
-
-  const getMealTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      breakfast: 'Breakfast',
-      lunch: 'Lunch',
-      dinner: 'Dinner',
-      snack: 'Snack'
-    };
-    return labels[type] || type;
   };
 
   if (isLoading) {
@@ -249,90 +241,58 @@ const MealHistory = () => {
                   damping: 30,
                   duration: 0.3 
                 }}
-                className="border-2 border-[#34D399] rounded-lg p-4 mb-4 shadow-lg hover:shadow-[#34D399]/20 transition-shadow"
+                className="bg-[#1E3A40] p-6 rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-[#34D399]/50"
               >
-                <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <h2 className="text-lg text-white font-semibold">{meal.date}</h2>
-                    <div className="flex flex-wrap gap-2 text-sm">
-                      <div className="bg-[#1e3a3d] px-3 py-1 rounded-lg">
-                        <p className="text-gray-400">Calories: <span className="text-white font-bold">{meal.calories}</span></p>
-                      </div>
-                      <div className="bg-[#1e3a3d] px-3 py-1 rounded-lg">
-                        <p className="text-gray-400">TDEE Result: <span className="text-white font-bold">{meal.tdeeResult}</span></p>
-                      </div>
-                      <div className="bg-[#1e3a3d] px-3 py-1 rounded-lg">
-                        <p className="text-gray-400">Remaining: <span className="text-white font-bold">{meal.calorieRemaining}</span></p>
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  <motion.div 
-                    className="flex gap-2"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <ButtonEdit onClick={() => handleEdit(meal.id)} />
-                    <ButtonDelete onClick={() => handleDeleteClick(meal)} />
-                  </motion.div>
+                {/* Summary Section */}
+                <div className="flex-grow">
+                  <Typography variant="h6" className="text-white mb-2">
+                    {new Date(meal.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </Typography>
+                  <div className="flex items-center gap-4 mb-4">
+                    {/* Display TDEE Result and Calories Remaining */}
+                    <Typography className="text-gray-300">
+                      TDEE Result: {typeof meal.tdeeResult === 'number' ? meal.tdeeResult.toFixed(2) : '0'} kcal
+                    </Typography>
+                    <Typography className="text-gray-300">
+                      Remaining: {typeof meal.calorieRemaining === 'number' ? meal.calorieRemaining.toFixed(2) : '0'} kcal
+                    </Typography>
+                    {/* Display Total Calories Consumed */}
+                     <Typography className="text-gray-300">
+                      Consumed: {typeof meal.totalCalories === 'number' ? meal.totalCalories.toFixed(2) : '0'} kcal
+                    </Typography>
+                  </div>
+                  
+                  {/* Foods List */}
+                  <div className="mt-4">
+                     {/* Removed meal type grouping */} {/* foods are now a flat list from backend */}
+                      {meal.foods.map((foodItem, foodIndex) => (
+                        <div key={foodIndex} className="flex items-center gap-2 text-gray-300">
+                           <Typography variant="small" className="font-medium">
+                            {foodItem.name}: {foodItem.calories.toFixed(2)} kcal ({foodItem.quantity} {foodItem.isCustom ? 'unit(s)' : foodItem.unit})
+                          </Typography>
+                         </div>
+                       ))}
+                   </div>
                 </div>
 
-                <motion.div 
-                  className="grid gap-4 mb-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  {Object.entries(groupFoodsByMealType(meal.foods)).map(([mealType, foods]) => (
-                    <div key={mealType} className="bg-[#132A2E] rounded-lg p-4">
-                      <h3 className="text-[#34D399] font-semibold mb-3">{getMealTypeLabel(mealType)}</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        {foods.map((food: MealHistoryFood) => (
-                          <motion.div 
-                            key={food.id}
-                            className="flex items-center p-3 rounded-lg hover:bg-[#34D399]/5 transition-colors"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                          >
-                            <motion.img
-                              src={food.imageUrl}
-                              alt={food.name}
-                              className="w-8 h-8 object-cover rounded-full"
-                              whileHover={{ scale: 1.1 }}
-                              transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                            />
-                            <div className="ml-3">
-                              <p className="text-white font-medium">{food.name}</p>
-                              <p className="text-gray-400 text-sm">{food.calories} calories • {food.unit}</p>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
+                {/* Actions */}
+                <div className="flex gap-2 flex-shrink-0">
+                  {/* Edit functionality might need adjustment based on how editing a daily summary works */}
+                  {/* <ButtonEdit onClick={() => handleEdit(meal.id)} /> */}
+                   <ButtonDelete onClick={() => handleDeleteClick(meal)} />
+                </div>
 
+                 <DeleteModal 
+                  isOpen={deleteModalOpen}
+                  onClose={() => setDeleteModalOpen(false)}
+                  onConfirm={handleDeleteConfirm}
+                  mealDate={mealToDelete?.date ? new Date(mealToDelete.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'this meal'}
+                />
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
       )}
-
-      <DeleteModal
-        isOpen={deleteModalOpen}
-        onClose={() => {
-          setDeleteModalOpen(false);
-          setMealToDelete(null);
-        }}
-        onConfirm={handleDeleteConfirm}
-        mealDate={mealToDelete?.date || ""}
-      />
     </div>
   );
 };

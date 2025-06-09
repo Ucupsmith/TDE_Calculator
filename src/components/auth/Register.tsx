@@ -20,11 +20,16 @@ const valueOption = ['+62', '+61', '+60'];
 
 const RegisterComponent = (): JSX.Element => {
   const { push } = useRouter();
+  const [registeredUser, setIsRegisteredUser] = useState<any>(null);
+  const [isRegist, setIsRegist] = useState<boolean>(false);
   const [isLoading, setIsloading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [isRegist, setIsRegist] = useState(false);
-  const [isRegisteredUser, setIsRegisteredUser] = useState(false);
-  const { registeredUser, fetchDataRegist } = useAuthRegister();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const {
     register,
     handleSubmit,
@@ -35,7 +40,6 @@ const RegisterComponent = (): JSX.Element => {
 
   useEffect(() => {
     if (registeredUser) {
-      setIsRegisteredUser(true);
       const timer = setTimeout(() => {
         setIsRegist(false);
       }, 5000);
@@ -54,30 +58,35 @@ const RegisterComponent = (): JSX.Element => {
 
   const fetchDataRegist = async (data: RegisterProps): Promise<void> => {
     try {
-      setIsloading(!isLoading);
-      setError(error);
+      setIsloading(true);
+      setError(null);
       const response = await registerUser({
         username: data.username,
         number_phone: `${data.select_number}${data.number_phone}`,
         email: data.email,
         password: data.password
       });
-      console.log(response);
       if (response !== null) {
         setIsRegisteredUser(response);
       }
       reset();
     } catch (error: any) {
-      console.log(`fetch Data Error : ${error}`);
+      console.error('Registration error:', error);
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data.message;
-        console.log('Axios error response:', status, message);
         if (status === 400 && message === 'Email Already Exist!') {
           setIsRegist(false);
           setIsRegisteredUser(null);
-          return;
+          setError('Email already exists. Please use a different email address.');
+        } else {
+          setError(`Registration failed: ${message || 'Unknown error occurred'}`);
         }
+      } else if (error.request) {
+        // Network error
+        setError('Network error: Please check your internet connection and try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
       }
     } finally {
       setIsloading(false);
@@ -182,13 +191,18 @@ const RegisterComponent = (): JSX.Element => {
               <div className='flex flex-col gap-1'>
                 <Input
                   crossOrigin={''}
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
                   placeholder='please insert a password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
                     className: 'hidden'
                   }}
                   {...register('password')}
+                  icon={
+                    <span onClick={togglePasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showPassword ? '👁️' : '🔒'}
+                    </span>
+                  }
                 />
                 {errors.password && (
                   <Typography className='font-poppins font-normal text-sm md:text-lg text-red-900'>
@@ -207,6 +221,14 @@ const RegisterComponent = (): JSX.Element => {
               >
                 {!isLoading ? 'Sign Up Now' : 'Sign up ...'}
               </Button>
+              {error && (
+                <div className='flex flex-row gap-1 w-44 md:w-72 h-14 rounded-md border border-none bg-red-100 items-center justify-center'>
+                  <Image src={ErrorAlert} alt='error' className='w-6' />
+                  <Typography className='font-poppins font-semibold text-sm text-center md:text-lg text-red-600'>
+                    {error}
+                  </Typography>
+                </div>
+              )}
               {!isLoading && registeredUser && (
                 <div className='flex flex-row gap-1 w-44 md:w-72 h-14 rounded-md border border-none bg-white items-center justify-center'>
                   <Image src={Checklist} alt={''} className='w-6' />
@@ -223,7 +245,10 @@ const RegisterComponent = (): JSX.Element => {
                 </div>
               )}
               {registeredUser && (
-                <Typography className='text-sm md:text-lg text-blue-800 underline'>
+                <Typography
+                  onClick={async () => await push('/auth/login')}
+                  className='text-sm md:text-lg text-blue-800 underline cursor-pointer'
+                >
                   Login here!
                 </Typography>
               )}

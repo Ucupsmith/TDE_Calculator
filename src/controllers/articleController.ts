@@ -1,201 +1,156 @@
-import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import path from 'path';
-import fs from 'fs';
+import { Request, Response, NextFunction } from 'express';
+import { Article, CreateArticleDTO, UpdateArticleDTO } from '../types/article';
+import * as articleService from '../services/articleService';
 
-const prisma = new PrismaClient();
+interface AuthRequest extends Request {
+  user?: {
+    id: number;
+    role: string;
+  };
+  file?: Express.Multer.File;
+}
 
 // Get all articles
-export const getAllArticles = async (req: Request, res: Response) => {
+export const getAllArticles = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const articles = await prisma.article.findMany({
-      include: {
-        author: {
-          select: {
-            adminId: true,
-            name: true,
-            profile_image: true
-          }
-        }
-      },
-      orderBy: {
-        created_at: 'desc'
-      }
-    });
-    res.json(articles);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 8;
+    const { data, total } = await articleService.getArticles(page, limit);
+    res.json({ data, total });
   } catch (error) {
-    console.error('Error fetching articles:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    next(error);
   }
 };
 
 // Get article by ID
-export const getArticleById = async (req: Request, res: Response) => {
+export const getArticleById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { id } = req.params;
-    const article = await prisma.article.findUnique({
-      where: {
-        article_id: parseInt(id)
-      },
-      include: {
-        author: {
-          select: {
-            adminId: true,
-            name: true,
-            profile_image: true
-          }
-        }
-      }
-    });
-
-    if (!article) {
-      return res.status(404).json({ message: 'Article not found' });
+    const articleId = parseInt(req.params.id);
+    if (isNaN(articleId)) {
+      res.status(400).json({ message: 'Invalid article ID' });
+      return;
     }
-
-    // Increment views
-    await prisma.article.update({
-      where: { article_id: parseInt(id) },
-      data: { views: { increment: 1 } }
-    });
-
+    const article = await articleService.getArticleById(articleId);
+    if (!article) {
+      res.status(404).json({ message: 'Article not found' });
+      return;
+    }
     res.json(article);
   } catch (error) {
-    console.error('Error fetching article:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    next(error);
   }
 };
 
 // Create new article
-export const createArticle = async (req: Request, res: Response) => {
+export const createArticle = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { title, content, category } = req.body;
-    const author_id = req.user?.adminId; // Assuming you have authentication middleware
-
-    if (!req.file) {
-      return res.status(400).json({ message: 'Image is required' });
+    if (!req.user) {
+      res.status(401).json({ message: 'Authentication required' });
+      return;
     }
-
-    const image_path = `/images/articleImages/${req.file.filename}`;
-
-    const article = await prisma.article.create({
-      data: {
-        title,
-        content,
-        category,
-        image_path,
-        author_id,
-        status: 'Pending'
-      },
-      include: {
-        author: {
-          select: {
-            adminId: true,
-            name: true,
-            profile_image: true
-          }
-        }
-      }
-    });
-
+    const articleData: CreateArticleDTO = {
+      title: req.body.title,
+      content: req.body.content,
+      authorId: req.user.id,
+      imagePath: req.file ? `/images/articleImages/${req.file.filename}` : null
+    };
+    if (!articleData.title || !articleData.content) {
+      res.status(400).json({ message: 'Missing required fields' });
+      return;
+    }
+    const article = await articleService.createArticle(articleData);
     res.status(201).json(article);
   } catch (error) {
-    console.error('Error creating article:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    next(error);
   }
 };
 
 // Update article
-export const updateArticle = async (req: Request, res: Response) => {
+export const updateArticle = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { id } = req.params;
-    const { title, content, category, status } = req.body;
-    const author_id = req.user?.adminId;
-
-    let image_path;
-    if (req.file) {
-      // Delete old image if exists
-      const oldArticle = await prisma.article.findUnique({
-        where: { article_id: parseInt(id) }
-      });
-
-      if (oldArticle?.image_path) {
-        const oldImagePath = path.join(process.cwd(), 'public', oldArticle.image_path);
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-
-      image_path = `/images/articleImages/${req.file.filename}`;
+    if (!req.user) {
+      res.status(401).json({ message: 'Authentication required' });
+      return;
     }
-
-    const article = await prisma.article.update({
-      where: { article_id: parseInt(id) },
-      data: {
-        title,
-        content,
-        category,
-        status,
-        ...(image_path && { image_path })
-      },
-      include: {
-        author: {
-          select: {
-            adminId: true,
-            name: true,
-            profile_image: true
-          }
-        }
-      }
-    });
-
-    res.json(article);
+    const articleId = parseInt(req.params.id);
+    if (isNaN(articleId)) {
+      res.status(400).json({ message: 'Invalid article ID' });
+      return;
+    }
+    // Check if user is the author or admin
+    const article = await articleService.getArticleById(articleId);
+    if (!article) {
+      res.status(404).json({ message: 'Article not found' });
+      return;
+    }
+    if (article.authorId !== req.user.id && req.user.role !== 'admin') {
+      res.status(403).json({ message: 'Not authorized to update this article' });
+      return;
+    }
+    const updateData: UpdateArticleDTO = {
+      title: req.body.title,
+      content: req.body.content,
+      imagePath: req.file ? `/images/articleImages/${req.file.filename}` : undefined
+    };
+    const updatedArticle = await articleService.updateArticle(articleId, updateData);
+    res.json(updatedArticle);
   } catch (error) {
-    console.error('Error updating article:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    next(error);
   }
 };
 
 // Delete article
-export const deleteArticle = async (req: Request, res: Response) => {
+export const deleteArticle = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { id } = req.params;
-
-    // Delete image if exists
-    const article = await prisma.article.findUnique({
-      where: { article_id: parseInt(id) }
-    });
-
-    if (article?.image_path) {
-      const imagePath = path.join(process.cwd(), 'public', article.image_path);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
+    if (!req.user) {
+      res.status(401).json({ message: 'Authentication required' });
+      return;
     }
-
-    await prisma.article.delete({
-      where: { article_id: parseInt(id) }
-    });
-
-    res.json({ message: 'Article deleted successfully' });
+    const articleId = parseInt(req.params.id);
+    if (isNaN(articleId)) {
+      res.status(400).json({ message: 'Invalid article ID' });
+      return;
+    }
+    // Check if user is the author or admin
+    const article = await articleService.getArticleById(articleId);
+    if (!article) {
+      res.status(404).json({ message: 'Article not found' });
+      return;
+    }
+    if (article.authorId !== req.user.id && req.user.role !== 'admin') {
+      res.status(403).json({ message: 'Not authorized to delete this article' });
+      return;
+    }
+    const success = await articleService.deleteArticle(articleId);
+    if (!success) {
+      res.status(404).json({ message: 'Article not found' });
+      return;
+    }
+    res.status(204).send();
   } catch (error) {
-    console.error('Error deleting article:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    next(error);
   }
 };
 
 // Like article
-export const likeArticle = async (req: Request, res: Response) => {
+export const likeArticle = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { id } = req.params;
-
-    const article = await prisma.article.update({
-      where: { article_id: parseInt(id) },
-      data: { likes: { increment: 1 } }
-    });
-
+    if (!req.user) {
+      res.status(401).json({ message: 'Authentication required' });
+      return;
+    }
+    const articleId = parseInt(req.params.id);
+    if (isNaN(articleId)) {
+      res.status(400).json({ message: 'Invalid article ID' });
+      return;
+    }
+    const article = await articleService.likeArticle(articleId);
+    if (!article) {
+      res.status(404).json({ message: 'Article not found' });
+      return;
+    }
     res.json(article);
   } catch (error) {
-    console.error('Error liking article:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    next(error);
   }
 }; 

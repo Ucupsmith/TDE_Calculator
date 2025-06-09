@@ -51,40 +51,37 @@ const Section1: React.FC = () => {
 
   useEffect(() => {}, [inView]);
   return (
-    <div className='md:w-full md:flex md:flex-row flex flex-col-reverse items-center justify-center  md:py-3 py-2'>
+    <div className="md:w-full md:flex md:flex-row flex flex-col-reverse items-center justify-center md:py-8 py-4 section-bg bg-gradient-to-br from-[#E9E3FF] via-[#F8E1F4] to-[#F3F6FF] rounded-2xl shadow-xl">
       <motion.div
-        initial='hidden'
-        animate='show'
+        initial="hidden"
+        animate="show"
         variants={parentVariant}
-        className='md:w-1/2 w-full flex flex-col justify-evenly md:gap-0 gap-2'
+        className="md:w-1/2 w-full flex flex-col justify-evenly md:gap-0 gap-4"
       >
         <motion.div
           variants={childVariant}
-          className='flex flex-col items-center w-full gap-2'
+          className="flex flex-col items-center w-full gap-2 bg-white bg-opacity-80 rounded-2xl shadow-md p-4"
         >
-          <div className='flex flex-row space-x-2'>
-            <Typography className='text-white font-bold font-poppins md:text-4xl text-2xl'>
-              Calculate Your
-            </Typography>
-            <Typography className='font-bold font-poppins md:text-4xl text-2xl text-[#34D399]'>
-              TDEE
+          <div className="flex flex-row space-x-2">
+            <Typography className="text-[#6C63FF] font-bold font-poppins md:text-4xl text-2xl drop-shadow-md">
+              Good Morning, User!
             </Typography>
           </div>
-          <div className='w-auto flex justify-end'>
-            <Typography className='font-semibold font-poppins opacity-45 text-white text-xl'>
+          <div className="w-auto flex justify-end">
+            <Typography className="font-semibold font-poppins opacity-80 text-[#FF6CA3] text-xl">
               Reach Your Health Goals
             </Typography>
           </div>
         </motion.div>
         <motion.div
           variants={childVariant}
-          className='w-full flex justify-center'
+          className="w-full flex justify-center"
         >
           <Button
             onClick={async () => {
               await push('/tdee-calculator');
             }}
-            className='w-48 border-none rounded-[15px] py-3 px-2 bg-[#34D399] text-[10px] md:text-xs'
+            className="w-48 border-none rounded-[24px] py-3 px-2 bg-gradient-to-r from-[#6C63FF] to-[#FF6CA3] text-white shadow-lg text-[12px] md:text-base font-bold transition-all duration-200 hover:scale-105 hover:shadow-xl"
           >
             Calculate Your BMR Now!
           </Button>
@@ -94,9 +91,11 @@ const Section1: React.FC = () => {
         ref={ref}
         initial={{ opacity: 0, x: 100 }}
         animate={controls}
-        className='md:w-1/2 w-full flex justify-center'
+        className="md:w-1/2 w-full flex justify-center"
       >
-        <Image className='' width={300} height={300} src={Hero} alt={Hero} />
+        <div className="bg-white bg-opacity-80 rounded-full p-6 shadow-lg flex items-center justify-center">
+          <Image className="" width={220} height={220} src={Hero} alt={Hero} />
+        </div>
       </motion.div>
     </div>
   );

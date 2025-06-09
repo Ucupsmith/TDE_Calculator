@@ -4,29 +4,27 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import { getArticles, Article, createArticle, updateArticle, deleteArticle, getImageUrl } from "@/services/articleService";
+import Link from "next/link";
 
 const ArticleCard = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
-  const [isRotating, setIsRotating] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [hasEnteredView, setHasEnteredView] = useState(false);
-  const [glowId, setGlowId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 8;
 
   const articleCardRef = useRef<HTMLDivElement>(null);
-  const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
   const fetchArticles = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await getArticles();
-      setArticles(data);
+      const res = await getArticles(page, limit);
+      setArticles(Array.isArray(res.data) ? res.data : []);
+      setTotal(res.total || 0);
     } catch (err: any) {
       console.error('Error fetching articles:', err);
       setError(
@@ -41,50 +39,10 @@ const ArticleCard = () => {
 
   useEffect(() => {
     fetchArticles();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && isMobile) setHasEnteredView(true);
-      },
-      { threshold: 0.3 }
-    );
-
-    const currentRef = articleCardRef.current;
-    if (currentRef) observer.observe(currentRef);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      if (currentRef) observer.unobserve(currentRef);
-    };
-  }, [isMobile]);
-
-  const handleLogoClick = () => {
-    setShowSearch(!showSearch);
-    setIsRotating(true);
-    setIsHovering(false);
-    setTimeout(() => setIsRotating(false), 1000);
-  };
-
-  const handleTouchStart = (id: number) => {
-    longPressTimeout.current = setTimeout(() => {
-      setGlowId(id);
-    }, 300);
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimeout.current) {
-      clearTimeout(longPressTimeout.current);
-      longPressTimeout.current = null;
-    }
-    setGlowId(null);
-  };
-
-  const filteredArticles = articles.filter(article => {
+  const filteredArticles = (articles || []).filter(article => {
     const searchContent = article.title + (article.author?.name || '');
     return searchContent.toLowerCase().includes(searchQuery.toLowerCase());
   });
@@ -137,7 +95,13 @@ const ArticleCard = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#34D399]"></div>
+        <motion.img
+          src="/tdee.svg"
+          alt="Loading..."
+          className="h-32 w-32"
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+        />
       </div>
     );
   }
@@ -201,54 +165,18 @@ const ArticleCard = () => {
         </motion.p>
 
         <motion.div 
-          className="flex justify-center mt-6 sm:mt-8 items-center space-x-4 relative"
+          className="flex justify-center w-full mt-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div
-            className="relative flex flex-col items-center"
-            onMouseEnter={() => !isMobile && !showSearch && setIsHovering(true)}
-            onMouseLeave={() => !isMobile && setIsHovering(false)}
-          >
-            <Image
-              src="/tdee.svg"
-              alt="Tdee Logo"
-              width={isMobile ? 60 : 70}
-              height={isMobile ? 50 : 60}
-              className={`cursor-pointer transition-transform duration-500 ${isRotating ? "rotate-[360deg]" : ""} hover:scale-110 will-change-transform`}
-              onClick={handleLogoClick}
-            />
-            {!showSearch && (isHovering || (isMobile && hasEnteredView)) && (
-              <motion.div 
-                className="absolute top-full left-1/2 transform -translate-x-1/2 pt-2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="transition-all duration-500 ease-in-out text-[#34D399] text-center text-xs pb-10 pr-20 py-1 lg:pb-20 rounded-lg whitespace-nowrap">
-                  Press TDEE logo button to search articles
-                </div>
-              </motion.div>
-            )}
-          </div>
-
-          <motion.div
-            className={`transition-all duration-500 ease-in-out ${
-              showSearch ? "opacity-100 scale-100 max-w-[280px] sm:max-w-[320px]" : "opacity-0 scale-0 max-w-0"
-            } overflow-hidden`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: showSearch ? 1 : 0, scale: showSearch ? 1 : 0.8 }}
-            transition={{ duration: 0.3 }}
-          >
-            <input
-              type="text"
-              placeholder="Search articles..."
-              className="px-4 py-2 w-full bg-[#34D399] font-bold text-[#0B5F31] rounded-3xl border border-[#0B5F31] focus:outline-none focus:ring-2 sm:focus:ring-3 focus:ring-[#0B5F31] placeholder:text-[#0B5F31] placeholder:font-medium text-sm sm:text-base"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </motion.div>
+          <input
+            type="text"
+            placeholder="Search articles..."
+            className="px-4 py-2 w-full max-w-md bg-[#34D399] font-bold text-[#0B5F31] rounded-3xl border border-[#0B5F31] focus:outline-none focus:ring-2 sm:focus:ring-3 focus:ring-[#0B5F31] placeholder:text-[#0B5F31] placeholder:font-medium text-sm sm:text-base"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </motion.div>
 
         {filteredArticles.length > 0 ? (
@@ -266,53 +194,65 @@ const ArticleCard = () => {
             }}
           >
             {filteredArticles.map((article, index) => {
-              const isGlowing = glowId === article.article_id;
               return (
                 <motion.div
-                  key={article.article_id}
+                  key={article.id}
                   custom={index}
                   variants={cardVariants}
                   whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onTouchStart={() => handleTouchStart(article.article_id)}
-                  onTouchEnd={handleTouchEnd}
-                  onTouchCancel={handleTouchEnd}
-                  onClick={() => router.push(`/article/${article.article_id}`)}
-                  className={`rounded-lg shadow-lg overflow-hidden cursor-pointer border transition duration-300 ${
-                    isGlowing
-                      ? "ring-4 ring-offset-2 ring-[#34D399] border-[#34D399]"
-                      : "hover:ring-4 hover:ring-offset-2 hover:ring-[#34D399] hover:border-[#34D399] border-gray-200"
-                  }`}
+                  className="bg-white rounded-lg shadow-lg overflow-hidden"
                 >
-                  <div className="relative w-full h-48">
-                    <Image
-                      src={getImageUrl(article.image_path)}
-                      alt={article.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover object-center"
-                      priority={index < 4}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/default-article.jpg';
-                      }}
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-[#34D399] font-semibold text-sm sm:text-base mb-2 line-clamp-2">
-                      {article.title}
-                    </h3>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <Image
-                        src={article.author?.profile_image || '/default-avatar.jpg'}
-                        alt={article.author?.name || 'Author'}
-                        width={30}
-                        height={30}
-                        className="rounded-full"
-                      />
-                      <p className="text-xs text-[#666666] font-medium">{article.author?.name || 'Unknown Author'}</p>
+                  <Link href={`/article/${article.id}`}>
+                    <div className="relative h-48">
+                      {article.imagePath ? (
+                        <Image
+                          src={getImageUrl(article.imagePath)}
+                          alt={article.title}
+                          fill
+                          className="object-cover"
+                          crossOrigin="anonymous"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400">No image</span>
+                        </div>
+                      )}
                     </div>
-                  </div>
+                    <div className="p-4">
+                      <h2 className="text-xl font-semibold text-gray-800 mb-2">{article.title}</h2>
+                      <p className="text-gray-600 line-clamp-2">{article.content}</p>
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {article.author?.profileImage && (
+                            <Image
+                              src={getImageUrl(article.author.profileImage)}
+                              alt={article.author.name}
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                              crossOrigin="anonymous"
+                            />
+                          )}
+                          <span className="text-sm text-gray-500">{article.author?.name || 'Unknown Author'}</span>
+                        </div>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                              <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                            </svg>
+                            <span>{article.views}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                            </svg>
+                            <span>{article.likes}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
                 </motion.div>
               );
             })}
@@ -342,6 +282,25 @@ const ArticleCard = () => {
             <p className="text-sm text-gray-500">Coba kata kunci pencarian yang berbeda</p>
           </motion.div>
         )}
+
+        {/* Pagination Controls */}
+        <div className="flex justify-center items-center gap-4 py-4">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${page === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#34D399] text-white hover:bg-[#2bbd8c]'}`}
+          >
+            Prev
+          </button>
+          <span className="font-semibold text-[#34D399]">{page} / {Math.ceil(total / limit) || 1}</span>
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page >= Math.ceil(total / limit)}
+            className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${page >= Math.ceil(total / limit) ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#34D399] text-white hover:bg-[#2bbd8c]'}`}
+          >
+            Next
+          </button>
+        </div>
 
         <motion.div
           className="flex flex-col items-center justify-center py-8 text-[#34D399] space-y-2"

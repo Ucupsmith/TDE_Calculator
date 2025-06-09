@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const CustomMealSchema = z.object({
+  id: z.number().optional(),
   name: z
     .string({ required_error: 'Meal name is required' })
     .min(4, { message: 'Meal name must be at least 4 characters' })

@@ -8,7 +8,8 @@ import { CustomMealType, useCustomInputMeal } from '@/hooks/useCustomInputMeal';
 import {
   addMainUserFoods,
   getMainUserFoods,
-  getMealCalculateMeals
+  getMealCalculateMeals,
+  getMealRemaining
 } from '@/repository/mealplan.repository';
 import {
   Button,
@@ -19,11 +20,12 @@ import {
   Typography
 } from '@material-tailwind/react';
 import { useSession } from 'next-auth/react';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import DangerButton from '@/assets/mealplan/dangerbutton.svg';
 import LoadingMealPlan from '@/assets/mealplan/loadingmealplanpng-removebg-preview.png';
 import Image from 'next/image';
-import { useMealPlan } from '@/hooks/useMealPlan';
+import MealPlanEmptyState from '@/assets/mealplan/malplanemptystate-removebg-preview.png';
+import Link from 'next/link';
 
 interface MealRemainingResponse {
   totalCalories: number;
@@ -40,7 +42,7 @@ interface MealCalculate {
 }
 
 export interface CustomFoodsProps {
-  id?: number;
+  id: number;
   name: string;
   calories: number;
   unit: string | number;
@@ -60,7 +62,7 @@ interface MainFoodsPayload {
 }
 
 interface MealPayload {
-  id?: number;
+  id: number;
   name: string;
   calories: number;
   unit: string | number;
@@ -79,7 +81,9 @@ const MealPlanPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [buttonClicked, setButtonClicked] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const calculatedFoods = [...selectedFoods, ...allCustomFoods];
+  const calculatedFoods = useMemo(() => {
+    return [...selectedFoods, ...allCustomFoods];
+  }, [selectedFoods, allCustomFoods]);
   const [checkBox, setCheckBox] = useState<number>(0);
   const { tdeeId } = useTdee();
   const itemsPerPage = 12;
@@ -111,9 +115,11 @@ const MealPlanPage = () => {
     formState: { errors }
   } = useCustomInputMeal();
   const unit = watch('unit');
+
   const handleClickCustom = () => {
     setButtonClicked(!buttonClicked);
   };
+
   const handleIncrement = () => {
     setValue('unit', unit + 1);
   };
@@ -122,22 +128,32 @@ const MealPlanPage = () => {
     setValue('unit', unit > 1 ? unit - 1 : unit);
   };
 
-  const { fetchDataGetMeal, handleSaveMeal } = useMealPlan();
-
-  const handleSaveMeal = useCallback(async (data: any) => {
-    try {
-      await handleSaveMeal(data);
-      await fetchDataGetMeal();
-    } catch (error) {
-      console.error('Error saving meal:', error);
+  const fetchDataGetMeal = useCallback(async (): Promise<void> => {
+    if (userId && tdeeId && accessToken) {
+      try {
+        const payload: MealCalculate = {
+          tdeeId,
+          userId,
+          accessToken
+        };
+        const response = await getMealRemaining(payload);
+        if (response) {
+          setMealRemaining(response);
+        } else {
+          setMealRemaining(null);
+          console.log('MealRemaining null:', response);
+        }
+      } catch (error) {
+        console.error('Error saving meal:', error);
+      }
     }
-  }, [handleSaveMeal, fetchDataGetMeal]);
+  }, [userId, tdeeId, accessToken]);
 
-  const fetchDataFoods = async (): Promise<void> => {
+  const fetchDataFoods = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
       const response = await getMainUserFoods();
-      if (response !== 0 && response !== 0) {
+      if (response !== 0) {
         setMainFoods(response);
       } else {
         setMainFoods([]);
@@ -147,9 +163,9 @@ const MealPlanPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchDataPostMainFoods = async (): Promise<void> => {
+  const fetchDataPostMainFoods = useCallback(async (): Promise<void> => {
     if (status === 'authenticated') {
       try {
         const payload: MainFoodsPayload = {
@@ -163,16 +179,16 @@ const MealPlanPage = () => {
         } else {
           setSelectedFoods([]);
         }
-        console.log('error fetching data:', response);
       } catch (error) {
-        console.log('error retrieving data:', error);
+        console.error('Error posting main foods:', error);
       }
     }
-  };
+  }, [status, userId, accessToken, calculatedFoods]);
 
-  const handleSelectedFoods = (food: MealPayload, checked: boolean): void => {
+  const handleSelectedFoods = useCallback((food: MealPayload, checked: boolean): void => {
     if (checked === true) {
       const payload: MealPayload = {
+        id: food.id,
         name: food.name,
         calories: food.calories,
         unit: food.unit,
@@ -185,21 +201,18 @@ const MealPlanPage = () => {
         isSelectedArray.filter((meal) => meal.name !== food.name)
       );
     }
-  };
-
-  useEffect(() => {
-    fetchDataGetMeal();
-  }, [fetchDataGetMeal, handleSaveMeal]);
+  }, [selectedFoods]);
 
   useEffect(() => {
     if (userId && tdeeId && accessToken) {
-      void handleSaveMeal();
+      void fetchDataGetMeal();
+      void fetchDataFoods();
     }
-    void fetchDataFoods();
-  }, [userId, tdeeId, accessToken]);
+  }, [userId, tdeeId, accessToken, status, fetchDataGetMeal, fetchDataFoods]);
 
-  const handleSaveCustomFood = (data: CustomMealType) => {
+  const handleSaveCustomFood = useCallback((data: CustomMealType) => {
     const payload: CustomFoodsProps = {
+      id: Number(data.id),
       isCustom: true,
       name: data.name,
       calories: data.calories,
@@ -207,10 +220,15 @@ const MealPlanPage = () => {
     };
     setAllCustomFoods((prev) => [...prev, { ...payload }]);
     reset();
-  };
+  }, [reset]);
 
-  const handleDeleteCustomFood = (mealName: string) => {
+  const handleDeleteCustomFood = useCallback((mealName: string) => {
     setAllCustomFoods((prev) => prev.filter((meal) => meal.name !== mealName));
+  }, []);
+
+  const handleSaveMeal = () => {
+    console.log('Saved meal');
+    fetchDataPostMainFoods();
   };
 
   if (loading) {
@@ -294,9 +312,21 @@ const MealPlanPage = () => {
           </div>
         </div>
       ) : (
-        <Typography className='text-3xl text-green-500 font-poppins font-semibold capitalize'>
-          you have not calculate tdee
-        </Typography>
+        <div className='w-full flex flex-row justify-center'>
+          <div className='flex flex-col items-center gap-1 justify-center border-[5px] border-green-900 w-72 h-60 bg-[#132A2E] rounded-lg ring-green-500'>
+            <Image
+              src={MealPlanEmptyState}
+              alt={String(MealPlanEmptyState)}
+              className='w-32'
+            />
+            <Typography className='text-2xl md:text-3xl text-green-500 font-poppins font-semibold capitalize text-center'>
+              you have not calculate tdee
+            </Typography>
+            <Typography className='text-xs md:text-3xl text-green-500 font-poppins font-semibold capitalize text-center underline'>
+              <Link href={`/tdee-calculator`}> calculate your tdee now!</Link>
+            </Typography>
+          </div>
+        </div>
       )}
       <div className='border-2 border-b-green-500 w-full'></div>
       <div className='flex flex-col gap-2 w-full items-start justify-between px-2'>

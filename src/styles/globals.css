@@ -12,19 +12,19 @@ html {
   scroll-padding-top: 100px;
   scrollbar-color: green;
   scroll-behavior: smooth;
-  background-color: #132A2E;
+  background-color: #FFFFFF;
 }
 body {
   height: 100%;
+  font-family: 'Poppins', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background: #FFFFFF;
+  color: #2D2A3A;
 }
 
 body {
   position: relative;
   min-height: 100vh !important;
   margin: 0;
-  font-family: -apple-system, 'Poppins', BlinkMacSystemFont, 'Segoe UI',
-    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-    'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -44,12 +44,12 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #F8F6FF;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #34d399; /* Hijau tua */
-  border-radius: 9999px; /* Supaya rounded */
+  background-color: #E9E3FF;
+  border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
@@ -87,4 +87,44 @@ body {
 
 .rgb-hover-effect:hover {
   animation: rgb-glow 3s linear infinite;
+}
+
+.article-content ul { margin-left: 1.5em !important; }
+.article-content li { margin-bottom: 0.5em !important; }
+.article-content h2 { margin-top: 1.5em !important; color: #34D399 !important; }
+.article-content h3 { margin-top: 1em !important; color: #34D399 !important; }
+
+.card, .bg-card, .mat-card {
+  background: #fff;
+  border-radius: 2rem;
+  box-shadow: 0 8px 32px 0 rgba(108, 99, 255, 0.10);
+  padding: 2rem;
+}
+
+.btn, .button, .mat-button {
+  background: linear-gradient(90deg, #6C63FF 0%, #FF6CA3 100%);
+  color: #fff;
+  border-radius: 1.5rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 108, 163, 0.12);
+}
+
+input, .input, .mat-input {
+  background: #F3F0FF;
+  border-radius: 1rem;
+  border: 1px solid #E9E3FF;
+  color: #2D2A3A;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #6C63FF;
+  font-weight: bold;
+}
+
+/* Soft background for sections */
+.section-bg {
+  background: #F3F0FF;
+  border-radius: 2rem;
+  padding: 2rem 1rem;
 }

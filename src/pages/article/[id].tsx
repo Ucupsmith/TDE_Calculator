@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Navbar from '@/components/navbar/Navbar';
 import Image from 'next/image';
-import { getArticleById, Article } from '@/services/articleService';
+import { getArticleById, Article, getImageUrl } from '@/services/articleService';
 
 // Define a loading component
 const LoadingComponent = () => (
@@ -11,44 +11,17 @@ const LoadingComponent = () => (
   </div>
 );
 
-// Define a not found component
-const NotFoundComponent = () => (
-  <div className='flex flex-col items-center justify-center min-h-screen'>
-    <h1 className='text-2xl font-bold text-[#34D399] mb-4'>
-      Article Not Found
-    </h1>
-    <p className='text-gray-600'>
-      The article you&apos;re looking for doesn&apos;t exist.
-    </p>
-  </div>
-);
-
-// Back button component
+// Define a back button component
 const BackButton = () => {
-    const router = useRouter();
-    
-    return (
-        <div className="fixed top-0 left-0 w-full bg-gradient-to-b from-black/20 to-transparent backdrop-blur-[2px] z-50 py-4 px-4 transition-all duration-300">
-            <button
-                onClick={() => router.push('/article')}
-                className="flex items-center space-x-2 bg-[#34D399]/90 text-white px-4 py-2 rounded-full shadow-lg hover:bg-[#0B5F31] transition-all duration-300 hover:shadow-[#34D399]/20 hover:shadow-xl"
-            >
-                <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="h-5 w-5" 
-                    viewBox="0 0 20 20" 
-                    fill="currentColor"
-                >
-                    <path 
-                        fillRule="evenodd" 
-                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" 
-                        clipRule="evenodd" 
-                    />
-                </svg>
-                <span>Back to Article Cards</span>
-            </button>
-        </div>
-    );
+  const router = useRouter();
+  return (
+    <button
+      onClick={() => router.back()}
+      className="fixed top-4 left-4 z-50 bg-[#34D399] text-white px-4 py-2 rounded-lg hover:bg-[#2bbd8c] transition-colors"
+    >
+      Back
+    </button>
+  );
 };
 
 const ArticlePage = () => {
@@ -71,10 +44,15 @@ const ArticlePage = () => {
                 }
 
                 const data = await getArticleById(articleId);
+                if (!data) {
+                    setError('Article not found');
+                    setIsLoading(false);
+                    return;
+                }
                 setArticle(data);
                 setIsLoading(false);
-            } catch (err) {
-                setError('Failed to fetch article');
+            } catch (err: any) {
+                setError(err.message || 'Failed to fetch article');
                 setIsLoading(false);
                 console.error('Error fetching article:', err);
             }
@@ -88,7 +66,26 @@ const ArticlePage = () => {
     }
 
     if (error || !article) {
-        return <NotFoundComponent />;
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+                <h1 className="text-2xl font-bold text-[#34D399] mb-4">
+                    {error || 'Article Not Found'}
+                </h1>
+                <p className="text-gray-600 mb-4">
+                    {error === 'Network error. Please check your internet connection.' 
+                        ? 'Please check your internet connection and try again.'
+                        : error === 'Request timeout. Please try again.'
+                        ? 'The request took too long. Please try again.'
+                        : 'The article you\'re looking for doesn\'t exist or cannot be accessed.'}
+                </p>
+                <button
+                    onClick={() => router.push('/article')}
+                    className="px-4 py-2 bg-[#34D399] text-white rounded-lg hover:bg-[#2bbd8c] transition-colors"
+                >
+                    Back to Articles
+                </button>
+            </div>
+        );
     }
 
     return (
@@ -98,38 +95,46 @@ const ArticlePage = () => {
                 <div className="container mx-auto px-4 py-8">
                     <h1 className="text-3xl font-bold text-[#34D399] mb-6">{article.title}</h1>
                     
-                    {article.image_path && (
+                    {article.imagePath && (
                         <div className="relative w-full h-64 mb-8">
                             <Image
-                                src={article.image_path}
+                                src={getImageUrl(article.imagePath)}
                                 alt={article.title}
                                 fill
                                 className="object-cover rounded-lg"
+                                crossOrigin="anonymous"
                             />
                         </div>
                     )}
 
                     <div className="flex items-center space-x-4 mb-8">
-                        {article.author?.profile_image && (
+                        {article.author?.profileImage && (
                             <Image
-                                src={article.author.profile_image}
+                                src={getImageUrl(article.author.profileImage)}
                                 alt={article.author.name}
                                 width={40}
                                 height={40}
                                 className="rounded-full"
+                                crossOrigin="anonymous"
                             />
                         )}
                         <div>
                             <p className="font-medium text-gray-800">{article.author?.name || 'Unknown Author'}</p>
                             <p className="text-sm text-gray-500">
-                                {new Date(article.created_at).toLocaleDateString()}
+                                {new Date(article.createdAt).toLocaleDateString()}
                             </p>
                         </div>
                     </div>
 
-                    <div className="prose max-w-none">
+                    <div className="prose prose-invert max-w-none text-white article-content">
                         <div dangerouslySetInnerHTML={{ __html: article.content }} />
                     </div>
+                    <style jsx>{`
+                      .article-content ul { margin-left: 1.5em; }
+                      .article-content li { margin-bottom: 0.5em; }
+                      .article-content h2 { margin-top: 1.5em; color: #34D399; }
+                      .article-content h3 { margin-top: 1em; color: #34D399; }
+                    `}</style>
 
                     <div className="mt-8 flex items-center space-x-4 text-gray-500">
                         <div className="flex items-center space-x-2">
