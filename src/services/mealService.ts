@@ -1,33 +1,8 @@
-import { getTdeeCalcualation } from '@/repository/tdee.repository';
-import axios, { AxiosError } from 'axios';
+import baseAxios from '@/utils/common/axios';
 
-const API_URL = 'http://localhost:8000/user/v1/meal-selections';
-
-// Konfigurasi axios
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
-// Interceptor untuk menambahkan token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      // Optional: handle cases where token is missing
-      // For now, just proceed without token
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+const mealHistoryService = baseAxios(
+  `${process.env.NEXT_PUBLIC_API_URL ?? `http://localhost:8000`}/user/v1/meal-plans`
 );
-
 // Types
 export interface MealHistoryFood {
   id: number;
@@ -36,17 +11,18 @@ export interface MealHistoryFood {
   unit: string;
   imageUrl: string;
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  quantity: number;
 }
 
 export interface MealHistory {
   id: number;
   date: string;
-  calories: number; // Total calories for the day
+  calories: number;
   foods: MealHistoryFood[];
-  caption?: string; // Make caption optional
+  caption?: string;
   goal: number;
-  tdee: number; // TDEE target or calculation base
-  tdeeResult: number; // Actual calculated TDEE result for the day
+  tdee: number;
+  tdeeResult: number;
   calorieRemaining: number;
 }
 
@@ -56,79 +32,91 @@ interface ApiError {
 }
 
 // Get meal history
-export const getMealHistory = () => {};
-
-// Save meal plan to history (sends aggregated daily data to backend)
-export const saveMealPlanToHistory = async (
-  mealPlan: Omit<MealHistory, 'id'>
-): Promise<MealHistory> => {
+export const getMealHistory = async (params: {
+  userId: number;
+  accessToken?: string;
+}): Promise<any> => {
+  const { userId, accessToken } = params;
   try {
-    // TODO: Implement actual API call when backend is ready
-    // This API call should send the aggregated daily meal data
-    // const response = await api.post<MealHistory>('/history', mealPlan);
-    // return response.data;
-
-    // TEMPORARY: Dummy implementation
-    const dummySavedMeal: MealHistory = { ...mealPlan, id: Math.random() }; // Assign a temporary ID
-    console.log('Simulating saveMealPlanToHistory', dummySavedMeal);
-    // In a real scenario, you'd typically update frontend state or refetch history here
-    return Promise.resolve(dummySavedMeal); // Simulate async call
-    // END OF TEMPORARY DUMMY
+    if (accessToken === null || accessToken === '') {
+      console.log('accessToken invalid');
+    }
+    const response = await mealHistoryService.get(`/history?userId=${userId}`, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    return response.data;
   } catch (error) {
-    console.error('Error saving meal plan to history:', error);
-    const axiosError = error as AxiosError<ApiError>;
-    throw (
-      axiosError.response?.data ||
-      axiosError.message ||
-      'Failed to save meal plan'
-    );
+    console.log(`Error Cannot Get Meal History:${error}`);
   }
 };
 
-// Delete meal (deletes a specific daily entry)
-export const deleteMeal = async (mealId: number): Promise<void> => {
+export const DeleteSelectionMeal = async (params: {
+  foodEntryId: number;
+}): Promise<any> => {
+  const { foodEntryId } = params;
   try {
-    // TODO: Implement actual API call when backend is ready
-    // This API call should delete the specific daily history entry by ID
-    // await api.delete(`/history/${mealId}`);
-
-    // TEMPORARY: Dummy implementation
-    console.log(`Simulating deleteMeal for ID: ${mealId}`);
-    return Promise.resolve(); // Simulate async call
-    // END OF TEMPORARY DUMMY
-  } catch (error) {
-    console.error('Error deleting meal:', error);
-    const axiosError = error as AxiosError<ApiError>;
-    throw (
-      axiosError.response?.data || axiosError.message || 'Failed to delete meal'
+    const response = await mealHistoryService.delete(
+      `/history/food/${foodEntryId}`,
+      {
+        headers: {
+          Accept: 'application/json'
+        }
+      }
     );
+    if (!response) {
+      console.log(`error retrieving data axios meal history:`);
+    }
+    return response.data;
+  } catch (error) {
+    console.log(`Error Delete Selection Meal Food ${error}`);
   }
 };
 
-// Update meal (updates a specific daily entry)
-export const updateMeal = async (
-  mealId: number,
-  mealData: Partial<MealHistory>
-): Promise<MealHistory> => {
+export const DeleteMealHistory = async (params: {
+  date: string;
+  userId: number;
+}): Promise<any> => {
+  const { date, userId } = params;
   try {
-    // TODO: Implement actual API call when backend is ready
-    // This API call should update the specific daily history entry by ID
-    // const response = await api.put<MealHistory>(`/history/${mealId}`, mealData);
-    // return response.data;
-
-    // TEMPORARY: Dummy implementation
-    const dummyUpdatedMeal: MealHistory = {
-      id: mealId,
-      ...mealData
-    } as MealHistory; // Simulate finding and updating
-    console.log(`Simulating updateMeal for ID: ${mealId}`, dummyUpdatedMeal);
-    return Promise.resolve(dummyUpdatedMeal); // Simulate async call
-    // END OF TEMPORARY DUMMY
-  } catch (error) {
-    console.error('Error updating meal:', error);
-    const axiosError = error as AxiosError<ApiError>;
-    throw (
-      axiosError.response?.data || axiosError.message || 'Failed to update meal'
+    const response = await mealHistoryService.delete(
+      `/history/day/${date}?userId=${userId}`,
+      {
+        headers: {
+          Accept: 'application/json'
+        }
+      }
     );
+    if (!response) {
+      console.log(`error retrieving data axios meal history:`);
+    }
+    return response.data;
+  } catch (error) {
+    console.log(`Error Delete Selection Meal Food ${error}`);
+  }
+};
+
+export const EditSelectedFood = async (params: {
+  foodEntryId: number;
+  quantity: number;
+}): Promise<any> => {
+  const { foodEntryId, quantity } = params;
+  try {
+    const response = await mealHistoryService.put(
+      `/history/food/${foodEntryId}`,
+      {
+        quantity
+      },
+      {
+        headers: {
+          Accept: 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log(`Error Edit Data Selected Foods Meal History:${error}`);
   }
 };
