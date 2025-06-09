@@ -173,6 +173,7 @@ const MealHistory = () => {
     } catch (error) {
       toast.error('Failed to fetch meal history');
       console.error(error);
+      setMealHistory([]);
     } finally {
       setIsLoading(false);
     }

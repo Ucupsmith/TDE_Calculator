@@ -30,6 +30,7 @@ export const updateProfile = async (params: {
   full_name?: string;
   gender?: string;
   address?: string;
+  phone_number?: string;
   accessToken?: string;
 }): Promise<any> => {
   try {

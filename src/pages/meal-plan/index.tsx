@@ -178,9 +178,7 @@ const MealPlanPage = () => {
         } else {
           setSelectedFoods([]);
         }
-        console.log('error fetching data:', response);
       } catch (error) {
-        console.log('error retrieving data:', error);
       }
     }
   };
@@ -217,11 +215,10 @@ const MealPlanPage = () => {
 
   useEffect(() => {
     if (userId && tdeeId && accessToken) {
-      void handleSaveMeal();
+      void fetchDataGetMeal();
+      void fetchDataFoods();
     }
-    void fetchDataGetMeal();
-    void fetchDataFoods();
-  }, [userId, tdeeId, accessToken]);
+  }, [userId, tdeeId, accessToken, status]);
 
   const handleSaveCustomFood = (data: CustomMealType) => {
     const payload: CustomFoodsProps = {

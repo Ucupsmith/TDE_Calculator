@@ -5,7 +5,8 @@ const mealHistoryService = baseAxios(
 );
 // Types
 export interface MealHistoryFood {
-  id: number;
+  // Based on the formatted output in MealHistoryModel.js
+  id: number | null; // food ID can be null for custom food
   name: string;
   calories: number;
   unit: string;
@@ -15,6 +16,7 @@ export interface MealHistoryFood {
 }
 
 export interface MealHistory {
+  // Based on the formatted output in MealHistoryModel.js
   id: number;
   date: string;
   calories: number;

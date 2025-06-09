@@ -97,7 +97,7 @@ const EditMealPage = () => {
     try {
       for (const food of meal.foods) {
         await EditSelectedFood({
-          foodEntryId: food.id,
+          foodEntryId: Number(food.id),
           quantity: Number(food.quantity)
         });
       }
@@ -105,7 +105,7 @@ const EditMealPage = () => {
       router.push('/meal-history');
       for (const food of meal.foods) {
         await DeleteSelectionMeal({
-          foodEntryId: food.id
+          foodEntryId: Number(food.id)
         });
       }
     } catch (error) {
