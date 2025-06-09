@@ -178,7 +178,9 @@ const MealPlanPage = () => {
         } else {
           setSelectedFoods([]);
         }
+        console.log('error fetching data:', response);
       } catch (error) {
+        console.log('error retrieving data:', error);
       }
     }
   };
@@ -214,9 +216,18 @@ const MealPlanPage = () => {
   };
 
   useEffect(() => {
+    console.log('MealPlanPage useEffect triggered:');
+    console.log('Status:', status);
+    console.log('userId:', userId);
+    console.log('tdeeId:', tdeeId);
+    console.log('accessToken:', accessToken);
+
     if (userId && tdeeId && accessToken) {
+      console.log('All conditions met in MealPlanPage, fetching meal data and foods...');
       void fetchDataGetMeal();
       void fetchDataFoods();
+    } else {
+      console.log('Conditions not met in MealPlanPage, not fetching initial data.');
     }
   }, [userId, tdeeId, accessToken, status]);
 
@@ -269,9 +280,9 @@ const MealPlanPage = () => {
             <div className='flex flex-row w-full'>
               <Progress
                 size='lg'
-                className='border border-none bg-white ring-green-600 focus:bg-green-500'
-                label={`reach`}
-                value={Number(percentage.toFixed(2))}
+                className='border border-none bg-white ring-green-600 focus:bg-green-500 text-white'
+                value={Number(percentage.toFixed(0))}
+                label={'reach'}
                 barProps={{
                   style: { width: `${percentage}%` },
                   className: `font-poppins font-semibold text-[10px] md:text-sm ${percentage <= 25 ? 'bg-yellow-500' : percentage <= 50 ? 'bg-green-500' : percentage <= 75 ? 'bg-orange-500' : percentage <= 100 ? 'bg-orange-900' : 'bg-red-900'}`
@@ -289,10 +300,11 @@ const MealPlanPage = () => {
                   /
                 </Typography>
                 <Typography className='font-extralight font-poppins text-lg md:text-xl text-green-600 capitalize'>
-                  {Number(mealRemaining.remainingCalories).toLocaleString(
+                  {Math.ceil(Number(mealRemaining.remainingCalories)).toLocaleString(
                     'id-ID',
                     {
-                      style: 'decimal'
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
                     }
                   )}
                 </Typography>

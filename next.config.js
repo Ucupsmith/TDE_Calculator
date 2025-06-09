@@ -29,7 +29,8 @@ const nextConfig = {
       'res.cloudinary.com',
       'pict.sindonews.net',
       'images.unsplash.com',
-      'seeds-bucket-new.s3.ap-southeast-3.amazonaws.com'
+      'seeds-bucket-new.s3.ap-southeast-3.amazonaws.com',
+      'via.placeholder.com'
     ]
   }
 };
