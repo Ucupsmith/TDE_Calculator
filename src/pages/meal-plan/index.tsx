@@ -8,8 +8,7 @@ import { CustomMealType, useCustomInputMeal } from '@/hooks/useCustomInputMeal';
 import {
   addMainUserFoods,
   getMainUserFoods,
-  getMealCalculateMeals,
-  getMealRemaining
+  getMealCalculateMeals
 } from '@/repository/mealplan.repository';
 import {
   Button,
@@ -20,12 +19,14 @@ import {
   Typography
 } from '@material-tailwind/react';
 import { useSession } from 'next-auth/react';
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DangerButton from '@/assets/mealplan/dangerbutton.svg';
 import LoadingMealPlan from '@/assets/mealplan/loadingmealplanpng-removebg-preview.png';
 import Image from 'next/image';
 import MealPlanEmptyState from '@/assets/mealplan/malplanemptystate-removebg-preview.png';
 import Link from 'next/link';
+import SearchIcon from '@/assets/mealplan/SearchIcon-removebg-preview.png';
+import MealPlanSearchComponent from '@/components/meal-plan/MealPlanSearchComponent';
 
 interface MealRemainingResponse {
   totalCalories: number;
@@ -72,24 +73,24 @@ const MealPlanPage = () => {
   const { data: session, status } = useSession();
   const userId = Number(session?.user.userId);
   const accessToken = session?.user.accessToken as string;
-  const [onClick, setOnClick] = useState<boolean>(false);
   const [allCustomFoods, setAllCustomFoods] = useState<CustomFoodsProps[]>([]);
   const [mealRemaining, setMealRemaining] =
     useState<MealRemainingResponse | null>(null);
   const [mainFoods, setMainFoods] = useState<MealResponse[]>([]);
   const [selectedFoods, setSelectedFoods] = useState<MealPayload[]>([]);
+  const [searchFoods, setSearchFoods] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [buttonClicked, setButtonClicked] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const calculatedFoods = useMemo(() => {
-    return [...selectedFoods, ...allCustomFoods];
-  }, [selectedFoods, allCustomFoods]);
+  const calculatedFoods = [...selectedFoods, ...allCustomFoods];
   const [checkBox, setCheckBox] = useState<number>(0);
   const { tdeeId } = useTdee();
   const itemsPerPage = 12;
   const LastItemsIndex = currentPage * itemsPerPage;
   const FirstItemsIndex = LastItemsIndex - itemsPerPage;
-  const paginationMainFoods = mainFoods.slice(FirstItemsIndex, LastItemsIndex);
+  const paginationMainFoods = Array.isArray(mainFoods)
+    ? mainFoods.slice(FirstItemsIndex, LastItemsIndex)
+    : [];
   const safeSelectedFoods = Array.isArray(selectedFoods) ? selectedFoods : [];
   const totalCaloriesCustomFoods = allCustomFoods.reduce(
     (acc, food) => acc + Number(food.calories) * Number(food.unit),
@@ -115,11 +116,9 @@ const MealPlanPage = () => {
     formState: { errors }
   } = useCustomInputMeal();
   const unit = watch('unit');
-
   const handleClickCustom = () => {
     setButtonClicked(!buttonClicked);
   };
-
   const handleIncrement = () => {
     setValue('unit', unit + 1);
   };
@@ -128,32 +127,39 @@ const MealPlanPage = () => {
     setValue('unit', unit > 1 ? unit - 1 : unit);
   };
 
-  const fetchDataGetMeal = useCallback(async (): Promise<void> => {
-    if (userId && tdeeId && accessToken) {
-      try {
-        const payload: MealCalculate = {
-          tdeeId,
-          userId,
-          accessToken
-        };
-        const response = await getMealRemaining(payload);
-        if (response) {
-          setMealRemaining(response);
-        } else {
-          setMealRemaining(null);
-          console.log('MealRemaining null:', response);
-        }
-      } catch (error) {
-        console.error('Error saving meal:', error);
-      }
+  const fetchDataGetMeal = async (): Promise<void> => {
+    if (!tdeeId) {
+      console.warn('tdeeId belum tersedia, tidak bisa fetch meal plan.');
+      return;
     }
-  }, [userId, tdeeId, accessToken]);
-
-  const fetchDataFoods = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await getMainUserFoods();
-      if (response !== 0) {
+      const payload: MealCalculate = {
+        tdeeId: tdeeId,
+        userId: userId,
+        accessToken: accessToken
+      };
+      const response = await getMealCalculateMeals(payload);
+      if (response) {
+        setMealRemaining(response);
+      } else {
+        setMealRemaining(null);
+        console.log('MealRemaining null:', response);
+      }
+    } catch (error) {
+      console.log(`error get meal remaining: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchDataFoods = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      const payload = {
+        name: searchFoods
+      };
+      const response = await getMainUserFoods(payload);
+      if (Array.isArray(response)) {
         setMainFoods(response);
       } else {
         setMainFoods([]);
@@ -163,9 +169,9 @@ const MealPlanPage = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  const fetchDataPostMainFoods = useCallback(async (): Promise<void> => {
+  const fetchDataPostMainFoods = async (): Promise<void> => {
     if (status === 'authenticated') {
       try {
         const payload: MainFoodsPayload = {
@@ -179,38 +185,71 @@ const MealPlanPage = () => {
         } else {
           setSelectedFoods([]);
         }
+        console.log('error fetching data:', response);
       } catch (error) {
-        console.error('Error posting main foods:', error);
+        console.log('error retrieving data:', error);
       }
     }
-  }, [status, userId, accessToken, calculatedFoods]);
+  };
 
-  const handleSelectedFoods = useCallback((food: MealPayload, checked: boolean): void => {
+  const handleSelectedFoods = (food: MealPayload, checked: boolean): void => {
+    const safeFoodId = Number(food.id);
     if (checked === true) {
-      const payload: MealPayload = {
-        id: food.id,
-        name: food.name,
-        calories: food.calories,
-        unit: food.unit,
-        isCustom: false
-      };
-      setSelectedFoods((prev) => [...prev, { ...payload }]);
+      setSelectedFoods((prev) => [...prev, { ...food, id: safeFoodId }]);
     } else {
-      const isSelectedArray = Array.isArray(selectedFoods) ? selectedFoods : [];
-      setSelectedFoods(
-        isSelectedArray.filter((meal) => meal.name !== food.name)
-      );
+      setSelectedFoods((prev) => {
+        const newSelectedFoods = prev.filter((selectedFood) => {
+          console.log(
+            `COMPARE: selectedFood.id (${selectedFood.id}, Type: ${typeof selectedFood.id}) !== safeFoodId (${safeFoodId}, Type: ${typeof safeFoodId})`
+          );
+          return selectedFood.id !== safeFoodId;
+        });
+        console.log('ACTION: Filtered newSelectedFoods:', newSelectedFoods);
+        return newSelectedFoods;
+      });
     }
-  }, [selectedFoods]);
+    console.log('selectedFoods AFTER (will update on next render cycle).');
+  };
+
+  const handleSaveMeal = async () => {
+    await fetchDataPostMainFoods();
+    setCheckBox((prev) => prev + 1);
+    setSelectedFoods(calculatedFoods);
+    setAllCustomFoods([]);
+    reset();
+
+    setButtonClicked(false);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSaveSearchFoods = async () => {
+    void fetchDataFoods();
+
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  };
 
   useEffect(() => {
+    console.log('MealPlanPage useEffect triggered:');
+    console.log('Status:', status);
+    console.log('userId:', userId);
+    console.log('tdeeId:', tdeeId);
+    console.log('accessToken:', accessToken);
+
     if (userId && tdeeId && accessToken) {
+      console.log(
+        'All conditions met in MealPlanPage, fetching meal data and foods...'
+      );
       void fetchDataGetMeal();
       void fetchDataFoods();
+    } else {
+      console.log(
+        'Conditions not met in MealPlanPage, not fetching initial data.'
+      );
     }
-  }, [userId, tdeeId, accessToken, status, fetchDataGetMeal, fetchDataFoods]);
+  }, [userId, tdeeId, accessToken, status]);
 
-  const handleSaveCustomFood = useCallback((data: CustomMealType) => {
+  const handleSaveCustomFood = (data: CustomMealType) => {
     const payload: CustomFoodsProps = {
       id: Number(data.id),
       isCustom: true,
@@ -220,15 +259,10 @@ const MealPlanPage = () => {
     };
     setAllCustomFoods((prev) => [...prev, { ...payload }]);
     reset();
-  }, [reset]);
+  };
 
-  const handleDeleteCustomFood = useCallback((mealName: string) => {
+  const handleDeleteCustomFood = (mealName: string) => {
     setAllCustomFoods((prev) => prev.filter((meal) => meal.name !== mealName));
-  }, []);
-
-  const handleSaveMeal = () => {
-    console.log('Saved meal');
-    fetchDataPostMainFoods();
   };
 
   if (loading) {
@@ -264,49 +298,69 @@ const MealPlanPage = () => {
             <div className='flex flex-row w-full'>
               <Progress
                 size='lg'
-                className='border border-none bg-white ring-green-600 focus:bg-green-500'
+                className={`border border-none bg-white ring-green-600 focus:bg-green-500 text-center`}
                 label={`reach`}
                 value={Number(percentage.toFixed(2))}
                 barProps={{
                   style: { width: `${percentage}%` },
-                  className: `font-poppins font-semibold text-[10px] md:text-sm ${percentage <= 25 ? 'bg-yellow-500' : percentage <= 50 ? 'bg-green-500' : percentage <= 75 ? 'bg-orange-500' : percentage <= 100 ? 'bg-orange-900' : 'bg-red-900'}`
+                  className: `font-poppins font-semibold text-[10px] md:text-sm ${percentage <= 25 ? 'bg-yellow-500 text-[8px] text-green-500' : percentage <= 50 ? 'bg-green-500 text-[7px]' : percentage <= 75 ? 'bg-orange-500' : percentage <= 100 ? 'bg-orange-900' : percentage <= 10 ? 'text-opacity-0' : 'text-red-900'}`
                 }}
               />
             </div>
-            <div className='md:w-full justify-center flex flex-row gap-2'>
-              <div className='flex flex-row items-center justify-end gap-2'>
+            <div className='md:w-full justify-center flex flex-col gap-3'>
+              <div className='flex flex-row gap-2 justify-center items-center'>
                 <Typography
-                  className={`font-poppins font-normal text-lg md:text-xl capitalize ${totalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-900' : 'text-green-500'}`}
+                  className={`font-poppins font-normal text-lg md:text-xl capitalize text-white`}
                 >
-                  {totalCalories}
+                  your calories per day:
                 </Typography>
-                <Typography className='font-poppins font-normal text-green-500 text-lg md:text-xl capitalize'>
-                  /
-                </Typography>
-                <Typography className='font-extralight font-poppins text-lg md:text-xl text-green-600 capitalize'>
-                  {Number(mealRemaining.remainingCalories).toLocaleString(
+                <Typography
+                  className={`font-poppins font-normal text-lg md:text-xl capitalize text-white`}
+                >
+                  {Math.ceil(Number(mealRemaining.tdeeGoal)).toLocaleString(
                     'id-ID',
                     {
-                      style: 'decimal'
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
                     }
                   )}
                 </Typography>
               </div>
-              <div className='flex flex-row gap-1 justify-end items-center md:flex md:justify-evenly'>
-                {totalCalories > Number(mealRemaining.remainingCalories) ? (
-                  <Image
-                    src={DangerButton}
-                    alt=''
-                    className='w-6 h-7 hover:scale-150'
-                  />
-                ) : null}
-                <Typography
-                  className={`font-extralight text-center font-poppins text-sm md:text-lg text-green-600 capitalize ${totalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-600 text-[12px]' : ''}`}
-                >
-                  {totalCalories > Number(mealRemaining.remainingCalories)
-                    ? 'Over Calories! You might gain weight.'
-                    : 'Calories Remaining'}
-                </Typography>
+              <div className='flex flex-row w-full gap-2'>
+                <div className='w-1/2 flex flex-row items-center justify-end gap-2'>
+                  <Typography
+                    className={`font-poppins font-normal text-lg md:text-xl capitalize ${totalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-900' : 'text-green-500'}`}
+                  >
+                    {totalCalories}
+                  </Typography>
+                  <Typography className='font-poppins font-normal text-green-500 text-lg md:text-xl capitalize'>
+                    /
+                  </Typography>
+                  <Typography className='font-extralight font-poppins text-lg md:text-xl text-green-600 capitalize'>
+                    {Math.ceil(
+                      Number(mealRemaining.remainingCalories)
+                    ).toLocaleString('id-ID', {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    })}
+                  </Typography>
+                </div>
+                <div className='w-1/2 flex flex-row gap-1 justify-end items-center md:flex md:justify-evenly'>
+                  {totalCalories > Number(mealRemaining.remainingCalories) ? (
+                    <Image
+                      src={DangerButton}
+                      alt=''
+                      className='w-6 h-7 hover:scale-150'
+                    />
+                  ) : null}
+                  <Typography
+                    className={`font-extralight text-center font-poppins text-sm md:text-lg text-green-600 capitalize flex ${totalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-600 text-[12px]' : ''}`}
+                  >
+                    {totalCalories > Number(mealRemaining.remainingCalories)
+                      ? 'Over Calories! You might gain weight.'
+                      : 'Calories Remaining'}
+                  </Typography>
+                </div>
               </div>
             </div>
           </div>
@@ -420,12 +474,18 @@ const MealPlanPage = () => {
         )}
       </div>
       <MealPlanCustom data={allCustomFoods} onDelete={handleDeleteCustomFood} />
+      <MealPlanSearchComponent
+        onChange={setSearchFoods}
+        placeholder='type foods..'
+        value={searchFoods}
+        onSubmit={handleSaveSearchFoods}
+      />
       <MealPlanSection3
         data={paginationMainFoods}
         onSelect={handleSelectedFoods}
         onSave={handleSaveMeal}
         loading={loading}
-        checkBox={checkBox}
+        selectedFoods={selectedFoods}
       />
       <PaginationControls
         currentPage={currentPage}

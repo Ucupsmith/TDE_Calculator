@@ -60,19 +60,19 @@ const Section3: React.FC = () => {
       ref={ref}
       initial='hidden'
       animate={controls}
-      className="flex flex-col gap-5 md:gap-10 w-full py-4 px-4 bg-gradient-to-br from-[#E9E3FF] via-[#F8E1F4] to-[#F3F6FF] rounded-2xl shadow-xl"
+      className='flex flex-col gap-5 md:gap-10 w-full py-2 px-3'
     >
       <motion.div
         variants={{
           hidden: { opacity: 0, y: -20 },
           visible: { opacity: 1, y: 0, transition: { duration: 0.7 } }
         }}
-        className="flex flex-col gap-1 items-start"
+        className='flex flex-col gap-1 items-start'
       >
-        <Typography className="font-semibold font-poppins text-[#6C63FF] text-lg md:text-2xl capitalize">
+        <Typography className='font-semibold font-poppins text-white text-lg md:text-2xl capitalize'>
           keep your bmi score
         </Typography>
-        <Typography className="font-semibold font-poppins text-[#FF6CA3] text-lg md:text-2xl capitalize">
+        <Typography className='font-semibold font-poppins text-white text-lg md:text-2xl capitalize'>
           on optimal level
         </Typography>
       </motion.div>
@@ -86,10 +86,10 @@ const Section3: React.FC = () => {
               key={id}
               custom={direction}
               variants={itemVariant}
-              className="flex flex-col gap-5 md:gap-0 w-full md:w-auto items-center justify-center md:items-start h-auto md:flex md:flex-row bg-white bg-opacity-80 rounded-2xl shadow-md p-4 my-2"
+              className='flex flex-col gap-5 md:gap-0 w-full md:w-auto items-center justify-center md:items-start h-auto md:flex md:flex-row'
             >
               <Image
-                className="w-auto h-auto md:w-56"
+                className='w-auto h-auto md:w-56'
                 src={item.image}
                 alt={item.image}
               />
@@ -102,12 +102,12 @@ const Section3: React.FC = () => {
                     transition: { duration: 0.8, delay: 0.2 }
                   }
                 }}
-                className="flex flex-col space-y-8 items-center md:items-start justify-center"
+                className='flex flex-col space-y-8 items-center md:items-start justify-center'
               >
-                <Typography className="font-semibold font-poppins text-[#6C63FF] text-2xl md:text-2xl capitalize">
+                <Typography className='font-semibold font-poppins text-white text-2xl md:text-2xl capitalize'>
                   {item.title}
                 </Typography>
-                <Typography className="font-normal font-poppins md:font-extralight text-[#333] text-xs md:text-lg text-center md:text-start capitalize">
+                <Typography className='font-normal font-poppins md:font-extralight text-white text-xs md:text-lg text-center md:text-start capitalize'>
                   {item.content}
                 </Typography>
               </motion.div>

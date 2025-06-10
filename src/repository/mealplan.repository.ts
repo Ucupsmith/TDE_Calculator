@@ -120,9 +120,15 @@ export const getCustomUserFood = async (params: {
   }
 };
 
-export const getMainUserFoods = async (): Promise<any> => {
+export const getMainUserFoods = async (params: {
+  name: string;
+}): Promise<any> => {
+  const { name } = params;
   try {
-    const response = await mealService.get('/foods/', {
+    const response = await mealService.get(`/foods/`, {
+      params: {
+        name
+      },
       headers: {
         Accept: 'application/json'
       }
@@ -133,32 +139,5 @@ export const getMainUserFoods = async (): Promise<any> => {
     return response.data;
   } catch (error) {
     console.log(`Cannot Get All Main Foods :${error}`);
-  }
-};
-
-export const getMealRemaining = async (params: {
-  tdeeId: number;
-  userId: number;
-  accessToken: string;
-}): Promise<any> => {
-  const { accessToken, userId, tdeeId } = params;
-  try {
-    const response = await mealService.get(
-      `/meal-plans/remaining?userId=${userId}&tdeeId=${tdeeId}`,
-      {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    );
-    if (!response) {
-      console.log('meal remaining null:', response);
-      return null;
-    }
-    return response.data;
-  } catch (error) {
-    console.log(`error fetching meal remaining: ${error}`);
-    return null;
   }
 };

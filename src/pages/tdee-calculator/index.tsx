@@ -16,7 +16,6 @@ import {
 import { getSession, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { useEffect, useState, useCallback } from 'react';
-import { useTdeeCalculator } from '@/hooks/useTdeeCalculator';
 import { useTdee } from '@/common/TdeeProvider';
 import LoadingTdee from '@/assets/tdee-calculator/loadingTdee.png';
 
@@ -61,10 +60,8 @@ const TdeeCalculatorPage = () => {
   const formWatch = watch();
   const [calculateTdee, setCalculateTdee] =
     useState<TdeeCalculateInterface | null>(null);
-  const { fetchDataTdee: fetchTdeeData } = useTdeeCalculator();
-
   const { setTdeeId } = useTdee();
-  const calculateTdeeData = useCallback(
+  const fetchDataTdee = useCallback(
     async (data: TdeeFormType): Promise<void> => {
       try {
         setIsLoading(true);
@@ -112,7 +109,6 @@ const TdeeCalculatorPage = () => {
     },
     [reset]
   );
-
   const handleSaveTdee = async () => {
     if (!calculateTdee) {
       return;
@@ -140,34 +136,13 @@ const TdeeCalculatorPage = () => {
       setIsLoading(false);
     }
   };
-
-  const handleFormSubmit = useCallback(() => {
-    const formData = watch();
-    calculateTdeeData(formData);
-  }, [calculateTdeeData, watch]);
-
   useEffect(() => {
-    if (userId) {
-      fetchTdeeData();
-    }
-  }, [userId, fetchTdeeData]);
-
+    void fetchDataTdee;
+    void saveTdeeCalculationToHome;
+  }, []);
   const handleButtonClick = (): void => {
     setButtonClicked(!buttonClicked);
   };
-
-  // if (isLoading) {
-  //   return (
-  //     <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-green-800'>
-  //       <div className='flex flex-col items-center justify-center gap-3 h-full'>
-  //         <Image src={LoadingTdee} alt={String(LoadingTdee)} />
-  //         <Typography className='text-white font-poppins font-semibold text-center text-lg'>
-  //           loading ...
-  //         </Typography>
-  //       </div>
-  //     </div>
-  //   );
-  // }
   return (
     <div className='w-full md:items-center h-auto flex flex-col justify-evenly gap-3 md:space-y-10 '>
       <Typography className='text-center flex items-center justify-center md:hidden text-[#34D399] font-poppins font-semibold text-lg md:text-4xl capitalize h-20'>
@@ -328,23 +303,23 @@ const TdeeCalculatorPage = () => {
           </div>
         </div>
         <Button
-          onClick={handleFormSubmit}
+          onClick={() => handleSubmit(fetchDataTdee)()}
           className='w-44 md:w-60 h-7 md:h-12 flex justify-center items-center capitalize rounded-md bg-[#34D399] text-sm md:text-2xl text-white hover:scale-125'
         >
-          calculate
+          calculate now !
         </Button>
       </div>
       <div className='w-full'>
         <TdeeCalculationComponent
-          onClick={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleFormSubmit}
-          onSave={handleSaveTdee}
-          loading={isLoading}
           bmi={calculateTdee?.bmi ?? 0}
           tdee={calculateTdee?.tdee ?? 0}
           bmiCategory={calculateTdee?.bmiCategory ?? 'N/A'}
           goal={calculateTdee?.goal}
+          onClick={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={() => handleSubmit(fetchDataTdee)()}
+          onSave={handleSaveTdee}
+          loading={isLoading}
         />
       </div>
     </div>

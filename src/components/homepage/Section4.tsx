@@ -26,10 +26,10 @@ const label: IconProps[] = [
 const Section4: React.FC = () => {
   const { push } = useRouter();
   return (
-    <div className="md:w-full md:h-24 h-28 flex flex-col md:justify-end justify-start bg-gradient-to-br from-[#E9E3FF] via-[#F8E1F4] to-[#F3F6FF] rounded-2xl shadow-xl p-2">
-      <div className="flex flex-row justify-center items-center h-16 gap-2">
-        <div className="w-full flex justify-center">
-          <Typography className="font-poppins font-bold text-[#6C63FF] uppercase text-2xl md:text-4xl drop-shadow-md">
+    <div className='md:w-full md:h-24 h-28 flex flex-col md:justify-end justify-start'>
+      <div className='flex flex-row justify-center items-center h-16'>
+        <div className='w-full flex justify-center'>
+          <Typography className='font-poppins font-bold text-[#34D399] uppercase text-2xl md:text-4xl'>
             tdee
           </Typography>
         </div>
@@ -41,9 +41,9 @@ const Section4: React.FC = () => {
                 onClick={async () => {
                   push(item.navigate);
                 }}
-                className="w-full flex justify-between items-center cursor-pointer hover:scale-105 transition-all"
+                className='w-full flex justify-between items-center'
               >
-                <Typography className="font-normal font-poppins text-center w-full text-[#FF6CA3] text-[10px] md:text-lg">
+                <Typography className='font-normal font-poppins text-center w-full text-white text-[8px] md:text-lg'>
                   {item.label}
                 </Typography>
               </div>

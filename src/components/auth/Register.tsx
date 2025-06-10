@@ -9,21 +9,29 @@ import Google from '@/assets/auth/Google.svg';
 import Facebook from '@/assets/auth/Facebook.svg';
 import { useRouter } from 'next/router';
 import { AsyncCallbackSet } from 'next/dist/server/lib/async-callback-set';
-import { useAuthRegister } from '@/hooks/useAuthRegister';
+import { useAuthRegister } from '@/hooks/useAuthRegist';
 import { registerUser } from '@/repository/auth.repository';
 import Checklist from '@/assets/auth/checklist.png';
 import ErrorAlert from '@/assets/auth/error-alert-button-symbol.png';
 import { number } from 'zod';
-import type { RegisterProps } from '@/types/auth';
 
+interface RegisterProps {
+  username: string;
+  number_phone: string;
+  select_number: string;
+  password: string;
+  email: string;
+}
 const valueOption = ['+62', '+61', '+60'];
 
 const RegisterComponent = (): JSX.Element => {
   const { push } = useRouter();
-  const [registeredUser, setIsRegisteredUser] = useState<any>(null);
-  const [isRegist, setIsRegist] = useState<boolean>(false);
   const [isLoading, setIsloading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [registeredUser, setIsRegisteredUser] = useState<RegisterProps | null>(
+    null
+  );
+  const [isRegist, setIsRegist] = useState<RegisterProps | boolean>(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -37,29 +45,22 @@ const RegisterComponent = (): JSX.Element => {
     formState: { errors },
     watch
   } = useAuthRegister();
-
   useEffect(() => {
-    if (registeredUser) {
+    if (registeredUser !== null) {
       const timer = setTimeout(() => {
-        setIsRegist(false);
+        setIsRegisteredUser(registeredUser);
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [registeredUser]);
-
-  const handleRegister = async (data: RegisterProps) => {
-    try {
-      await fetchDataRegist(data);
-      setIsRegist(true);
-    } catch (error) {
-      console.error('Registration error:', error);
+    if (registeredUser !== isRegist) {
+      setIsRegist(!isRegist);
+      setIsRegisteredUser(registeredUser);
     }
-  };
-
+  }, []);
   const fetchDataRegist = async (data: RegisterProps): Promise<void> => {
     try {
-      setIsloading(true);
-      setError(null);
+      setIsloading(!isLoading);
+      setError(error);
       const response = await registerUser({
         username: data.username,
         number_phone: `${data.select_number}${data.number_phone}`,
@@ -71,28 +72,19 @@ const RegisterComponent = (): JSX.Element => {
       }
       reset();
     } catch (error: any) {
-      console.error('Registration error:', error);
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data.message;
         if (status === 400 && message === 'Email Already Exist!') {
           setIsRegist(false);
           setIsRegisteredUser(null);
-          setError('Email already exists. Please use a different email address.');
-        } else {
-          setError(`Registration failed: ${message || 'Unknown error occurred'}`);
+          return;
         }
-      } else if (error.request) {
-        // Network error
-        setError('Network error: Please check your internet connection and try again.');
-      } else {
-        setError('An unexpected error occurred. Please try again later.');
       }
     } finally {
       setIsloading(false);
     }
   };
-
   return (
     <div className='md:w-full md:min-h-screen md:flex md:flex-row w-full'>
       <div className='md:w-1/2 w-full flex flex-col bg-[#132A2E] justify-around '>
@@ -215,20 +207,12 @@ const RegisterComponent = (): JSX.Element => {
             <div className='md:w-80 w-60 flex flex-col items-center gap-2'>
               <Button
                 onClick={async () => {
-                  await handleSubmit(handleRegister)();
+                  await handleSubmit(fetchDataRegist)();
                 }}
                 className='border-none w-full rounded-[25px] bg-[#144B3C]'
               >
                 {!isLoading ? 'Sign Up Now' : 'Sign up ...'}
               </Button>
-              {error && (
-                <div className='flex flex-row gap-1 w-44 md:w-72 h-14 rounded-md border border-none bg-red-100 items-center justify-center'>
-                  <Image src={ErrorAlert} alt='error' className='w-6' />
-                  <Typography className='font-poppins font-semibold text-sm text-center md:text-lg text-red-600'>
-                    {error}
-                  </Typography>
-                </div>
-              )}
               {!isLoading && registeredUser && (
                 <div className='flex flex-row gap-1 w-44 md:w-72 h-14 rounded-md border border-none bg-white items-center justify-center'>
                   <Image src={Checklist} alt={''} className='w-6' />
