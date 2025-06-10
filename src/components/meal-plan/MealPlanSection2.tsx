@@ -85,7 +85,7 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
           720: { slidesPerView: 3 },
           1440: { slidesPerView: 5 }
         }}
-        className='w-full gap-10'
+        className='w-full gap-10 md:h-auto items-center justify-center flex'
         spaceBetween={20}
         modules={[Pagination]}
         onSwiper={(swiper) => {
@@ -103,8 +103,8 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
                 <SwiperSlide key={idx} className='w-full'>
                   <input type='checkbox' className='sr-only' />
                   <div className='flex flex-row gap-10'>
-                    <Card className='w-56 cursor-pointer rounded-xl bg-white peer-checked:ring-blue-500 border-green-500  peer-checked:grayscale-0 active:scale-95 transition-all gap-10'>
-                      <CardBody className='w-80 flex h-40 flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 border-[3px] rounded-lg border-green-500'>
+                    <Card className='w-full border cursor-pointer rounded-xl bg-white peer-checked:ring-blue-500 border-green-500 peer-checked:grayscale-0 active:scale-95 transition-all gap-10'>
+                      <CardBody className='w-full flex h-40 flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 border-[3px] rounded-lg border-green-500 shadow-md shadow-green-500'>
                         <div className='w-full flex flex-row justify-end'>
                           <Image
                             src={TrashBin}
@@ -139,7 +139,7 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
               );
             })
           ) : (
-            <div className='w-full border rounded-lg h-40 flex flex-col items-center justify-center border-green-500'>
+            <div className='w-full border rounded-lg h-40 flex flex-col items-center justify-center border-green-500 shadow-lg shadow-green-500 transition-all duration-75 ease-linear'>
               <Typography className='text-xl text-white font-poppins font-semibold md:text-lg capitalize'>
                 no custom food
               </Typography>

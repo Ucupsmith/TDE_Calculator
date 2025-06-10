@@ -43,7 +43,6 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
   onSelect,
   onSave,
   loading = false,
-
   selectedFoods
 }) => {
   const [saveButton, setSaveButton] = useState<boolean>(false);
@@ -60,11 +59,11 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
   return (
     <div className='w-full'>
       {!loading ? (
-        <div className='flex flex-col gap-3 px-3'>
+        <div className='flex flex-col gap-3 px-2'>
           <Typography className='font-poppins font-normal text-green-500 text-lg md:text-lg  capitalize'>
             Lets choose how you prepare your meal
           </Typography>
-          <div className='w-full flex flex-wrap justify-center items-start gap-4 px-2 md:px-0'>
+          <div className='w-full flex flex-wrap justify-center items-start gap-4 md:px-0'>
             {data?.length > 0 && data?.length !== null
               ? data?.map((food) => {
                   const currentFoodId = Number(food.id);
@@ -84,11 +83,11 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                       </div>
                       <div
                         key={food.id}
-                        className='w-32 md:w-40 lg:w-full rounded-xl peer-checked:ring-[5px] peer-checked:ring-seeds-green peer-checked:ring-offset-2
+                        className='w-full md:w-40 lg:w-full rounded-xl peer-checked:ring-2 peer-checked:ring-seeds-green 
                 peer-checked: transition-all 
                 '
                       >
-                        <div className='border-[3px] border-seeds-green rounded-lg  flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3'>
+                        <div className='md:w-full border-[3px] border-seeds-green rounded-lg flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 h-60 shadow-lg shadow-green-500'>
                           <div className='flex flex-col gap-2 w-full items-center justify-center'>
                             <Image
                               src={
@@ -107,8 +106,8 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                             />
                           </div>
                           <div className='w-full flex justify-center gap-2'>
-                            <Typography className='text-white font-poppins font-semibold text-xl md:text-xl capitalize'>
-                              {`${food.name.length > 9 ? `${food.name.slice(0, 7)}` : food.name}`}
+                            <Typography className='text-white font-poppins font-semibold text-sm md:text-xl capitalize flex text-center'>
+                              {`${food.name.length > 15 ? food.name.slice(0, 17) : food.name}`}
                             </Typography>
                           </div>
                           <div className='flex flex-row gap-2 w-full justify-center'>
@@ -134,7 +133,7 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                 handleSave();
                 handleSavebutton();
               }}
-              className='bg-green-500 rounded-full  w-64 h-10'
+              className='bg-green-500 rounded-full w-64 h-10'
             >
               save
             </Button>
