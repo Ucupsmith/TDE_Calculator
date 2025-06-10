@@ -476,7 +476,7 @@ const MealPlanPage = () => {
       <MealPlanCustom data={allCustomFoods} onDelete={handleDeleteCustomFood} />
       <MealPlanSearchComponent
         onChange={setSearchFoods}
-        placeholder='type foods..'
+        placeholder='type foods...'
         value={searchFoods}
         onSubmit={handleSaveSearchFoods}
       />
