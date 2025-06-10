@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -12,7 +12,6 @@ import {
 import { useSession } from 'next-auth/react';
 import { useTdee } from '@/common/TdeeProvider';
 import { CustomSlidesPagination } from '../custom-pagination/CustomPaginationSlides';
-import { useTdeeCalculator } from '@/hooks/useTdeeCalculator';
 
 export interface TdeeProps {
   tdeeId?: string;
@@ -30,11 +29,12 @@ interface TdeePayloadDelete {
   userId: number;
   accessToken?: string;
 }
-
 const Section2: React.FC = () => {
   const { data: session } = useSession();
   const { setTdeeId } = useTdee();
-  const { userId, fetchDataTdee: fetchTdeeData, deleteTdeeCalculation } = useTdeeCalculator();
+  const userId = session?.user.userId as number;
+  console.log('userId:', userId);
+  // const { tdeeId } = useParams();
   const accessToken = session?.user.accessToken;
   const [TdeeDisplay, setTdeeDisplay] = useState<TdeeProps[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -43,24 +43,74 @@ const Section2: React.FC = () => {
     threshold: 0.2
   });
 
-  const handleDelete = useCallback(async (id: number) => {
-    try {
-      await deleteTdeeCalculation(id);
-      await fetchTdeeData();
-    } catch (error) {
-      console.error('Error deleting TDEE:', error);
+  const fetchDataTdee = async (): Promise<void> => {
+    if (!userId) {
+      console.log(
+        'fetchDataTdee: userId is falsy at the start of the function, returning early.'
+      );
+      setError('Internal Error: User ID missing.');
+      return;
     }
-  }, [deleteTdeeCalculation, fetchTdeeData]);
-
+    const payload = {
+      userId: userId,
+      accessToken: session?.user?.accessToken as string
+    };
+    try {
+      const historyData = await getTdeeCalculationHome(payload);
+      if (historyData.length > 0) {
+        const latestTdee = historyData[historyData.length - 1]; // Ambil data terbaru
+        setTdeeId(latestTdee.tdeeId); // ✅ Simpan ke context
+      }
+      console.log('getTdeeCalculation home menyala:', historyData);
+      if (historyData && Array.isArray(historyData)) {
+        setTdeeDisplay(historyData);
+        setError(null); // Clear error jika berhasil
+      } else {
+        console.warn(
+          'fetchDataTdee: Repository returned unexpected data format:',
+          historyData
+        );
+        setTdeeDisplay([]);
+        setError('Failed to load TDEE history: Invalid data format.');
+      }
+      return historyData;
+    } catch (error) {
+      setTdeeDisplay([]);
+      setError('Failed to load TDEE history.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const deleteTdeeCalculation = async (tdeeId: number) => {
+    try {
+      const payload: TdeePayloadDelete = {
+        userId: userId,
+        accessToken: accessToken,
+        tdeeId: tdeeId
+      };
+      if (!payload) {
+        console.log('error payload', payload);
+        return; // Added return here
+      }
+      setTdeeDisplay((prev) =>
+        prev.filter((item) => Number(item.tdeeId) !== tdeeId)
+      );
+      await deleteSaveTdee(payload);
+      fetchDataTdee();
+    } catch (error) {
+      console.error('Error deleting TDEE data:', error);
+    }
+  };
   useEffect(() => {
     if (userId) {
-      fetchTdeeData();
+      fetchDataTdee();
     }
-  }, [userId, fetchTdeeData]);
+    void deleteTdeeCalculation;
+  }, [userId]);
 
   return (
-    <div className="w-full md:py-0 py-3 px-4 flex flex-col justify-center items-center gap-3 section-bg bg-gradient-to-br from-[#E9E3FF] via-[#F8E1F4] to-[#F3F6FF] rounded-2xl shadow-xl">
-      <div className="flex flex-row items-center justify-evenly w-full">
+    <div className='w-full md:py-0 py-3 px-4 flex flex-col justify-center items-center gap-3'>
+      <div className='flex flex-row items-center justify-evenly w-full'>
         <motion.div
           ref={ref}
           animate={{ y: [0, -10, 0] }}
@@ -69,15 +119,15 @@ const Section2: React.FC = () => {
             repeat: Infinity,
             ease: 'easeInOut'
           }}
-          className="w-8 border overflow-hidden bg-[#E9E3FF] rounded-full shadow-md"
+          className='w-6 border overflow-hidden bg-green-300 rounded-full'
         >
-          <Image className="w-20" src={Circle} alt={Circle} />
+          <Image className='w-20' src={Circle} alt={Circle} />
         </motion.div>
-        <div className="flex flex-row gap-1">
-          <Typography className="font-normal font-poppins text-[#6C63FF] text-base md:text-lg">
+        <div className='flex flex-row gap-1'>
+          <Typography className='font-normal font-poppins text-white text-sm md:text-lg  '>
             Scroll down for
           </Typography>
-          <Typography className="font-bold font-poppins text-[#FF6CA3] text-base md:text-lg">
+          <Typography className='font-bold font-poppins text-white text-sm md:text-lg'>
             MORE
           </Typography>
         </div>
@@ -89,23 +139,23 @@ const Section2: React.FC = () => {
             repeat: Infinity,
             ease: 'easeInOut'
           }}
-          className="w-8 border overflow-hidden bg-[#E9E3FF] rounded-full shadow-md"
+          className='w-6 border overflow-hidden bg-green-300 rounded-full'
         >
-          <Image className="w-20" src={Circle} alt={Circle} />
+          <Image className='w-20' src={Circle} alt={Circle} />
         </motion.div>
       </div>
-      <Button className="py-2 px-6 text-white font-poppins font-semibold text-base md:text-lg bg-gradient-to-r from-[#6C63FF] to-[#FF6CA3] rounded-[24px] shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl">
+      <Button className='py-1 text-white font-poppins font-semibold text-sm md:text-lg bg-[#144B3C] hover:scale-100'>
         BMI Score Record
       </Button>
       {isLoading && (
-        <Typography className="text-[#6C63FF]">Loading TDEE data...</Typography>
+        <Typography className='text-white'>Loading TDEE data...</Typography>
       )}
-      {error && <Typography className="text-red-500">{error}</Typography>}
-      <div className="w-full gap-2">
+      {error && <Typography className='text-red-500'>{error}</Typography>}
+      <div className='w-full gap-2'>
         <CardBMI
           data={TdeeDisplay}
           loading={isLoading}
-          onDelete={handleDelete}
+          onDelete={deleteTdeeCalculation}
         />
       </div>
     </div>

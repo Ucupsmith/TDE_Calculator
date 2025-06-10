@@ -71,7 +71,7 @@ const CardBMI: React.FC<PropsCardBmi> = ({ data, onDelete }) => {
             return (
               <SwiperSlide key={idx}>
                 <div className='flex flex-row w-full'>
-                  <Card className='md:w-96 flex flex-col rounded-[24px] w-72 h-60 py-2 px-2 bg-white border border-[#E9E3FF] shadow-lg'>
+                  <Card className='md:w-96 flex flex-col rounded-[20px] w-72 h-60 py-2 px-2 bg-transparent border border-green-400'>
                     <div
                       onClick={() => onDelete(tdeeIdNumber)}
                       className='flex flex-row justify-end px-3 cursor-pointer'
@@ -80,10 +80,10 @@ const CardBMI: React.FC<PropsCardBmi> = ({ data, onDelete }) => {
                     </div>
                     <CardBody className='h-full flex flex-col items-center justify-between gap-2'>
                       <div className='flex flex-col w-full h-full items-center justify-center gap-2 px-2'>
-                        <Typography className='font-bold font-poppins text-[#6C63FF] uppercase text-6xl md:text-5xl'>
+                        <Typography className='font-bold font-poppins text-green-400 uppercase text-6xl md:text-5xl'>
                           {Math.ceil(Number(item.tdee_result))}
                         </Typography>
-                        <Typography className='font-normal font-poppins text-xs md:text-xl capitalize text-[#FF6CA3]'>
+                        <Typography className='font-normal font-poppins text-xs md:text-xl capitalize text-green-400'>
                           Last Calculation :{' '}
                           {item.calculation_date.split('T')[0]}
                         </Typography>
@@ -96,7 +96,7 @@ const CardBMI: React.FC<PropsCardBmi> = ({ data, onDelete }) => {
           })
         ) : (
           <div className='w-full h-full flex justify-center items-center'>
-            <Typography className='font-normal font-poppins text-[#6C63FF] text-sm md:text-lg'>
+            <Typography className='font-normal font-poppins text-white text-sm md:text-lg'>
               No TDEE history available.
             </Typography>
           </div>
