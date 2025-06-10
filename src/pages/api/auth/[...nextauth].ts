@@ -41,11 +41,9 @@ const authOptions: NextAuthOptions = {
         const data = await response.json();
         console.log('data', data);
         console.log(`data dari backend ${data}`);
-        if (!data.ok) {
-          console.log(data.message || 'Invalid credentials');
-        }
         if (!data.data || !data.token) {
-          console.log('Invalid response structure');
+          console.log('Invalid response structure: missing data or token');
+          return null;
         }
 
         return {

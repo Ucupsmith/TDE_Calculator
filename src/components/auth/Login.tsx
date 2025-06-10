@@ -25,6 +25,11 @@ const LoginComponent = (): JSX.Element => {
   const searchParams = useSearchParams();
   const errorParams = searchParams.get('error');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const {
     register,
@@ -35,7 +40,7 @@ const LoginComponent = (): JSX.Element => {
   } = useAuthLogin();
   useEffect(() => {
     if (errorParams === 'CredentialsSignin') {
-      setErrorMessage('Account not found or incorrect passwor');
+      setErrorMessage('Invalid email or password.');
     } else if (errorParams === 'OAuthAccountNotLinked') {
       setErrorMessage(
         'This email is already registered with another provider.'
@@ -54,7 +59,7 @@ const LoginComponent = (): JSX.Element => {
         const session = await getSession();
         const token = session?.user.accessToken;
         if (token) {
-          localStorage.setItem(token, 'accessToken');
+          localStorage.setItem('accessToken', token);
         }
         console.log(session?.user.accessToken);
       }
@@ -111,7 +116,7 @@ const LoginComponent = (): JSX.Element => {
               </label>
               <div className='flex flex-col gap-1'>
                 <Input
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
                   placeholder='please insert your password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
@@ -119,6 +124,11 @@ const LoginComponent = (): JSX.Element => {
                   }}
                   crossOrigin={''}
                   {...register('password')}
+                  icon={
+                    <span onClick={togglePasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showPassword ? '👁️' : '🔒'}
+                    </span>
+                  }
                 />
                 {errors.password && (
                   <Typography className='font-poppins font-normal text-red-900 text-sm md:text-lg'>
@@ -148,7 +158,7 @@ const LoginComponent = (): JSX.Element => {
               )}
               <div className='flex flex-row gap-1'>
                 <Typography className='font-semibold font-poppins md:text-sm text-[12px] text-white'>
-                  Don’t have an Account?
+                  Don't have an Account?
                 </Typography>
                 <Typography
                   onClick={async () => await push('/auth/register')}

@@ -9,6 +9,8 @@ import { requestPasswordReset } from '@/repository/auth.repository';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useRouter } from 'next/router';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 // import { toast } from 'react-hot-toast';
 
 const forgotPasswordSchema = z.object({
@@ -18,6 +20,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 const ForgotPasswordComponent = () => {
+  const router = useRouter();
   const {
     register,
     reset,
@@ -67,6 +70,13 @@ const ForgotPasswordComponent = () => {
               Enter the email associated with your account
             </Typography>
           </div>
+          <button
+            onClick={() => router.push('/auth/login')}
+            className='flex items-center text-white hover:text-gray-300'
+          >
+            <ArrowLeftIcon className='h-5 w-5 mr-1' />
+            Back to Login
+          </button>
           <form onSubmit={handleSubmit(onSubmit)} className='md:w-96 w-72 flex flex-col px-3 gap-4'>
             <div>
               <label htmlFor='email' className='font-poppins font-semibold text-sm text-white'>

@@ -230,6 +230,12 @@ const MealPlanPage = () => {
   };
 
   useEffect(() => {
+    console.log('MealPlanPage useEffect triggered:');
+    console.log('Status:', status);
+    console.log('userId:', userId);
+    console.log('tdeeId:', tdeeId);
+    console.log('accessToken:', accessToken);
+
     if (userId && tdeeId && accessToken) {
       console.log(
         'All conditions met in MealPlanPage, fetching meal data and foods...'
@@ -241,9 +247,7 @@ const MealPlanPage = () => {
         'Conditions not met in MealPlanPage, not fetching initial data.'
       );
     }
-    void fetchDataGetMeal();
-    void fetchDataFoods();
-  }, [userId, tdeeId, accessToken]);
+  }, [userId, tdeeId, accessToken, status]);
 
   const handleSaveCustomFood = (data: CustomMealType) => {
     const payload: CustomFoodsProps = {

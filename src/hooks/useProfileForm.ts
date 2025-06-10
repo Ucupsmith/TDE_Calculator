@@ -9,6 +9,9 @@ const ProfileFormSchema = z.object({
     required_error: 'Gender is required',
   }).optional(),
   address: z.string().min(1, { message: 'Address is required' }),
+  phone_number: z.string().min(10, { message: 'Phone Number must be at least 10 digits' })
+                       .max(12, { message: 'Phone Number must be at most 12 digits' })
+                       .regex(/^[0-9]+$/, { message: 'Phone Number must contain only digits' }),
 });
 
 // Define the TypeScript type based on the schema
@@ -29,6 +32,7 @@ export const useProfileForm = () => {
       full_name: '',
       gender: undefined,
       address: '',
+      phone_number: '',
     },
   });
 

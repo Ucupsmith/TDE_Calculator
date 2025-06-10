@@ -41,16 +41,18 @@ const ResetPasswordForm = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false); // State to track success
+  const [showPassword, setShowPassword] = useState(false); // New state for password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // New state for confirm password visibility
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
 
   const onSubmit = async (data: ResetPasswordFormType) => {
-    console.log('onSubmit called', data);
-    // Check if token exists - Temporarily commented out for slicing view
-    // if (!token || typeof token !== 'string') {
-    //     setMessage('Invalid or missing reset token.');
-    //     setIsError(true);
-    //     return; // Stop the submission
-    // }
-
     setIsLoading(true);
     setMessage(null);
     setIsError(false);
@@ -67,7 +69,6 @@ const ResetPasswordForm = () => {
       // Removed automatic redirect to allow user to click the button
 
     } catch (error: any) {
-      console.error('Password reset failed:', error);
       // Display error message from backend if available, otherwise a generic one
       setMessage(error.response?.data?.message || 'Terjadi kesalahan saat mereset password.');
       setIsError(true);
@@ -107,7 +108,7 @@ const ResetPasswordForm = () => {
                   New Password
                 </label>
                 <Input
-                  type='password' // Use type password
+                  type={showPassword ? 'text' : 'password'} // Use dynamic type based on state
                   placeholder='Enter new password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
@@ -116,6 +117,11 @@ const ResetPasswordForm = () => {
                   crossOrigin={''}
                   {...register('password')}
                   disabled={isLoading || resetSuccess}
+                  icon={ // Add icon to toggle visibility
+                    <span onClick={togglePasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showPassword ? '👁️' : '🔒'} {/* Using emojis for simplicity, replace with proper icons */}
+                    </span>
+                  }
                 />
                 {errors.password && (
                   <Typography color="red" className='font-poppins font-normal text-sm mt-1'>
@@ -128,7 +134,7 @@ const ResetPasswordForm = () => {
                   Confirm New Password
                 </label>
                 <Input
-                  type='password' // Use type password
+                  type={showConfirmPassword ? 'text' : 'password'} // Use dynamic type based on state
                   placeholder='Confirm new password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
@@ -137,6 +143,11 @@ const ResetPasswordForm = () => {
                   crossOrigin={''}
                   {...register('confirmPassword')}
                   disabled={isLoading || resetSuccess}
+                  icon={ // Add icon to toggle visibility
+                    <span onClick={toggleConfirmPasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showConfirmPassword ? '👁️' : '🔒'} {/* Using emojis for simplicity, replace with proper icons */}
+                    </span>
+                  }
                 />
                 {errors.confirmPassword && (
                   <Typography color="red" className='font-poppins font-normal text-sm mt-1'>
