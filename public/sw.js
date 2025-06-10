@@ -1,84 +1,101 @@
-// Nama cache yang digunakan untuk menyimpan file statis
-const CACHE_NAME = 'tdee-calculator-v1';
+/**
+ * Copyright 2018 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-// Daftar file yang akan disimpan ke cache saat service worker di-install
-const urlsToCache = [
-  '/',                      // Root halaman utama
-  '/index.html',            // Halaman utama HTML
-  '/manifest.json',         // Web App Manifest
-  '/tdee.svg',              // Ikon/logo aplikasi
-  '/homeicon.svg',          // Ikon navigasi home
-  '/articleicon.svg',       // Ikon navigasi artikel
-  '/offersicon.svg',        // Ikon navigasi penawaran
-  '/mealplan.svg',          // Ikon meal plan
-  '/profileicon.svg',       // Ikon profil
-  '/article1gambar.svg',    // Gambar artikel pertama
-  '/lari.svg',              // Ikon/gambar aktivitas lari
-  '/sleep.svg',             // Ikon/gambar tidur
-  '/nofound.png',           // Gambar not found / 404
-  '/joko.jpg',              // Gambar pengguna/ilustrasi
-  '/nilon.jpg'              // Gambar pengguna/ilustrasi
-];
+// If the loader is already loaded, just stop.
+if (!self.define) {
+  let registry = {};
 
-// Event ini dijalankan saat service worker di-install pertama kali
-self.addEventListener('install', (event) => {
-  // Menyimpan semua resource ke dalam cache
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
-});
+  // Used for `eval` and `importScripts` where we can't get script URL by other means.
+  // In both cases, it's safe to use a global var because those functions are synchronous.
+  let nextDefineUri;
 
-// Event ini menangani semua permintaan fetch (request ke server)
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    // Cek apakah permintaan sudah ada di cache
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
-          // Jika ada di cache, langsung kembalikan dari cache
-          return response;
-        }
-
-        // Jika tidak ada di cache, ambil dari jaringan (fetch)
-        return fetch(event.request)
-          .then((response) => {
-            // Jika response tidak valid, langsung return
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone response agar bisa disimpan di cache dan dikembalikan
-            const responseToCache = response.clone();
-
-            // Simpan salinan ke cache untuk penggunaan berikutnya
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          });
-      })
-  );
-});
-
-// Event dijalankan saat service worker diaktifkan (biasanya setelah update)
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    // Hapus cache lama jika ada versi cache yang berbeda
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            // Hapus cache lama
-            return caches.delete(cacheName);
+  const singleRequire = (uri, parentUri) => {
+    uri = new URL(uri + ".js", parentUri).href;
+    return registry[uri] || (
+      
+        new Promise(resolve => {
+          if ("document" in self) {
+            const script = document.createElement("script");
+            script.src = uri;
+            script.onload = resolve;
+            document.head.appendChild(script);
+          } else {
+            nextDefineUri = uri;
+            importScripts(uri);
+            resolve();
           }
         })
-      );
-    })
-  );
-});
+      
+      .then(() => {
+        let promise = registry[uri];
+        if (!promise) {
+          throw new Error(`Module ${uri} didn’t register its module`);
+        }
+        return promise;
+      })
+    );
+  };
+
+  self.define = (depsNames, factory) => {
+    const uri = nextDefineUri || ("document" in self ? document.currentScript.src : "") || location.href;
+    if (registry[uri]) {
+      // Module is already loading or loaded.
+      return;
+    }
+    let exports = {};
+    const require = depUri => singleRequire(depUri, uri);
+    const specialDeps = {
+      module: { uri },
+      exports,
+      require
+    };
+    registry[uri] = Promise.all(depsNames.map(
+      depName => specialDeps[depName] || require(depName)
+    )).then(deps => {
+      factory(...deps);
+      return exports;
+    });
+  };
+}
+define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
+
+  importScripts();
+  self.skipWaiting();
+  workbox.clientsClaim();
+  workbox.registerRoute("/", new workbox.NetworkFirst({
+    "cacheName": "start-url",
+    plugins: [{
+      cacheWillUpdate: async ({
+        request,
+        response,
+        event,
+        state
+      }) => {
+        if (response && response.type === 'opaqueredirect') {
+          return new Response(response.body, {
+            status: 200,
+            statusText: 'OK',
+            headers: response.headers
+          });
+        }
+        return response;
+      }
+    }]
+  }), 'GET');
+  workbox.registerRoute(/.*/i, new workbox.NetworkOnly({
+    "cacheName": "dev",
+    plugins: []
+  }), 'GET');
+  self.__WB_DISABLE_DEV_LOGS = true;
+
+}));

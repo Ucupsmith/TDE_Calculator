@@ -1,12 +1,14 @@
 {
   "name": "front-end",
   "version": "0.1.0",
+  "homepage": "http://tdeecalculation.xyz/",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate:articles": "ts-node src/scripts/migrateArticles.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
