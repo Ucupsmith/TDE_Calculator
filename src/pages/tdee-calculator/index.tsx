@@ -155,18 +155,6 @@ const TdeeCalculatorPage = () => {
   const handleButtonClick = (): void => {
     setButtonClicked(!buttonClicked);
   };
-  // if (isLoading) {
-  //   return (
-  //     <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-green-800'>
-  //       <div className='flex flex-col items-center justify-center gap-3 h-full'>
-  //         <Image src={LoadingTdee} alt={String(LoadingTdee)} />
-  //         <Typography className='text-white font-poppins font-semibold text-center text-lg'>
-  //           loading ...
-  //         </Typography>
-  //       </div>
-  //     </div>
-  //   );
-  // }
   return (
     <div className='w-full md:items-center h-auto flex flex-col justify-evenly gap-3 md:space-y-10 '>
       <Typography className='text-center flex items-center justify-center md:hidden text-[#34D399] font-poppins font-semibold text-lg md:text-4xl capitalize h-20'>
