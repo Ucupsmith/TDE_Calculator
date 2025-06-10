@@ -159,7 +159,10 @@ const MealHistory = () => {
   const { data: session } = useSession();
   console.log('Debug - Session data:', session);
 
-  const fetchMealHistory = async (userId: number, accessToken: string): Promise<void> => {
+  const fetchMealHistory = async (
+    userId: number,
+    accessToken: string
+  ): Promise<void> => {
     try {
       setIsLoading(true);
       const payload = { userId, accessToken };
@@ -200,7 +203,10 @@ const MealHistory = () => {
         console.log('payload masuk:', payload);
         if (data) {
           toast.success('Meal deleted successfully!');
-          await fetchMealHistory(Number(session?.user.userId), session?.user.accessToken || '');
+          await fetchMealHistory(
+            Number(session?.user.userId),
+            session?.user.accessToken || ''
+          );
         } else {
           toast.error('Failed to delete meal');
         }
@@ -296,7 +302,7 @@ const MealHistory = () => {
                                   'id-ID',
                                   {
                                     minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0,
+                                    maximumFractionDigits: 0
                                   }
                                 )}
                               </span>
@@ -310,7 +316,7 @@ const MealHistory = () => {
                                   'id-ID',
                                   {
                                     minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0,
+                                    maximumFractionDigits: 0
                                   }
                                 )}
                               </span>
@@ -320,13 +326,12 @@ const MealHistory = () => {
                             <p className='text-gray-400'>
                               Remaining:{' '}
                               <span className='text-white font-bold'>
-                                {Math.ceil(meal.calorieRemaining).toLocaleString(
-                                  'id-ID',
-                                  {
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0,
-                                  }
-                                )}
+                                {Math.ceil(
+                                  meal.calorieRemaining
+                                ).toLocaleString('id-ID', {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0
+                                })}
                               </span>
                             </p>
                           </div>

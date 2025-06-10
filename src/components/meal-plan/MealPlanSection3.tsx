@@ -20,11 +20,11 @@ export interface MealResponse {
 }
 
 interface MealPayload {
+  id: number;
   name: string;
   calories: number;
-  unit: string;
+  unit: string | number;
   isCustom?: boolean;
-  id: number;
 }
 
 interface MealPlanProps {
@@ -34,6 +34,8 @@ interface MealPlanProps {
   loading: boolean;
   checkBox?: number;
   onClick?: number;
+  // checked: number;
+  selectedFoods: MealPayload[];
 }
 
 const MealPlanSection3: React.FC<MealPlanProps> = ({
@@ -41,7 +43,8 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
   onSelect,
   onSave,
   loading = false,
-  checkBox
+
+  selectedFoods
 }) => {
   const [saveButton, setSaveButton] = useState<boolean>(false);
   const handleSave = async () => {
@@ -61,18 +64,20 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
           <Typography className='font-poppins font-normal text-green-500 text-lg md:text-lg  capitalize'>
             Lets choose how you prepare your meal
           </Typography>
-          <div
-            key={checkBox}
-            className='w-full flex flex-wrap justify-center items-start gap-4 px-2 md:px-0'
-          >
+          <div className='w-full flex flex-wrap justify-center items-start gap-4 px-2 md:px-0'>
             {data?.length > 0 && data?.length !== null
-              ? data?.map((food, idx: number) => {
+              ? data?.map((food) => {
+                  const currentFoodId = Number(food.id);
+                  const isCheked = selectedFoods.some(
+                    (selected) => selected.id === currentFoodId
+                  );
                   return (
-                    <label key={idx} className='relative cursor-pointer'>
+                    <label key={food.id} className='relative cursor-pointer'>
                       <input
                         type='checkbox'
                         className='peer hidden'
                         onChange={(e) => onSelect(food, e.target.checked)}
+                        checked={isCheked}
                       />
                       <div className='absolute top-2 right-2 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 peer-checked:opacity-100 transition-opacity duration-200'>
                         ✓
