@@ -133,6 +133,7 @@ export const getMainUserFoods = async (params: {
         Accept: 'application/json'
       }
     });
+    console.log("Raw response data from getMainUserFoods:", response.data);
     if (response.status === null) {
       return await Promise.resolve('data null');
     }

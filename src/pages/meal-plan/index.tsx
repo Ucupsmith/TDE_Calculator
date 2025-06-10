@@ -100,11 +100,16 @@ const MealPlanPage = () => {
     (acc, food) => acc + Number(food.calories),
     0
   );
-  const totalCalories = totalCaloriesCustomFoods + totalCaloriesSelectedFoods;
+
+  // Use totalCalories from mealRemaining if available, otherwise sum of local selections
+  const displayTotalCalories = mealRemaining?.totalCalories
+    ? Number(mealRemaining.totalCalories)
+    : totalCaloriesCustomFoods + totalCaloriesSelectedFoods;
+
   const tdeeGoal = Number(mealRemaining?.tdeeGoal).toFixed(2);
   const percentage =
-    tdeeGoal && totalCalories !== 0
-      ? (totalCalories / Number(tdeeGoal)) * 100
+    tdeeGoal && displayTotalCalories !== 0
+      ? (displayTotalCalories / Number(tdeeGoal)) * 100
       : 0;
 
   const {
@@ -159,6 +164,7 @@ const MealPlanPage = () => {
         name: searchFoods
       };
       const response = await getMainUserFoods(payload);
+      
       if (Array.isArray(response)) {
         setMainFoods(response);
       } else {
@@ -218,7 +224,13 @@ const MealPlanPage = () => {
     setAllCustomFoods([]);
     reset();
 
+    // Also clear from localStorage
+    localStorage.removeItem('selectedFoods');
+    localStorage.removeItem('allCustomFoods');
+    reset();
+
     setButtonClicked(false);
+    await fetchDataGetMeal(); // Ensure fetch completes before proceeding
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -247,7 +259,28 @@ const MealPlanPage = () => {
         'Conditions not met in MealPlanPage, not fetching initial data.'
       );
     }
+
+    // Load from localStorage on initial mount
+    const storedSelectedFoods = localStorage.getItem('selectedFoods');
+    const storedCustomFoods = localStorage.getItem('allCustomFoods');
+
+    if (storedSelectedFoods) {
+      setSelectedFoods(JSON.parse(storedSelectedFoods));
+    }
+    if (storedCustomFoods) {
+      setAllCustomFoods(JSON.parse(storedCustomFoods));
+    }
   }, [userId, tdeeId, accessToken, status]);
+
+  // Save to localStorage whenever selectedFoods changes
+  useEffect(() => {
+    localStorage.setItem('selectedFoods', JSON.stringify(selectedFoods));
+  }, [selectedFoods]);
+
+  // Save to localStorage whenever allCustomFoods changes
+  useEffect(() => {
+    localStorage.setItem('allCustomFoods', JSON.stringify(allCustomFoods));
+  }, [allCustomFoods]);
 
   const handleSaveCustomFood = (data: CustomMealType) => {
     const payload: CustomFoodsProps = {
@@ -329,9 +362,9 @@ const MealPlanPage = () => {
               <div className='flex flex-row w-full gap-2'>
                 <div className='w-1/2 flex flex-row items-center justify-end gap-2'>
                   <Typography
-                    className={`font-poppins font-normal text-lg md:text-xl capitalize ${totalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-900' : 'text-green-500'}`}
+                    className={`font-poppins font-normal text-lg md:text-xl capitalize ${displayTotalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-900' : 'text-green-500'}`}
                   >
-                    {totalCalories}
+                    {displayTotalCalories}
                   </Typography>
                   <Typography className='font-poppins font-normal text-green-500 text-lg md:text-xl capitalize'>
                     /
@@ -346,7 +379,7 @@ const MealPlanPage = () => {
                   </Typography>
                 </div>
                 <div className='w-1/2 flex flex-row gap-1 justify-end items-center md:flex md:justify-evenly'>
-                  {totalCalories > Number(mealRemaining.remainingCalories) ? (
+                  {displayTotalCalories > Number(mealRemaining.remainingCalories) ? (
                     <Image
                       src={DangerButton}
                       alt=''
@@ -354,9 +387,9 @@ const MealPlanPage = () => {
                     />
                   ) : null}
                   <Typography
-                    className={`font-extralight text-center font-poppins text-sm md:text-lg text-green-600 capitalize flex ${totalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-600 text-[12px]' : ''}`}
+                    className={`font-extralight text-center font-poppins text-sm md:text-lg text-green-600 capitalize flex ${displayTotalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-600 text-[12px]' : ''}`}
                   >
-                    {totalCalories > Number(mealRemaining.remainingCalories)
+                    {displayTotalCalories > Number(mealRemaining.remainingCalories)
                       ? 'Over Calories! You might gain weight.'
                       : 'Calories Remaining'}
                   </Typography>
