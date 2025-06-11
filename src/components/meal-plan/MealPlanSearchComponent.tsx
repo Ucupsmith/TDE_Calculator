@@ -27,7 +27,7 @@ const MealPlanSearchComponent: React.FC<SearchProps> = ({
         </label>
         <div className='flex flex-row gap-0'>
           <input type='search' className='sr-only' />
-          <div className='w-10 bg-transparent border border-green-500 rounded-l-lg border-r-0 flex items-center justify-center'>
+          <div className='w-10 bg-transparent border border-green-500 rounded-l-lg border-r-0 flex items-center justify-center shadow-md shadow-green-500'>
             <Image
               src={SearchIcon}
               alt={String(SearchIcon)}
@@ -36,14 +36,14 @@ const MealPlanSearchComponent: React.FC<SearchProps> = ({
           </div>
           <input
             type='text'
-            className='w-40 border border-green-500 rounded-r-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none focus:bg-green-300 text-white shadow-lg duration-100 transition-all h-10 bg-[#132A2E]'
+            className='w-40 border border-green-500 rounded-r-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:outline-none focus:bg-green-300 text-white duration-100 transition-all h-10 bg-[#132A2E] shadow-md shadow-green-700'
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
           />
           <Button
             onClick={handleSubmitFoods}
-            className='w-16 rounded-lg mx-2 text-white shadow-lg bg-green-500 text-center text-[10px] flex items-center justify-center'
+            className='w-16 rounded-lg mx-2 text-white bg-green-500 text-center text-[10px] flex items-center justify-center'
           >
             submit
           </Button>

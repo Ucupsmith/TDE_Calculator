@@ -45,14 +45,15 @@ const EditMealPage = () => {
 
       if (specificMeal) {
         console.log('Fetched specificMeal:', specificMeal);
-        const editableFoods: EditableMealHistoryFood[] =
-          specificMeal.foods.map((food: any) => ({
+        const editableFoods: EditableMealHistoryFood[] = specificMeal.foods.map(
+          (food: any) => ({
             ...food,
-            quantity: food.quantity,
-          }));
+            quantity: food.quantity
+          })
+        );
         setMeal({
           ...specificMeal,
-          foods: editableFoods,
+          foods: editableFoods
         });
       } else {
         toast.error('Meal not found');
@@ -86,7 +87,7 @@ const EditMealPage = () => {
     try {
       // Call the delete service to remove the food entry from the backend
       await DeleteSelectionMeal({
-        foodEntryId: idToRemove,
+        foodEntryId: idToRemove
       });
 
       // Update the local state to reflect the deletion
@@ -197,7 +198,7 @@ const EditMealPage = () => {
               <p className='text-gray-400'>
                 Remaining:{' '}
                 <span className='text-white font-bold'>
-                  {meal?.calorieRemaining}
+                  {meal?.calorieRemaining.toFixed(0)}
                 </span>
               </p>
             </div>
@@ -211,8 +212,8 @@ const EditMealPage = () => {
                 {Object.entries(groupFoodsByMealType(meal.foods)).map(
                   ([mealType, foods]) => (
                     <div key={mealType} className='bg-[#132A2E] rounded-lg'>
-                      <Typography className='text-[#34D399] font-semibold mb-3'>
-                        {mealType}
+                      <Typography className='text-[#34D399] font-semibold mb-3 capitalize'>
+                        food list
                       </Typography>
                       <div className='space-y-3'>
                         {foods.map((food) => (

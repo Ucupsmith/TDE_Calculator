@@ -11,13 +11,15 @@ interface ProfileData {
 
 // Extend NextAuth Session type to match project usage
 
-import { Button } from '@material-tailwind/react';
+import { Avatar, Button } from '@material-tailwind/react';
 import { signOut } from 'next-auth/react';
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { getProfile, updateProfile } from '@/repository/profile.repository';
 import { useProfileForm, ProfileFormType } from '@/hooks/useProfileForm';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
+import PlaceHolderImage from '@/assets/profile/placeholderimage.png';
 
 interface PayloadProfile {
   userId: number;
@@ -28,6 +30,7 @@ const ProfilePages = () => {
   const { data: session, status } = useSession();
   const accessToken = session?.user.accessToken as string;
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const {
@@ -82,6 +85,33 @@ const ProfilePages = () => {
     void fetchProfile();
   }, [session, status, setValue]);
 
+  const handleImageUrl = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files?.[0];
+    if (files) {
+      try {
+        // Create a FormData object to send the image
+        const formData = new FormData();
+        formData.append('avatar', files);
+        formData.append('accessToken', accessToken);
+
+        // Call your API to upload the image
+        const response = await updateProfile({
+          avatar: formData,
+          accessToken: accessToken
+        });
+
+        if (response) {
+          setProfileData((prev) =>
+            prev ? { ...prev, avatar: response.data.avatar } : null
+          );
+          setImageUrl(URL.createObjectURL(files));
+        }
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    }
+  };
+
   const handleEdit = () => {
     console.log('handleEdit called');
     if (!session?.user.accessToken) {
@@ -118,8 +148,7 @@ const ProfilePages = () => {
         setIsEditing(false);
         reset(updatedData.data);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleCancel = () => {
@@ -162,7 +191,7 @@ const ProfilePages = () => {
   }
 
   return (
-    <div className='min-h-screen bg-[#132A2E] text-gray-200 p-4 pb-80'>
+    <div className='min-h-screen bg-[#132A2E] text-gray-200 p-4 pb-80 md:w-full'>
       {/* Header */}
       <div className='flex justify-between items-center mb-8'>
         <div
@@ -174,8 +203,30 @@ const ProfilePages = () => {
       </div>
 
       {/* User Info Section */}
-      <div className='flex flex-col items-center mb-8'>
-        <div className='w-24 h-24 rounded-full bg-gray-700 mb-4'></div>
+      <div className='flex flex-col items-center mb-8 relative'>
+        <div className='w-24 h-24 rounded-full bg-gray-700 mb-4 relative flex items-center justify-center overflow-hidden'>
+          <input
+            type='file'
+            accept='image/*'
+            className='absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-10'
+            onChange={handleImageUrl}
+          />
+          {imageUrl || profileData?.avatar ? (
+            <Image
+              src={imageUrl || profileData?.avatar || ''}
+              alt='Profile'
+              width={96}
+              height={96}
+              className='w-24 h-24 rounded-full object-cover'
+            />
+          ) : (
+            <Image
+              src={PlaceHolderImage}
+              alt='Default Profile'
+              className='w-24 h-24 rounded-full'
+            />
+          )}
+        </div>
         <div className='text-xl font-semibold mb-1'>
           {profileData.username || session?.user?.name || 'N/A'}
         </div>
@@ -184,10 +235,38 @@ const ProfilePages = () => {
         </div>
       </div>
 
+      <div className='flex justify-end gap-2 mt-4 relative py-4'>
+        {!isEditing ? (
+          <Button
+            onClick={handleEdit}
+            className='px-4 py-2 text-sm shadow-md shadow-green-500 bg-[#132A2E] hover:bg-blue-700 rounded-md cursor-pointer'
+          >
+            Edit Profile
+          </Button>
+        ) : (
+          <>
+            <Button
+              type='button'
+              onClick={handleSubmit(onSubmit)}
+              className='px-4 py-2 text-sm bg-green-600 hover:bg-green-700 rounded-md cursor-pointer'
+            >
+              Save
+            </Button>
+            <Button
+              type='button'
+              onClick={handleCancel}
+              className='px-4 py-2 text-sm bg-gray-600 hover:bg-gray-700 rounded-md cursor-pointer'
+            >
+              Cancel
+            </Button>
+          </>
+        )}
+      </div>
+
       {/* Form Detail Profil */}
       <div className='flex flex-col space-y-4'>
         {/* Phone Number (Display Only) */}
-        <div className='bg-[#34D399] rounded-md p-3 text-center text-black'>
+        <div className='bg-[#132A2E] rounded-md p-3 text-sm text-white placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg shadow-green-500'>
           {profileData.phone_number || 'N/A'}
         </div>
 
@@ -199,7 +278,7 @@ const ProfilePages = () => {
             placeholder='Full Name'
             {...register('full_name')}
             readOnly={!isEditing}
-            className={`bg-[#34D399] rounded-md p-3 text-sm text-black placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`bg-[#132A2E] rounded-md p-3 text-sm text-white placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg shadow-green-500 ${
               !isEditing ? 'cursor-not-allowed' : ''
             } ${isEditing ? 'relative z-50' : ''}`}
           />
@@ -215,7 +294,7 @@ const ProfilePages = () => {
           <label className='text-white text-sm'>Gender</label>
           <div className='relative'>
             <select
-              className={`block appearance-none w-full bg-[#34D399] border border-gray-700 text-sm text-black py-3 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:bg-[#34D399] focus:border-gray-500 ${
+              className={`block appearance-none w-full bg-[#132A2E] border border-gray-700 text-sm text-white py-3 px-4 pr-8 rounded-md leading-tight focus:outline-none focus:ring-green-500 focus:border-green-500 shadow-lg shadow-green-500 ${
                 !isEditing ? 'cursor-not-allowed' : ''
               } ${isEditing ? 'relative z-50' : ''}`}
               {...register('gender')}
@@ -248,7 +327,7 @@ const ProfilePages = () => {
             rows={4}
             {...register('address')}
             readOnly={!isEditing}
-            className={`bg-[#34D399] rounded-md p-3 text-sm text-black placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
+            className={`bg-[#132A2E] rounded-md p-3 text-sm text-white placeholder-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-green-500 shadow-lg shadow-green-500 resize-none ${
               !isEditing ? 'cursor-not-allowed' : ''
             } ${isEditing ? 'relative z-50' : ''}`}
           ></textarea>
@@ -260,33 +339,6 @@ const ProfilePages = () => {
         </div>
 
         {/* Edit/Save/Cancel Buttons */}
-        <div className='flex justify-end gap-2 mt-4 relative z-50'>
-          {!isEditing ? (
-            <Button
-              onClick={handleEdit}
-              className='px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-md cursor-pointer'
-            >
-              Edit Profile
-            </Button>
-          ) : (
-            <>
-              <Button
-                type='button'
-                onClick={handleSubmit(onSubmit)}
-                className='px-4 py-2 text-sm bg-green-600 hover:bg-green-700 rounded-md cursor-pointer'
-              >
-                Save
-              </Button>
-              <Button
-                type='button'
-                onClick={handleCancel}
-                className='px-4 py-2 text-sm bg-gray-600 hover:bg-gray-700 rounded-md cursor-pointer'
-              >
-                Cancel
-              </Button>
-            </>
-          )}
-        </div>
       </div>
 
       {/* Sign Out Button */}

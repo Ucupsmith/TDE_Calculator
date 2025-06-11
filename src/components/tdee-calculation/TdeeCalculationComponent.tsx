@@ -78,8 +78,8 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               <Typography className='font-poppins font-normal text-white text-xs md:text-2xl capitalize'>
                 your tdee score
               </Typography>
-              <Card className='w-full md:w-[60%] md:h-60 h-32 rounded-[20px] md:rounded-2xl flex flex-col justify-center items-center bg-[#132A2E] border border-green-500'>
-                <CardBody className='w-full flex flex-col gap-2 items-center justify-center'>
+              <Card className='w-full md:w-[60%] md:h-60 h-32 rounded-[20px] md:rounded-2xl flex flex-col justify-center items-center bg-[#132A2E] border border-green-500 shadow-md shadow-green-500'>
+                <CardBody className='w-full flex flex-col gap-2 items-center justify-center h-32'>
                   <Typography className='font-bold font-poppins text-4xl text-green-500'>
                     {Math.ceil(tdee).toLocaleString('id-ID', {
                       style: 'decimal'
@@ -107,20 +107,20 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               <Card
                 className={`w-full md:w-[60%] md:h-60 border border-green-500 h-32 rounded-[20px] md:rounded-2xl flex flex-col justify-center items-center bg-[#132A2E] ${
                   bmi < 18.5
-                    ? 'border-yellow-300'
+                    ? 'border-yellow-300 shadow-md shadow-yellow-300'
                     : bmi <= 23.9
-                      ? 'border-green-400'
+                      ? 'border-green-400 shadow-md shadow-green-400'
                       : bmi <= 24.9
-                        ? 'border-yellow-800'
+                        ? 'border-yellow-800 shadow-md shadow-yellow-800'
                         : bmi <= 29.9
-                          ? 'border-yellow-900'
+                          ? 'border-yellow-900 shadow-md shadow-yellow-900'
                           : bmi <= 31.0
-                            ? 'border-red-900'
-                            : 'border-red-900'
+                            ? 'border-red-900 shadow-md shadow-red-900'
+                            : 'border-red-900 shadow-md shadow-red-900'
                 }`}
               >
                 <CardBody
-                  className={`w-full flex flex-col gap-2 items-center justify-center`}
+                  className={`w-full flex flex-col gap-2 items-center justify-center h-32`}
                 >
                   <Typography
                     className={`font-bold font-poppins text-4xl text-green-500 ${
