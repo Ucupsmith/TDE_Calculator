@@ -122,19 +122,19 @@ export const getArticles = async (page = 1, limit = 8): Promise<{ data: Article[
     const response = await api.get(`/?page=${page}&limit=${limit}`);
     // Transform the response to match our Article interface
     const transformArticle = (article: any): Article => ({
-      id: article.article_id,
+      id: article.article_id ?? article.id ?? article.articleId,
       title: article.title,
       content: article.content,
-      imagePath: article.image_path,
-      authorId: article.author_id,
-      createdAt: article.created_at,
-      updatedAt: article.updated_at,
-      likes: article.likes,
-      views: article.views,
+      imagePath: article.image_path ?? article.imagePath,
+      authorId: article.author_id ?? article.authorId,
+      createdAt: article.created_at ?? article.createdAt,
+      updatedAt: article.updated_at ?? article.updatedAt,
+      likes: article.likes ?? 0,
+      views: article.views ?? 0,
       author: article.author ? {
-        id: article.author.adminId,
-        name: article.author.name,
-        profileImage: article.author.profile_image
+        id: article.author.adminId ?? article.author.id,
+        name: article.author.admin_name ?? article.author.name,
+        profileImage: article.author.profile_image ?? article.author.profileImage
       } : undefined
     });
 
@@ -143,6 +143,12 @@ export const getArticles = async (page = 1, limit = 8): Promise<{ data: Article[
       return { 
         data: response.data.map(transformArticle), 
         total: response.data.length 
+      };
+    }
+    if (response.data && Array.isArray(response.data.articles)) {
+      return {
+        data: response.data.articles.map(transformArticle),
+        total: response.data.total || response.data.articles.length
       };
     }
     if (response.data && Array.isArray(response.data.data)) {
@@ -174,9 +180,9 @@ export const getArticleById = async (id: number): Promise<Article> => {
       likes: article.likes,
       views: article.views,
       author: article.author ? {
-        id: article.author.adminId,
-        name: article.author.name,
-        profileImage: article.author.profile_image
+        id: article.author.adminId ?? article.author.id,
+        name: article.author.admin_name ?? article.author.name,
+        profileImage: article.author.profile_image ?? article.author.profileImage
       } : undefined
     };
   } catch (error) {
@@ -219,9 +225,9 @@ export const createArticle = async (data: FormData | CreateArticleDTO): Promise<
       likes: article.likes,
       views: article.views,
       author: article.author ? {
-        id: article.author.adminId,
-        name: article.author.name,
-        profileImage: article.author.profile_image
+        id: article.author.adminId ?? article.author.id,
+        name: article.author.admin_name ?? article.author.name,
+        profileImage: article.author.profile_image ?? article.author.profileImage
       } : undefined
     };
   } catch (error) {
@@ -255,9 +261,9 @@ export const updateArticle = async (id: number, articleData: UpdateArticleDTO): 
       likes: article.likes,
       views: article.views,
       author: article.author ? {
-        id: article.author.adminId,
-        name: article.author.name,
-        profileImage: article.author.profile_image
+        id: article.author.adminId ?? article.author.id,
+        name: article.author.admin_name ?? article.author.name,
+        profileImage: article.author.profile_image ?? article.author.profileImage
       } : undefined
     };
   } catch (error) {
