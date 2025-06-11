@@ -100,11 +100,15 @@ const MealPlanPage = () => {
     (acc, food) => acc + Number(food.calories),
     0
   );
-  const totalCalories = totalCaloriesCustomFoods + totalCaloriesSelectedFoods;
+
+  const displayTotalCalories = mealRemaining?.totalCalories
+    ? Number(mealRemaining.totalCalories)
+    : totalCaloriesCustomFoods + totalCaloriesSelectedFoods;
+
   const tdeeGoal = Number(mealRemaining?.tdeeGoal).toFixed(2);
   const percentage =
-    tdeeGoal && totalCalories !== 0
-      ? (totalCalories / Number(tdeeGoal)) * 100
+    tdeeGoal && displayTotalCalories !== 0
+      ? (displayTotalCalories / Number(tdeeGoal)) * 100
       : 0;
 
   const {
@@ -213,12 +217,16 @@ const MealPlanPage = () => {
 
   const handleSaveMeal = async () => {
     await fetchDataPostMainFoods();
-    setCheckBox((prev) => prev + 1);
-    setSelectedFoods(calculatedFoods);
+
     setAllCustomFoods([]);
     reset();
-
     setButtonClicked(false);
+    await fetchDataGetMeal();
+    // localStorage.removeItem('selectedFoods');
+    // localStorage.removeItem('allCustomFoods');
+    if (!selectedFoods) {
+      return <Typography className=''>u must select foods</Typography>;
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -230,12 +238,6 @@ const MealPlanPage = () => {
   };
 
   useEffect(() => {
-    console.log('MealPlanPage useEffect triggered:');
-    console.log('Status:', status);
-    console.log('userId:', userId);
-    console.log('tdeeId:', tdeeId);
-    console.log('accessToken:', accessToken);
-
     if (userId && tdeeId && accessToken) {
       console.log(
         'All conditions met in MealPlanPage, fetching meal data and foods...'
@@ -247,7 +249,25 @@ const MealPlanPage = () => {
         'Conditions not met in MealPlanPage, not fetching initial data.'
       );
     }
+
+    const storedSelectedFoods = localStorage.getItem('selectedFoods');
+    const storedCustomFoods = localStorage.getItem('allCustomFoods');
+
+    if (storedSelectedFoods) {
+      setSelectedFoods(JSON.parse(storedSelectedFoods));
+    }
+    if (storedCustomFoods) {
+      setAllCustomFoods(JSON.parse(storedCustomFoods));
+    }
   }, [userId, tdeeId, accessToken, status]);
+
+  useEffect(() => {
+    localStorage.setItem('selectedFoods', JSON.stringify(selectedFoods));
+  }, [selectedFoods]);
+
+  useEffect(() => {
+    localStorage.setItem('allCustomFoods', JSON.stringify(allCustomFoods));
+  }, [allCustomFoods]);
 
   const handleSaveCustomFood = (data: CustomMealType) => {
     const payload: CustomFoodsProps = {
@@ -279,14 +299,14 @@ const MealPlanPage = () => {
   }
 
   return (
-    <div className='w-full py-3 flex flex-col  items-center justify-center gap-10'>
+    <div className='w-full py-3 flex flex-col items-center justify-center gap-10'>
       {mealRemaining ? (
-        <div className='flex flex-col items-center w-full gap-4 px-2'>
+        <div className='flex flex-col items-center justify-between w-full gap-4 px-2 py-3 h-96'>
           <Typography className='font-poppins font-semibold text-green-500 text-3xl md:text-xl capitalize'>
             meal plan
           </Typography>
-          <span className='border-2 border-t-green-500 w-full'></span>
-          <div className='md:w-full flex flex-col gap-10 justify-between items-start py-3 px-2'>
+          <span className='border-2 border-green-500 w-full shadow-md shadow-green-500'></span>
+          <div className='md:w-full flex flex-col gap-10 justify-between items-start py-3 px-2 border border-none rounded-lg bg-blue-gray-900 bg-opacity-50 shadow-md shadow-green-500'>
             <div className='md:w-full justify-between flex flex-row gap-3 items-end'>
               <Typography className='flex font-poppins font-normal text-green-500 text-lg md:text-xl capitalize'>
                 calories per day
@@ -329,24 +349,25 @@ const MealPlanPage = () => {
               <div className='flex flex-row w-full gap-2'>
                 <div className='w-1/2 flex flex-row items-center justify-end gap-2'>
                   <Typography
-                    className={`font-poppins font-normal text-lg md:text-xl capitalize ${totalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-900' : 'text-green-500'}`}
+                    className={`font-poppins font-normal text-lg md:text-xl capitalize ${displayTotalCalories > Number(mealRemaining.tdeeGoal) ? 'text-red-900' : 'text-green-500'}`}
                   >
-                    {totalCalories}
+                    {displayTotalCalories}
                   </Typography>
                   <Typography className='font-poppins font-normal text-green-500 text-lg md:text-xl capitalize'>
                     /
                   </Typography>
                   <Typography className='font-extralight font-poppins text-lg md:text-xl text-green-600 capitalize'>
-                    {Math.ceil(
-                      Number(mealRemaining.remainingCalories)
-                    ).toLocaleString('id-ID', {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0
-                    })}
+                    {Math.ceil(Number(mealRemaining.tdeeGoal)).toLocaleString(
+                      'id-ID',
+                      {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }
+                    )}
                   </Typography>
                 </div>
                 <div className='w-1/2 flex flex-row gap-1 justify-end items-center md:flex md:justify-evenly'>
-                  {totalCalories > Number(mealRemaining.remainingCalories) ? (
+                  {displayTotalCalories > Number(mealRemaining.tdeeGoal) ? (
                     <Image
                       src={DangerButton}
                       alt=''
@@ -354,9 +375,9 @@ const MealPlanPage = () => {
                     />
                   ) : null}
                   <Typography
-                    className={`font-extralight text-center font-poppins text-sm md:text-lg text-green-600 capitalize flex ${totalCalories > Number(mealRemaining.remainingCalories) ? 'text-red-600 text-[12px]' : ''}`}
+                    className={`font-extralight text-center font-poppins text-sm md:text-lg text-green-600 capitalize flex ${displayTotalCalories > Number(mealRemaining.tdeeGoal) ? 'text-red-600 text-[12px]' : ''}`}
                   >
-                    {totalCalories > Number(mealRemaining.remainingCalories)
+                    {displayTotalCalories > Number(mealRemaining.tdeeGoal)
                       ? 'Over Calories! You might gain weight.'
                       : 'Calories Remaining'}
                   </Typography>
@@ -364,6 +385,7 @@ const MealPlanPage = () => {
               </div>
             </div>
           </div>
+          <div className='border-2 border-green-500 w-full shadow-sm shadow-green-500'></div>
         </div>
       ) : (
         <div className='w-full flex flex-row justify-center'>
@@ -382,27 +404,26 @@ const MealPlanPage = () => {
           </div>
         </div>
       )}
-      <div className='border-2 border-b-green-500 w-full'></div>
       <div className='flex flex-col gap-2 w-full items-start justify-between px-2'>
         <Typography className='font-poppins font-semibold text-lg md:text-2xl text-green-500 capitalize'>
           custom personal meal
         </Typography>
         <Button
           onClick={handleClickCustom}
-          className='border rounded-xl border-green-500 py-3 px-2 w-32 h-15 md:w-40 bg-[#132A2E] text-sm md:text-lg  text-green-500'
+          className='border rounded-xl border-green-500 py-3 px-2 w-32 h-15 md:w-40 bg-[#132A2E] text-sm md:text-lg  text-green-500 shadow-md shadow-green-500'
         >
           {buttonClicked ? '- close meal' : '+ add meal'}
         </Button>
         {buttonClicked && (
           <Card className='w-full'>
-            <CardBody className='flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 border-[3px] border-green-400 rounded-xl '>
+            <CardBody className='flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 border-[3px] border-green-400 rounded-xl shadow-lg shadow-green-500 '>
               <div className='flex flex-col gap-2 w-full'>
                 <label className='text-green-500 font-poppins font-normal text-lg md:text-xl capitalize'>
                   custom meal
                 </label>
                 <input
                   type='text'
-                  className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2'
+                  className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2 focus:outline-none focus:border focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:shadow-lg focus:shadow-green-500'
                   placeholder='custom meal'
                   {...register('name')}
                 />
@@ -418,7 +439,7 @@ const MealPlanPage = () => {
                 </label>
                 <input
                   type='number'
-                  className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2'
+                  className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2 focus:outline-none focus:border focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:shadow-lg focus:shadow-green-500'
                   placeholder='meal kalori'
                   {...register('calories', { valueAsNumber: true })}
                 />
@@ -442,7 +463,7 @@ const MealPlanPage = () => {
                   <div className='flex flex-col gap-2 justify-center items-center'>
                     <input
                       type='number'
-                      className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2 text-center'
+                      className='border border-green-500 rounded-xl bg-[#132A2E] w-full h-10 text-white px-3 py-2 text-center focus:outline-none focus:border focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:shadow-lg focus:shadow-green-500'
                       placeholder='quantity'
                       {...register('unit', { valueAsNumber: true })}
                     />
@@ -476,7 +497,7 @@ const MealPlanPage = () => {
       <MealPlanCustom data={allCustomFoods} onDelete={handleDeleteCustomFood} />
       <MealPlanSearchComponent
         onChange={setSearchFoods}
-        placeholder='type foods..'
+        placeholder='type foods...'
         value={searchFoods}
         onSubmit={handleSaveSearchFoods}
       />

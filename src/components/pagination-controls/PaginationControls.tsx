@@ -45,11 +45,11 @@ const PaginationControls = ({
   }
 
   return (
-    <div className='flex flex-row w-80 items-center justify-center gap-3 px-2 h-14 bg-white rounded-[25px] mb-20'>
+    <div className='flex flex-row w-80 items-center justify-center gap-3 px-2 h-14 bg-blue-gray-900 bg-opacity-50 shadow-lg shadow-green-500 rounded-[25px] mb-20'>
       <Button
         disabled={currentPage === 1}
         onClick={() => onPageChanges(currentPage - 1)}
-        className='w-10 flex items-center justify-center text-green-500 border border-none bg-white  shadow-none'
+        className='w-10 flex items-center justify-center text-green-500 border border-none bg-blue-gray-900 bg-opacity-0 shadow-none'
       >
         prev
       </Button>
@@ -72,7 +72,7 @@ const PaginationControls = ({
       <Button
         disabled={currentPage === totalPages}
         onClick={() => onPageChanges(currentPage + 1)}
-        className='w-10 flex items-center justify-center text-green-500 border border-none bg-white  shadow-none'
+        className='w-10 flex items-center justify-center text-green-500 border border-none bg-blue-gray-900 bg-opacity-0  shadow-none'
       >
         next
       </Button>
