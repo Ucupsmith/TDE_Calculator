@@ -86,7 +86,7 @@ const Section3: React.FC = () => {
               key={id}
               custom={direction}
               variants={itemVariant}
-              className='flex flex-col gap-5 md:gap-0 w-full md:w-auto items-center justify-center md:items-start h-auto md:flex md:flex-row'
+              className='flex flex-col gap-5 md:gap-0 w-full md:w-auto items-center justify-center md:items-start h-auto md:flex md:flex-row border border-none rounded-lg shadow-lg shadow-green-500'
             >
               <Image
                 className='w-auto h-auto md:w-56'

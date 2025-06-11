@@ -145,7 +145,7 @@ const Section2: React.FC = () => {
         </motion.div>
       </div>
       <Button className='py-1 text-white font-poppins font-semibold text-sm md:text-lg bg-[#144B3C] hover:scale-100'>
-        BMI Score Record
+        TDEE Score Record
       </Button>
       {isLoading && (
         <Typography className='text-white'>Loading TDEE data...</Typography>
