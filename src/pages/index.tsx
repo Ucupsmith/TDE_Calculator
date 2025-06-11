@@ -1,16 +1,39 @@
-import Section1 from '@/components/homepage/Section1';
-import Section2 from '@/components/homepage/Section2';
-import { Button, Typography } from '@material-tailwind/react';
-import React, { ChangeEvent, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
-const HomePage = (): JSX.Element => {
+const SplashScreen = (): JSX.Element => {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Delay 4.5 seconds then navigate to homepage
+    const timer = setTimeout(() => {
+      void router.replace('/homepage');
+    }, 4500);
+
+    return () => clearTimeout(timer);
+  }, [router]);
+
   return (
-    <div>
-      <Section1 />
-      <Section2 />
+    <div className='flex flex-col justify-center items-center min-h-screen'>
+      {/* Logo or spinner */}
+      <img src='/tdee.svg' alt='Loading...' className='h-48 w-48 md:h-60 md:w-60 animate-spin-slow' />
+      <p className='mt-4 text-[#34D399] font-poppins font-semibold'>Loading...</p>
+      <style jsx>{`
+        /* custom slow spin */
+        @keyframes spinSlow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .animate-spin-slow {
+          animation: spinSlow 4s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };
 
-export default HomePage;
+export default SplashScreen;
