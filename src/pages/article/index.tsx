@@ -6,6 +6,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getArticles, Article, createArticle, updateArticle, deleteArticle, getImageUrl } from "@/services/articleService";
 import Link from "next/link";
 
+// Tambahkan fungsi untuk menghapus tag HTML dari string
+function stripHtml(html: string) {
+  if (!html) return '';
+  return html.replace(/<[^>]+>/g, '');
+}
+
 const ArticleCard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [articles, setArticles] = useState<Article[]>([]);
@@ -13,7 +19,7 @@ const ArticleCard = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const limit = 8;
+  const limit = 10;
 
   const articleCardRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -220,7 +226,7 @@ const ArticleCard = () => {
                     </div>
                     <div className="p-4">
                       <h2 className="text-xl font-semibold text-gray-800 mb-2">{article.title}</h2>
-                      <p className="text-gray-600 line-clamp-2">{article.content}</p>
+                      <p className="text-gray-600 line-clamp-2">{stripHtml(article.content).slice(0, 120)}...</p>
                       <div className="mt-4 flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           {article.author?.profileImage && (
@@ -284,19 +290,29 @@ const ArticleCard = () => {
         )}
 
         {/* Pagination Controls */}
-        <div className="flex justify-center items-center gap-4 py-4">
+        <div className="flex justify-center items-center space-x-4 mt-8 mb-12">
           <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            onClick={() => setPage(prev => Math.max(prev - 1, 1))}
             disabled={page === 1}
-            className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${page === 1 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#34D399] text-white hover:bg-[#2bbd8c]'}`}
+            className={`px-4 py-2 rounded-lg ${
+              page === 1
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-[#34D399] hover:bg-[#2bbd8c] text-white'
+            } transition-colors`}
           >
-            Prev
+            Previous
           </button>
-          <span className="font-semibold text-[#34D399]">{page} / {Math.ceil(total / limit) || 1}</span>
+          <span className="text-gray-600">
+            Page {page} of {Math.ceil(total / limit)}
+          </span>
           <button
-            onClick={() => setPage((p) => p + 1)}
+            onClick={() => setPage(prev => Math.min(prev + 1, Math.ceil(total / limit)))}
             disabled={page >= Math.ceil(total / limit)}
-            className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${page >= Math.ceil(total / limit) ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#34D399] text-white hover:bg-[#2bbd8c]'}`}
+            className={`px-4 py-2 rounded-lg ${
+              page >= Math.ceil(total / limit)
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-[#34D399] hover:bg-[#2bbd8c] text-white'
+            } transition-colors`}
           >
             Next
           </button>
