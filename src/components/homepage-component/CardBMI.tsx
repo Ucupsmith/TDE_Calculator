@@ -71,14 +71,14 @@ const CardBMI: React.FC<PropsCardBmi> = ({ data, onDelete }) => {
             return (
               <SwiperSlide key={idx}>
                 <div className='flex flex-row w-full'>
-                  <Card className='md:w-96 flex flex-col rounded-[20px] w-72 h-60 py-2 px-2 bg-transparent border border-green-400'>
+                  <Card className='w-full md:w-96 flex flex-col rounded-[20px] h-60 py-2 px-2 bg-transparent border border-green-400'>
                     <div
                       onClick={() => onDelete(tdeeIdNumber)}
                       className='flex flex-row justify-end px-3 cursor-pointer'
                     >
                       <Image src={TrashBin} alt='' className='w-5 h-7' />
                     </div>
-                    <CardBody className='h-full flex flex-col items-center justify-between gap-2'>
+                    <CardBody className='w-full h-full flex flex-col items-center justify-between gap-2 shadow-lg shadow-green-500 rounded-lg border border-none'>
                       <div className='flex flex-col w-full h-full items-center justify-center gap-2 px-2'>
                         <Typography className='font-bold font-poppins text-green-400 uppercase text-6xl md:text-5xl'>
                           {Math.ceil(Number(item.tdee_result))}

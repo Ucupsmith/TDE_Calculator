@@ -156,7 +156,7 @@ const TdeeCalculatorPage = () => {
           please fill in you details
         </Typography>
       </div>
-      <div className='md:w-[65%] w-auto flex flex-col justify-around items-center border rounded-[25px] border-green-500 px-2 py-3'>
+      <div className='md:w-[65%] w-auto flex flex-col justify-around items-center border rounded-[25px] border-green-500 px-2 py-3 shadow-lg shadow-green-500'>
         <div className='flex flex-row md:w-[50%] w-full justify-evenly items-center'>
           <Typography className='w-44 text-center font-poppins font-semibold text-white text-sm md:text-2xl capitalize'>
             gender

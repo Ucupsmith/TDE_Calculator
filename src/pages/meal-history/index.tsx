@@ -252,7 +252,7 @@ const MealHistory = () => {
   }
 
   return (
-    <div className='container mx-auto px-4'>
+    <div className='container mx-auto px-4 min-h-screen'>
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -263,8 +263,10 @@ const MealHistory = () => {
       </motion.h1>
 
       {mealHistory?.length === 0 ? (
-        <div className='text-center text-gray-400 py-8'>
-          No meal history found. Start tracking your meals!
+        <div className='flex flex-col items-center justify-center h-96'>
+          <div className='text-center text-gray-400 py-8'>
+            No meal history found. Start tracking your meals!
+          </div>
         </div>
       ) : (
         <div className='grid gap-4'>

@@ -1,20 +1,19 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
-import { Button, Typography } from '@material-tailwind/react';
+import { Typography } from '@material-tailwind/react';
 import TdeeLogo from '@/assets/homepage/Logo.svg';
 import { useRouter } from 'next/router';
-import HomeIcon from '@/assets/homepage/home3.svg';
-import TdeeIcon from '@/assets/homepage/TdeeUnclicked.svg';
-import ArticleIcon from '@/assets/homepage/articleunclicked.svg';
-import MealPlanIcon from '@/assets/homepage/gambar mealplan.svg';
-import UserIcon from '@/assets/homepage/Union.svg';
+import ArticleIcon from '@/assets/homepage/navbar/article.svg';
 import { useSession } from 'next-auth/react';
-import ArticleClicked from '@/assets/homepage/navbar/articleClicked.svg';
-import HomeUnclicked from '@/assets/homepage/navbar/Homeunclickednew.svg';
-import MealHistory from '@/assets/homepage/navbar/MealHistory.png';
-import MealplanUnclicked from '@/assets/homepage/navbar/MealplanUnclicked.svg';
-import TdeeClicked from '@/assets/homepage/navbar/TdeeClicked.svg';
-import MealHistroyUnclicked from '@/assets/homepage/navbar/MealHistoryUnclicked.png';
+import ArticleClicked from '@/assets/homepage/navbar/articleclicked2.svg';
+import MealHistory from '@/assets/homepage/navbar/mealhistory.svg';
+import MealHistroyUnclicked from '@/assets/homepage/navbar/mealhistoryclicked.svg';
+import MealPlanBowl from '@/assets/homepage/navbar/bowl-food-solid.svg';
+import MealPlanBowlClicked from '@/assets/homepage/navbar/bowl-food-solid-clicked.svg';
+import Home from '@/assets/homepage/navbar/homeclicked.svg';
+import HomeUnclicked from '@/assets/homepage/navbar/homeunclicked.svg';
+import TdeeCalculator from '@/assets/homepage/navbar/tdeecalculatorsm.svg';
+import TdeeCalculatorUnclicked from '@/assets/homepage/navbar/calculator-solid.svg';
 
 interface Navigation {
   label: string;
@@ -29,20 +28,20 @@ const Navbar = () => {
     {
       label: 'Home',
       navigate: '/homepage',
-      icon: HomeIcon,
+      icon: Home,
       icon2: HomeUnclicked
     },
     {
       label: 'Meal',
       navigate: '/meal-plan',
-      icon: MealPlanIcon,
-      icon2: MealplanUnclicked
+      icon: MealPlanBowlClicked,
+      icon2: MealPlanBowl
     },
     {
       label: 'Tdee',
       navigate: '/tdee-calculator',
-      icon: TdeeClicked,
-      icon2: TdeeIcon
+      icon: TdeeCalculatorUnclicked,
+      icon2: TdeeCalculator
     },
     {
       label: 'Article',
@@ -53,15 +52,15 @@ const Navbar = () => {
     {
       label: 'History',
       navigate: '/meal-history',
-      icon: MealHistory,
-      icon2: MealHistroyUnclicked
+      icon: MealHistroyUnclicked,
+      icon2: MealHistory
     }
   ];
   const router = useRouter();
   const { pathname, push } = router;
   return (
     <div className='w-full flex fixed bottom-0 left-0 right-0 z-10 py-0 md:py-3 px-0 items-end justify-center md:relative bg-opacity-50'>
-      <div className='w-full h-14 flex flex-row items-center md:px-2  border px-0 md:bg-[#144B3C] bg-[#34D399] border-none md:rounded-[20px] rounded-t-[8px]'>
+      <div className='w-full h-14 flex flex-row items-center md:px-2  border border-none px-0 md:bg-[#144B3C] bg-[#143238] md:rounded-[20px] rounded-t-[8px]'>
         <div className='h-6 flex flex-col items-end justify-center'>
           <Image
             className='md:flex md:w-24 hidden md:pt-5 pt-0'
@@ -87,23 +86,16 @@ const Navbar = () => {
                             await push(nav.navigate);
                           }
                         }}
-                        className={`md:w-auto md:h-auto w-20 h-8 flex flex-row justify-around items-center  gap-1 py-2 md:rounded-none md:bg-[#144B3C] rounded-[35px] transition-all duration-300 border-none border bg-[#132A2E]`}
+                        className={`md:w-auto md:h-auto w-8 flex flex-row justify-around items-center md:rounded-none md:bg-[#144B3C] rounded-[35px] ease-in transition-all duration-300 text-[#34D399]`}
                       >
-                        <div className='flex flex-row w-full items-center justify-around'>
+                        <div className='flex flex-col w-full items-center justify-around h-14'>
                           <Image
                             src={nav.icon}
                             alt={nav.icon}
-                            className={`md:hidden w-5 h-5 ${
-                              nav.icon === MealPlanIcon
-                                ? 'w-6 h-1'
-                                : nav.icon === TdeeClicked
-                                  ? 'w-5'
-                                  : nav.icon === String(MealHistory) &&
-                                    'w-2 h-2'
-                            }`}
+                            className={`md:hidden w-5 h-8`}
                           />
                           <Typography
-                            className={`font-semibold font-poppins md:text-white text-[#34D399] md:text-[16px] text-[10px] text-center ${
+                            className={`font-semibold font-poppins md:text-[#34D399] text-[#34D399] md:text-[16px] text-[10px] text-center ${
                               nav.label === 'Register' &&
                               nav.navigate === '/auth/register'
                                 ? 'md:flex text-white md:border-none md:border md:rounded-[25px] md:bg-[#34D399] md:w-40 md:h-10 md:items-center md:justify-center'
@@ -127,16 +119,16 @@ const Navbar = () => {
                         onClick={async () => {
                           await push(nav.navigate);
                         }}
-                        className={`md:w-auto md:h-auto w-8 h-7 flex flex-row justify-evenly items-center gap-1 py-2 md:rounded-none md:bg-[#144B3C] rounded-[35px] border-none bg-[#34D399]`}
+                        className={`md:w-auto md:h-auto w-8 flex justify-center items-center md:rounded-none md:bg-[#144B3C] rounded-[35px]`}
                       >
-                        <div className='flex items-center justify-center'>
+                        <div className='flex flex-col items-center justify-center h-14'>
                           <Image
                             src={nav.icon2}
-                            alt={nav.icon}
-                            className='md:hidden w-5 h-7'
+                            alt={nav.icon2}
+                            className={`md:hidden w-5 h-8 border border-none }`}
                           />
                           <Typography
-                            className={`font-semibold font-poppins md:flex md:text-neutral-400 text-[#34D399] md:text-[16px] hidden ${
+                            className={`font-semibold font-poppins md:flex md:text-neutral-400 text-white md:text-[16px] text-[10px]${
                               nav.label === 'Register' &&
                               nav.navigate === '/auth/register'
                                 ? 'md:flex md:text-white md:border-none md:border md:rounded-[25px] md:bg-[#34D399] md:w-40 md:h-10 md:items-center md:justify-center'
