@@ -62,6 +62,7 @@ const LoginComponent = (): JSX.Element => {
           localStorage.setItem('accessToken', token);
         }
         console.log(session?.user.accessToken);
+        push('/homepage');
       }
       reset();
       console.log(`login result :${result}`);
@@ -179,24 +180,20 @@ const LoginComponent = (): JSX.Element => {
             </Typography>
             <div className='flex flex-col items-center'>
               <div
-                onClick={async () =>
-                  await signIn('google', {
-                    callbackUrl: '/homepage',
-                    redirect: true
-                  })
-                }
+                onClick={async () => {
+                  const result = await signIn('google', {
+                    callbackUrl: '/homepage'
+                  });
+                  if (result?.ok) {
+                    push('/homepage');
+                  }
+                }}
                 className='flex flex-row justify-center gap-1'
               >
                 <Image
-                  onClick={async () => await signIn('google')}
                   src={Google}
                   alt={Google}
                   className='cursor-pointer'
-                />
-                <Image
-                  className='cursor-pointer'
-                  src={Facebook}
-                  alt={Facebook}
                 />
               </div>
             </div>
