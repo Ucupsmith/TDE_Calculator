@@ -8,6 +8,7 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import GearProfile from '@/assets/homepage/gearprofile.svg';
 import { useRouter } from 'next/router';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Greeting = ({ name }: { name?: string }) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -45,9 +46,10 @@ const HomePageSection = () => {
     <div className='flex flex-col gap-10'>
       {session ? (
         <div className='flex flex-row px-3 py-2 justify-between items-center'>
-          <div className='flex items-center justify-center border border-none rounded-lg w-auto px-3 bg-green-900'>
+          <div className='flex items-center justify-center border border-none rounded-lg w-full px-3 bg-green-900 md:w-72'>
             <Greeting name={session?.user.name} />
           </div>
+          <ThemeToggle />
           <div
             onClick={async () => {
               await push('/profile');
