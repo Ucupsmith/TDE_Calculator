@@ -101,9 +101,10 @@ const MealPlanPage = () => {
     0
   );
 
-  const displayTotalCalories = mealRemaining?.totalCalories
-    ? Number(mealRemaining.totalCalories)
-    : totalCaloriesCustomFoods + totalCaloriesSelectedFoods;
+  const displayTotalCalories =
+    (mealRemaining?.totalCalories ? Number(mealRemaining.totalCalories) : 0) +
+    totalCaloriesCustomFoods +
+    totalCaloriesSelectedFoods;
 
   const tdeeGoal = Number(mealRemaining?.tdeeGoal).toFixed(2);
   const percentage =
@@ -219,6 +220,7 @@ const MealPlanPage = () => {
     await fetchDataPostMainFoods();
 
     setAllCustomFoods([]);
+    setSelectedFoods([]);
     reset();
     setButtonClicked(false);
     await fetchDataGetMeal();
