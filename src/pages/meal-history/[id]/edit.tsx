@@ -183,7 +183,7 @@ const EditMealPage = () => {
           <div className='flex flex-wrap gap-4 text-sm'>
             <div className='bg-[#1e3a3d] px-3 py-1 rounded-lg'>
               <p className='text-gray-400'>
-                Calories: {meal?.calories}
+                Calories: {meal?.totalCalories}
                 <span className='text-white font-bold'></span>
               </p>
             </div>

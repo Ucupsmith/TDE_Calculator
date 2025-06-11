@@ -158,7 +158,7 @@ const LoginComponent = (): JSX.Element => {
               )}
               <div className='flex flex-row gap-1'>
                 <Typography className='font-semibold font-poppins md:text-sm text-[12px] text-white'>
-                  Don't have an Account?
+                  Don&apos;t have an Account?
                 </Typography>
                 <Typography
                   onClick={async () => await push('/auth/register')}
