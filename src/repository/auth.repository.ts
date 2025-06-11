@@ -1,6 +1,14 @@
 import Email from 'next-auth/providers/email';
 import baseAxios from '@/utils/common/axios';
 
+interface OAuthUserResponse {
+  userId: number;
+  accessToken: string;
+  name: string;
+  email: string;
+  number_phone: string | null;
+}
+
 const authService = baseAxios(
   `${process.env.NEXT_PUBLIC_API_URL ?? `http://localhost:8000`}/user/v1`
 );
@@ -95,5 +103,42 @@ export const resetPassword = async (
       throw error.response.data;
     }
     throw new Error('An error occurred while resetting password');
+  }
+};
+
+export const oauthLoginRegister = async (params: {
+  email: string;
+  name: string;
+  googleId: string;
+}): Promise<OAuthUserResponse> => {
+  try {
+    const response = await authService.post(
+      '/users/oauth-login-register', // This endpoint needs to exist on your backend
+      {
+        email: params.email,
+        username: params.name, // Assuming backend uses 'username' for name
+        googleId: params.googleId,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+      }
+    );
+    console.log('OAuth backend response:', response.data);
+    return {
+      userId: response.data.data.id,
+      accessToken: response.data.token,
+      name: response.data.data.username,
+      email: response.data.data.email,
+      number_phone: response.data.data.number_phone || null,
+    };
+  } catch (error: any) {
+    console.error('OAuth login/register error detailed:', JSON.stringify(error.response?.data || error.message || error, null, 2));
+    if (error.response) {
+      throw error.response.data;
+    }
+    throw new Error('An error occurred during OAuth login/registration');
   }
 };

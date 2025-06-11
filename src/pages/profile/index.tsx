@@ -148,7 +148,10 @@ const ProfilePages = () => {
         setIsEditing(false);
         reset(updatedData.data);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      // Optionally, you might want to show an error message to the user here
+    }
   };
 
   const handleCancel = () => {
