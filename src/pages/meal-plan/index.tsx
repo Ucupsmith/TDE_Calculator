@@ -83,7 +83,6 @@ const MealPlanPage = () => {
   const [buttonClicked, setButtonClicked] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const calculatedFoods = [...selectedFoods, ...allCustomFoods];
-  const [checkBox, setCheckBox] = useState<number>(0);
   const { tdeeId } = useTdee();
   const itemsPerPage = 12;
   const LastItemsIndex = currentPage * itemsPerPage;
@@ -106,10 +105,10 @@ const MealPlanPage = () => {
     totalCaloriesCustomFoods +
     totalCaloriesSelectedFoods;
 
-  const tdeeGoal = Number(mealRemaining?.tdeeGoal).toFixed(2);
+  const tdeeGoal = Number(mealRemaining?.tdeeGoal).toFixed(0);
   const percentage =
     tdeeGoal && displayTotalCalories !== 0
-      ? (displayTotalCalories / Number(tdeeGoal)) * 100
+      ? (displayTotalCalories / Math.floor(Number(tdeeGoal))) * 100
       : 0;
 
   const {
@@ -321,10 +320,10 @@ const MealPlanPage = () => {
                 size='lg'
                 className={`border border-none bg-white ring-green-600 focus:bg-green-500 text-center`}
                 label={`reach`}
-                value={Number(percentage.toFixed(2))}
+                value={Number(percentage.toFixed(0))}
                 barProps={{
-                  style: { width: `${percentage}%` },
-                  className: `font-poppins font-semibold text-[10px] md:text-sm ${percentage <= 25 ? 'bg-yellow-500 text-[8px] text-green-500' : percentage <= 50 ? 'bg-green-500 text-[7px]' : percentage <= 75 ? 'bg-orange-500' : percentage <= 100 ? 'bg-orange-900' : percentage <= 10 ? 'text-opacity-0' : 'text-red-900'}`
+                  style: { width: `${Math.floor(percentage)}%` },
+                  className: `font-poppins font-semibold text-[10px] md:text-sm ${Math.floor(percentage) <= 25 ? 'bg-yellow-500 text-[8px] text-green-500' : Math.floor(percentage) <= 50 ? 'bg-green-500 text-[7px]' : Math.floor(percentage) <= 75 ? 'bg-orange-500' : Math.floor(percentage) <= 100 ? 'bg-orange-900' : Math.floor(percentage) <= 10 ? 'text-opacity-0' : 'text-red-900'}`
                 }}
               />
             </div>
