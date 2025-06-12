@@ -4,22 +4,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* BASE STYLES */
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   scroll-padding-top: 100px;
-  scrollbar-color: green;
-  scroll-behavior: smooth;
-}
-body {
-  height: 100%;
+  scrollbar-color: green; /* Firefox only */
 }
 
 body {
+  height: 100%;
   position: relative;
-  min-height: 100vh !important;
+  min-height: 100vh;
   margin: 0;
   font-family: -apple-system, 'Poppins', BlinkMacSystemFont, 'Segoe UI',
     'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
@@ -27,10 +25,59 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* SCROLLBAR STYLES */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #34d399;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* DARK MODE GLOBAL STYLES */
+html.dark body {
+  background-color: #18181b !important;
+  color: #f3f4f6 !important;
+}
+
+html.dark .bg-\[\#132A2E\],
+html.dark .md\:bg-\[\#144B3C\],
+html.dark .bg-\[\#34D399\] {
+  background-color: #23272f !important;
+}
+
+html.dark .text-\[\#34D399\],
+html.dark .md\:text-white,
+html.dark .text-white {
+  color: #fbbf24 !important;
+}
+
+html.dark .border-gray-300 {
+  border-color: #444 !important;
+}
+
+html.dark .bg-white {
+  background-color: #23272f !important;
+  color: #f3f4f6 !important;
+}
+
+html.dark .dark\:bg-gray-800 {
+  background-color: #18181b !important;
+}
+
+html.dark .dark\:border-gray-700 {
+  border-color: #444 !important;
+}
+
+/* SWIPER.JS CUSTOM STYLES */
 .swiper-wrapper {
   display: flex;
   position: relative;
@@ -42,17 +89,7 @@ body {
   transition-timing-function: ease-out;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #34d399; /* Hijau tua */
-  border-radius: 9999px; /* Supaya rounded */
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-
+/* NEXT.JS DEV WATCHER HIDDEN */
 #__next-build-watcher {
   pointer-events: none !important;
   visibility: hidden !important;

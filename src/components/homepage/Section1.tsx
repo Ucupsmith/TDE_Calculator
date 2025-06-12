@@ -86,7 +86,7 @@ const Section1: React.FC = () => {
             }}
             className='w-48 border-none rounded-[15px] py-3 px-2 bg-[#34D399] text-[10px] md:text-xs'
           >
-            Calculate Your BMR Now!
+            Calculate Your TDEE Now!
           </Button>
         </motion.div>
       </motion.div>

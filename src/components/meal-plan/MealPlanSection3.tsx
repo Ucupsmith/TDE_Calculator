@@ -20,11 +20,11 @@ export interface MealResponse {
 }
 
 interface MealPayload {
+  id: number;
   name: string;
   calories: number;
-  unit: string;
+  unit: string | number;
   isCustom?: boolean;
-  id: number;
 }
 
 interface MealPlanProps {
@@ -34,6 +34,8 @@ interface MealPlanProps {
   loading: boolean;
   checkBox?: number;
   onClick?: number;
+  // checked: number;
+  selectedFoods: MealPayload[];
 }
 
 const MealPlanSection3: React.FC<MealPlanProps> = ({
@@ -41,7 +43,7 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
   onSelect,
   onSave,
   loading = false,
-  checkBox
+  selectedFoods
 }) => {
   const [saveButton, setSaveButton] = useState<boolean>(false);
   const handleSave = async () => {
@@ -57,33 +59,35 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
   return (
     <div className='w-full'>
       {!loading ? (
-        <div className='flex flex-col gap-3 px-3'>
+        <div className='flex flex-col gap-3 px-2'>
           <Typography className='font-poppins font-normal text-green-500 text-lg md:text-lg  capitalize'>
             Lets choose how you prepare your meal
           </Typography>
-          <div
-            key={checkBox}
-            className='w-full flex flex-wrap justify-center items-start gap-4 px-2 md:px-0'
-          >
+          <div className='w-full flex flex-wrap justify-center items-start gap-4 md:px-0'>
             {data?.length > 0 && data?.length !== null
-              ? data?.map((food, idx: number) => {
+              ? data?.map((food) => {
+                  const currentFoodId = Number(food.id);
+                  const isCheked = selectedFoods.some(
+                    (selected) => selected.id === currentFoodId
+                  );
                   return (
-                    <label key={idx} className='relative cursor-pointer'>
+                    <label key={food.id} className='relative cursor-pointer'>
                       <input
                         type='checkbox'
                         className='peer hidden'
                         onChange={(e) => onSelect(food, e.target.checked)}
+                        checked={isCheked}
                       />
                       <div className='absolute top-2 right-2 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 peer-checked:opacity-100 transition-opacity duration-200'>
                         ✓
                       </div>
                       <div
                         key={food.id}
-                        className='w-32 md:w-40 lg:w-full rounded-xl peer-checked:ring-[5px] peer-checked:ring-seeds-green peer-checked:ring-offset-2
+                        className='w-full md:w-40 lg:w-full rounded-xl peer-checked:ring-2 peer-checked:ring-seeds-green 
                 peer-checked: transition-all 
                 '
                       >
-                        <div className='border-[3px] border-seeds-green rounded-lg  flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3'>
+                        <div className='md:w-full border-[3px] border-seeds-green rounded-lg flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 h-60 shadow-lg shadow-green-500'>
                           <div className='flex flex-col gap-2 w-full items-center justify-center'>
                             <Image
                               src={
@@ -102,8 +106,8 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                             />
                           </div>
                           <div className='w-full flex justify-center gap-2'>
-                            <Typography className='text-white font-poppins font-semibold text-xl md:text-xl capitalize'>
-                              {`${food.name.length > 9 ? `${food.name.slice(0, 7)}` : food.name}`}
+                            <Typography className='text-white font-poppins font-semibold text-sm md:text-xl capitalize flex text-center'>
+                              {`${food.name.length > 15 ? food.name.slice(0, 17) : food.name}`}
                             </Typography>
                           </div>
                           <div className='flex flex-row gap-2 w-full justify-center'>
@@ -123,17 +127,31 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                 })
               : null}
           </div>
-          <div className='flex justify-center items-center h-16'>
-            <Button
-              onClick={() => {
-                handleSave();
-                handleSavebutton();
-              }}
-              className='bg-green-500 rounded-full  w-64 h-10'
-            >
-              save
-            </Button>
-          </div>
+          {selectedFoods.length > 0 ? (
+            <div className='w-full flex justify-center items-center h-16 fixed bottom-14 px-3 right-0 duration-75 transition-all animate-fade-in ease-in-out'>
+              <Button
+                onClick={() => {
+                  handleSave();
+                  handleSavebutton();
+                }}
+                className='bg-green-500 rounded-full w-64 h-10'
+              >
+                save
+              </Button>
+            </div>
+          ) : (
+            <div className='w-full flex justify-center items-center h-16'>
+              <Button
+                onClick={() => {
+                  handleSave();
+                  handleSavebutton();
+                }}
+                className='bg-green-500 rounded-full w-64 h-10'
+              >
+                save
+              </Button>
+            </div>
+          )}
           {saveButton && (
             <div className='fixed inset-0 z-50 flex flex-col items-center justify-center bg-opacity-50'>
               <div className='border bg-white w-64 h-40 flex flex-col rounded-lg items-center gap-4 justify-center'>

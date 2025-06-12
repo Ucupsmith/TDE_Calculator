@@ -8,7 +8,12 @@ const ProfileFormSchema = z.object({
   gender: z.enum(['Male', 'Female'], {
     required_error: 'Gender is required',
   }).optional(),
-  address: z.string().min(1, { message: 'Address is required' }),
+  address: z.string().optional().or(z.literal('')).transform(e => e === '' ? undefined : e),
+  phone_number: z.string().optional()
+                       .refine((val) => {
+                         if (val === undefined || val === null || val === '') return true;
+                         return /^[0-9]+$/.test(val) && val.length >= 10 && val.length <= 12;
+                       }, { message: 'Phone Number must be 10-12 digits and contain only numbers' })
 });
 
 // Define the TypeScript type based on the schema
@@ -29,6 +34,7 @@ export const useProfileForm = () => {
       full_name: '',
       gender: undefined,
       address: '',
+      phone_number: '',
     },
   });
 

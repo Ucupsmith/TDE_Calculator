@@ -30,18 +30,26 @@ export const updateProfile = async (params: {
   full_name?: string;
   gender?: string;
   address?: string;
+  phone_number?: string;
   accessToken?: string;
+  avatar?: FormData;
 }): Promise<any> => {
   try {
     console.log('Updating profile with params:', params); // Debug log
-
-    const response = await profileService.patch('/profiles/', params, {
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        Authorization: `Bearer ${params.accessToken}`
+    // If we're uploading an avatar, don't set Content-Type (browser will set it with boundary)
+    const response = await profileService.patch(
+      `/profiles/`,
+      {
+        ...params,
+        avatar: params.address
+      },
+      {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${params.accessToken}`
+        }
       }
-    });
+    );
 
     console.log('Profile update response:', response.data); // Debug log
     return response.data;

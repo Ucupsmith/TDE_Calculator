@@ -120,13 +120,20 @@ export const getCustomUserFood = async (params: {
   }
 };
 
-export const getMainUserFoods = async (): Promise<any> => {
+export const getMainUserFoods = async (params: {
+  name: string;
+}): Promise<any> => {
+  const { name } = params;
   try {
-    const response = await mealService.get('/foods/', {
+    const response = await mealService.get(`/foods/`, {
+      params: {
+        name
+      },
       headers: {
         Accept: 'application/json'
       }
     });
+    console.log("Raw response data from getMainUserFoods:", response.data);
     if (response.status === null) {
       return await Promise.resolve('data null');
     }

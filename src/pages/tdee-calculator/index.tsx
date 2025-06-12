@@ -1,5 +1,5 @@
 import TdeeCalculationComponent from '@/components/tdee-calculation/TdeeCalculationComponent';
-import { Goal } from '@/generated/prisma';
+
 import { TdeeFormType, useTdeeForm } from '@/hooks/useTdeeCalculation';
 import {
   saveTdeeCalculation,
@@ -16,6 +16,7 @@ import {
 import { getSession, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTdee } from '@/common/TdeeProvider';
 import LoadingTdee from '@/assets/tdee-calculator/loadingTdee.png';
 
 interface TdeeCalculateInterface {
@@ -59,6 +60,7 @@ const TdeeCalculatorPage = () => {
   const formWatch = watch();
   const [calculateTdee, setCalculateTdee] =
     useState<TdeeCalculateInterface | null>(null);
+  const { setTdeeId } = useTdee();
   const fetchDataTdee = useCallback(
     async (data: TdeeFormType): Promise<void> => {
       try {
@@ -77,16 +79,12 @@ const TdeeCalculatorPage = () => {
         } else {
           setCalculateTdee(null);
         }
-        console.log('calculateTdee', calculateTdee);
-        console.log('payload Tdee Success!', payloadTdee);
         if (!payloadTdee || typeof payloadTdee !== 'object') {
-          console.warn('TDEE payloadTdee invalid or empty:', payloadTdee);
           setCalculateTdee(null);
           return;
         }
 
         if (typeof payloadTdee === 'string') {
-          console.warn('TDEE calculation returned error message:', payloadTdee);
           setCalculateTdee(null);
           return;
         }
@@ -95,14 +93,9 @@ const TdeeCalculatorPage = () => {
           setCalculateTdee(payloadTdee);
           setIsModalOpen(true);
         } else {
-          console.warn(
-            'TDEE calculation response missing data property:',
-            payloadTdee
-          );
           setCalculateTdee(null);
         }
       } catch (error) {
-        console.error('Error fetching TDEE:', error);
         setCalculateTdee(null);
       } finally {
         setIsLoading(false);
@@ -123,7 +116,6 @@ const TdeeCalculatorPage = () => {
     const session = await getSession();
     const accessToken = session?.user.accessToken as string;
     const userId = session?.user.userId as number;
-    console.log(accessToken);
     try {
       setIsLoading(true);
       const payload: SaveTdeeCalculationInterface = {
@@ -133,17 +125,13 @@ const TdeeCalculatorPage = () => {
         goal: calculateTdee.goal
       };
       const response = await saveTdeeCalculationToHome(payload);
-      console.log('response save tdee', response);
       if (response) {
-        console.log('Berhasil menyimpan TDEE ke home.');
-      } else {
-        console.warn('Gagal menyimpan:', response);
+        if (response.data && response.data.id) {
+          setTdeeId(response.data.id);
+        }
       }
-      console.log('accessToken:', session?.user.accessToken);
-      console.log(response);
       return response;
     } catch (error) {
-      console.error('Error saat menyimpan:', error);
     } finally {
       setIsLoading(false);
     }
@@ -155,18 +143,6 @@ const TdeeCalculatorPage = () => {
   const handleButtonClick = (): void => {
     setButtonClicked(!buttonClicked);
   };
-  // if (isLoading) {
-  //   return (
-  //     <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-green-800'>
-  //       <div className='flex flex-col items-center justify-center gap-3 h-full'>
-  //         <Image src={LoadingTdee} alt={String(LoadingTdee)} />
-  //         <Typography className='text-white font-poppins font-semibold text-center text-lg'>
-  //           loading ...
-  //         </Typography>
-  //       </div>
-  //     </div>
-  //   );
-  // }
   return (
     <div className='w-full md:items-center h-auto flex flex-col justify-evenly gap-3 md:space-y-10 '>
       <Typography className='text-center flex items-center justify-center md:hidden text-[#34D399] font-poppins font-semibold text-lg md:text-4xl capitalize h-20'>
@@ -180,7 +156,7 @@ const TdeeCalculatorPage = () => {
           please fill in you details
         </Typography>
       </div>
-      <div className='md:w-[65%] w-auto flex flex-col justify-around items-center border rounded-[25px] border-green-500 px-2 py-3'>
+      <div className='md:w-[65%] w-auto flex flex-col justify-around items-center border rounded-[25px] border-green-500 px-2 py-3 shadow-lg shadow-green-500'>
         <div className='flex flex-row md:w-[50%] w-full justify-evenly items-center'>
           <Typography className='w-44 text-center font-poppins font-semibold text-white text-sm md:text-2xl capitalize'>
             gender

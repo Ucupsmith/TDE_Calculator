@@ -86,7 +86,7 @@ const Section3: React.FC = () => {
               key={id}
               custom={direction}
               variants={itemVariant}
-              className='flex flex-col gap-5 md:gap-0 w-full md:w-auto items-center justify-center md:items-start h-auto md:flex md:flex-row'
+              className='flex flex-col gap-5 md:gap-0 w-full md:w-auto items-center justify-center md:items-center h-auto md:flex md:flex-row border border-none rounded-lg shadow-lg shadow-green-500 py-3 px-2'
             >
               <Image
                 className='w-auto h-auto md:w-56'
@@ -102,12 +102,12 @@ const Section3: React.FC = () => {
                     transition: { duration: 0.8, delay: 0.2 }
                   }
                 }}
-                className='flex flex-col space-y-8 items-center md:items-start justify-center'
+                className='flex flex-col items-start space-y-8 md:items-start justify-center p-4'
               >
                 <Typography className='font-semibold font-poppins text-white text-2xl md:text-2xl capitalize'>
                   {item.title}
                 </Typography>
-                <Typography className='font-normal font-poppins md:font-extralight text-white text-xs md:text-lg text-center md:text-start capitalize'>
+                <Typography className='font-normal font-poppins md:font-extralight text-white text-xs md:text-lg md:text-start capitalize'>
                   {item.content}
                 </Typography>
               </motion.div>

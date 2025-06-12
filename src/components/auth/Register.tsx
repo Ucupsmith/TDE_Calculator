@@ -14,6 +14,7 @@ import { registerUser } from '@/repository/auth.repository';
 import Checklist from '@/assets/auth/checklist.png';
 import ErrorAlert from '@/assets/auth/error-alert-button-symbol.png';
 import { number } from 'zod';
+import { signIn } from 'next-auth/react';
 
 interface RegisterProps {
   username: string;
@@ -31,7 +32,12 @@ const RegisterComponent = (): JSX.Element => {
   const [registeredUser, setIsRegisteredUser] = useState<RegisterProps | null>(
     null
   );
-  const [isRegist, setIsRegist] = useState<RegisterProps | boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const {
     register,
     handleSubmit,
@@ -39,18 +45,6 @@ const RegisterComponent = (): JSX.Element => {
     formState: { errors },
     watch
   } = useAuthRegister();
-  useEffect(() => {
-    if (registeredUser !== null) {
-      const timer = setTimeout(() => {
-        setIsRegisteredUser(registeredUser);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-    if (registeredUser !== isRegist) {
-      setIsRegist(!isRegist);
-      setIsRegisteredUser(registeredUser);
-    }
-  }, []);
   const fetchDataRegist = async (data: RegisterProps): Promise<void> => {
     try {
       setIsloading(!isLoading);
@@ -61,19 +55,16 @@ const RegisterComponent = (): JSX.Element => {
         email: data.email,
         password: data.password
       });
-      console.log(response);
       if (response !== null) {
         setIsRegisteredUser(response);
+        push('/auth/login');
       }
       reset();
     } catch (error: any) {
-      console.log(`fetch Data Error : ${error}`);
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data.message;
-        console.log('Axios error response:', status, message);
         if (status === 400 && message === 'Email Already Exist!') {
-          setIsRegist(false);
           setIsRegisteredUser(null);
           return;
         }
@@ -88,14 +79,14 @@ const RegisterComponent = (): JSX.Element => {
         <div className='w-full items-center flex justify-end'>
           <Image src={Plate} alt={Plate} className='md:w-40 w-24' />
         </div>
-        <div className='flex flex-col gap-3 items-center'>
+        <div className='flex flex-col h-full gap-4 items-center md:w-96 w-full justify-between'>
           <div className='w-full flex flex-row justify-center'>
             <Typography className='font-semibold font-poppins text-2xl text-white'>
               Sign Up
             </Typography>
           </div>
-          <div className='w-full flex flex-col items-center gap-2'>
-            <div className='md:w-96 w-72 flex flex-col gap-1 px-3'>
+          <div className='w-full flex flex-col items-center gap-4 py-4 md:w-96 w-72'>
+            <div className='md:w-full w-72 flex flex-col gap-1 px-3'>
               <label className='font-poppins font-semibold text-sm text-white'>
                 Username
               </label>
@@ -117,7 +108,7 @@ const RegisterComponent = (): JSX.Element => {
                 )}
               </div>
             </div>
-            <div className='md:w-96 w-72 flex flex-col gap-1 px-3'>
+            <div className='md:w-full w-72 flex flex-col gap-1 px-3'>
               <label className='font-poppins font-semibold text-sm text-white'>
                 Email
               </label>
@@ -139,7 +130,7 @@ const RegisterComponent = (): JSX.Element => {
                 )}
               </div>
             </div>
-            <div className='md:w-96 w-72 flex flex-col gap-1 px-3'>
+            <div className='md:w-full w-72 flex flex-col gap-1 px-3'>
               <label className='font-poppins font-semibold text-sm text-white'>
                 Number Phone
               </label>
@@ -173,20 +164,25 @@ const RegisterComponent = (): JSX.Element => {
                 </div>
               </div>
             </div>
-            <div className='md:w-96 w-72 flex flex-col gap-1 px-3'>
+            <div className='md:w-full w-72 flex flex-col gap-1 px-3'>
               <label className='font-poppins font-semibold text-sm text-white'>
                 Password
               </label>
               <div className='flex flex-col gap-1'>
                 <Input
                   crossOrigin={''}
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
                   placeholder='please insert a password'
                   className='bg-white focus:outline-none shadow-sm focus:ring-2 ring-white focus:border-white'
                   labelProps={{
                     className: 'hidden'
                   }}
                   {...register('password')}
+                  icon={
+                    <span onClick={togglePasswordVisibility} className="cursor-pointer text-gray-500">
+                      {showPassword ? '👁️' : '🔒'}
+                    </span>
+                  }
                 />
                 {errors.password && (
                   <Typography className='font-poppins font-normal text-sm md:text-lg text-red-900'>
@@ -196,7 +192,7 @@ const RegisterComponent = (): JSX.Element => {
               </div>
             </div>
 
-            <div className='md:w-80 w-60 flex flex-col items-center gap-2'>
+            <div className='md:w-full w-72 flex flex-col items-center gap-4'>
               <Button
                 onClick={async () => {
                   await handleSubmit(fetchDataRegist)();
@@ -205,45 +201,46 @@ const RegisterComponent = (): JSX.Element => {
               >
                 {!isLoading ? 'Sign Up Now' : 'Sign up ...'}
               </Button>
-              {!isLoading && registeredUser && (
+              {error && (
                 <div className='flex flex-row gap-1 w-44 md:w-72 h-14 rounded-md border border-none bg-white items-center justify-center'>
-                  <Image src={Checklist} alt={''} className='w-6' />
+                  <Image src={ErrorAlert} alt={''} className='w-6' />
                   <Typography className='font-poppins font-semibold text-sm text-center md:text-lg'>
-                    Account Created Successful!
+                    {error}
                   </Typography>
                 </div>
               )}
-              {!isRegist && (
-                <div className='flex flex-row gap-1 w-44 md:w-72 h-14 rounded-md border border-none bg-white items-center justify-center'>
-                  <Typography className='font-poppins font-semibold text-sm text-center md:text-lg'>
-                    Account Already Exist!
-                  </Typography>
-                </div>
-              )}
-              {registeredUser && (
-                <Typography className='text-sm md:text-lg text-blue-800 underline'>
-                  Login here!
+              <div className='flex flex-row gap-1 pt-4'>
+                <Typography className='font-semibold font-poppins md:text-sm text-[12px] text-white'>
+                  Already have an Account?
                 </Typography>
-              )}
-              <Typography className='font-semibold font-poppins text-[12px] text-white'>
+                <Typography
+                  onClick={async () => await push('/auth/login')}
+                  className='font-semibold font-poppins md:text-sm text-[12px] text-blue-800 underline cursor-pointer'
+                >
+                  Sign in Here!
+                </Typography>
+              </div>
+              <Typography className='font-semibold font-poppins text-[12px] text-white pt-4'>
                 or
               </Typography>
               <Typography className='font-semibold font-poppins text-[12px] text-white'>
                 Sign Up With
               </Typography>
-              <div className='flex flex-col items-center'>
+              <div className='flex flex-col items-center pt-2'>
                 <div className='flex flex-row justify-center gap-1'>
-                  <Image src={Google} alt={Google} className='cursor-pointer' />
                   <Image
-                    className='cursor-pointer'
-                    src={Facebook}
-                    alt={Facebook}
+                    src={Google}
+                    alt={Google}
+                    onClick={async () => {
+                      await signIn('google', { callbackUrl: '/auth/login' });
+                    }}
+                    className='w-10 h-10 cursor-pointer'
                   />
                 </div>
               </div>
             </div>
           </div>
-          <div className='flex flex-row'>
+          <div className='flex flex-row mt-auto'>
             <Image className='w-96' src={IconList} alt={IconList} />
           </div>
         </div>
