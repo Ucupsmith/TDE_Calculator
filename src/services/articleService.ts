@@ -1,7 +1,7 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
 
 // Use environment variable for API URL with fallback
-const API_URL = process.env.NEXT_PUBLIC_API_URL 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL}/user/v1/articles`
   : 'http://localhost:8000/user/v1/articles';
 
@@ -27,15 +27,19 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     try {
-      const url = config.baseURL && config.url ? `${config.baseURL}${config.url}` : 'unknown URL';
+      const url =
+        config.baseURL && config.url
+          ? `${config.baseURL}${config.url}`
+          : 'unknown URL';
       console.log('Making request to:', url);
-      
+
       // Get token from localStorage if available
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const token =
+        typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-      
+
       return config;
     } catch (error) {
       console.error('Request interceptor error:', error);
@@ -58,10 +62,12 @@ api.interceptors.response.use(
       console.error('Request timeout');
       return Promise.reject(new Error('Request timeout. Please try again.'));
     }
-    
+
     if (!error.response) {
       console.error('Network error:', error);
-      return Promise.reject(new Error('Network error. Please check your internet connection.'));
+      return Promise.reject(
+        new Error('Network error. Please check your internet connection.')
+      );
     }
 
     const status = error.response.status;
@@ -73,13 +79,17 @@ api.interceptors.response.use(
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
         }
-        return Promise.reject(new Error('Session expired. Please login again.'));
+        return Promise.reject(
+          new Error('Session expired. Please login again.')
+        );
       case 403:
         return Promise.reject(new Error('Access denied.'));
       case 404:
         return Promise.reject(new Error('Article not found.'));
       case 500:
-        return Promise.reject(new Error('Server error. Please try again later.'));
+        return Promise.reject(
+          new Error('Server error. Please try again later.')
+        );
       default:
         return Promise.reject(new Error(message));
     }
@@ -117,7 +127,10 @@ export interface UpdateArticleDTO {
 }
 
 // Get all articles
-export const getArticles = async (page = 1, limit = 8): Promise<{ data: Article[]; total: number }> => {
+export const getArticles = async (
+  page: number,
+  limit: number
+): Promise<{ data: Article[]; total: number }> => {
   try {
     const response = await api.get(`/?page=${page}&limit=${limit}`);
     // Transform the response to match our Article interface
@@ -131,18 +144,21 @@ export const getArticles = async (page = 1, limit = 8): Promise<{ data: Article[
       updatedAt: article.updated_at ?? article.updatedAt,
       likes: article.likes ?? 0,
       views: article.views ?? 0,
-      author: article.author ? {
-        id: article.author.adminId ?? article.author.id,
-        name: article.author.admin_name ?? article.author.name,
-        profileImage: article.author.profile_image ?? article.author.profileImage
-      } : undefined
+      author: article.author
+        ? {
+            id: article.author.adminId ?? article.author.id,
+            name: article.author.admin_name ?? article.author.name,
+            profileImage:
+              article.author.profile_image ?? article.author.profileImage
+          }
+        : undefined
     });
 
     // Adapt to various backend response shapes
     if (Array.isArray(response.data)) {
-      return { 
-        data: response.data.map(transformArticle), 
-        total: response.data.length 
+      return {
+        data: response.data.map(transformArticle),
+        total: response.data.length
       };
     }
     if (response.data && Array.isArray(response.data.articles)) {
@@ -157,7 +173,7 @@ export const getArticles = async (page = 1, limit = 8): Promise<{ data: Article[
         total: response.data.total || response.data.data.length
       };
     }
-    return { data: [], total: 0 };
+    return response.data;
   } catch (error) {
     console.error('Error fetching articles:', error);
     throw error;
@@ -179,11 +195,14 @@ export const getArticleById = async (id: number): Promise<Article> => {
       updatedAt: article.updated_at,
       likes: article.likes,
       views: article.views,
-      author: article.author ? {
-        id: article.author.adminId ?? article.author.id,
-        name: article.author.admin_name ?? article.author.name,
-        profileImage: article.author.profile_image ?? article.author.profileImage
-      } : undefined
+      author: article.author
+        ? {
+            id: article.author.adminId ?? article.author.id,
+            name: article.author.admin_name ?? article.author.name,
+            profileImage:
+              article.author.profile_image ?? article.author.profileImage
+          }
+        : undefined
     };
   } catch (error) {
     console.error('Error fetching article:', error);
@@ -192,10 +211,12 @@ export const getArticleById = async (id: number): Promise<Article> => {
 };
 
 // Create new article
-export const createArticle = async (data: FormData | CreateArticleDTO): Promise<Article> => {
+export const createArticle = async (
+  data: FormData | CreateArticleDTO
+): Promise<Article> => {
   try {
     let formData: FormData;
-    
+
     if (data instanceof FormData) {
       formData = data;
     } else {
@@ -224,11 +245,14 @@ export const createArticle = async (data: FormData | CreateArticleDTO): Promise<
       updatedAt: article.updated_at,
       likes: article.likes,
       views: article.views,
-      author: article.author ? {
-        id: article.author.adminId ?? article.author.id,
-        name: article.author.admin_name ?? article.author.name,
-        profileImage: article.author.profile_image ?? article.author.profileImage
-      } : undefined
+      author: article.author
+        ? {
+            id: article.author.adminId ?? article.author.id,
+            name: article.author.admin_name ?? article.author.name,
+            profileImage:
+              article.author.profile_image ?? article.author.profileImage
+          }
+        : undefined
     };
   } catch (error) {
     console.error('Error creating article:', error);
@@ -237,7 +261,10 @@ export const createArticle = async (data: FormData | CreateArticleDTO): Promise<
 };
 
 // Update article
-export const updateArticle = async (id: number, articleData: UpdateArticleDTO): Promise<Article> => {
+export const updateArticle = async (
+  id: number,
+  articleData: UpdateArticleDTO
+): Promise<Article> => {
   try {
     const formData = new FormData();
     if (articleData.title) formData.append('title', articleData.title);
@@ -260,11 +287,14 @@ export const updateArticle = async (id: number, articleData: UpdateArticleDTO): 
       updatedAt: article.updated_at,
       likes: article.likes,
       views: article.views,
-      author: article.author ? {
-        id: article.author.adminId ?? article.author.id,
-        name: article.author.admin_name ?? article.author.name,
-        profileImage: article.author.profile_image ?? article.author.profileImage
-      } : undefined
+      author: article.author
+        ? {
+            id: article.author.adminId ?? article.author.id,
+            name: article.author.admin_name ?? article.author.name,
+            profileImage:
+              article.author.profile_image ?? article.author.profileImage
+          }
+        : undefined
     };
   } catch (error) {
     console.error('Error updating article:', error);
@@ -292,4 +322,4 @@ export const likeArticle = async (id: number): Promise<Article> => {
     console.error('Error liking article:', error);
     throw error;
   }
-}; 
+};
