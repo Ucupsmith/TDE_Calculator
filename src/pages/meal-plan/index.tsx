@@ -224,12 +224,11 @@ const MealPlanPage = () => {
     reset();
     setButtonClicked(false);
     await fetchDataGetMeal();
-    // localStorage.removeItem('selectedFoods');
-    // localStorage.removeItem('allCustomFoods');
+    localStorage.removeItem('selectedFoods');
+    localStorage.removeItem('allCustomFoods');
     if (!selectedFoods) {
       return <Typography className=''>u must select foods</Typography>;
     }
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -391,7 +390,7 @@ const MealPlanPage = () => {
         </div>
       ) : (
         <div className='w-full flex flex-row justify-center'>
-          <div className='flex flex-col items-center gap-1 justify-center border-[5px] border-green-900 w-72 h-60 bg-[#132A2E] rounded-lg ring-green-500'>
+          <div className='flex flex-col items-center gap-1 justify-center border-[5px] border-green-900 w-72 h-60 md:h-80 bg-[#132A2E] rounded-lg ring-green-500'>
             <Image
               src={MealPlanEmptyState}
               alt={String(MealPlanEmptyState)}
@@ -400,7 +399,7 @@ const MealPlanPage = () => {
             <Typography className='text-2xl md:text-3xl text-green-500 font-poppins font-semibold capitalize text-center'>
               you have not calculate tdee
             </Typography>
-            <Typography className='text-xs md:text-3xl text-green-500 font-poppins font-semibold capitalize text-center underline'>
+            <Typography className='text-xs md:text-sm text-green-500 font-poppins font-semibold capitalize text-center underline'>
               <Link href={`/tdee-calculator`}> calculate your tdee now!</Link>
             </Typography>
           </div>

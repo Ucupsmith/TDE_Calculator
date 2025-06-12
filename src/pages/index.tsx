@@ -8,7 +8,7 @@ const SplashScreen = (): JSX.Element => {
     // Delay 4.5 seconds then navigate to homepage
     const timer = setTimeout(() => {
       void router.replace('/homepage');
-    }, 4500);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, [router]);
@@ -16,8 +16,14 @@ const SplashScreen = (): JSX.Element => {
   return (
     <div className='flex flex-col justify-center items-center min-h-screen'>
       {/* Logo or spinner */}
-      <img src='/tdee.svg' alt='Loading...' className='h-48 w-48 md:h-60 md:w-60 animate-spin-slow' />
-      <p className='mt-4 text-[#34D399] font-poppins font-semibold'>Loading...</p>
+      <img
+        src='/tdee.svg'
+        alt='Loading...'
+        className='h-48 w-48 md:h-60 md:w-60 animate-spin-slow'
+      />
+      <p className='mt-4 text-[#34D399] font-poppins font-semibold'>
+        Loading...
+      </p>
       <style jsx>{`
         /* custom slow spin */
         @keyframes spinSlow {
