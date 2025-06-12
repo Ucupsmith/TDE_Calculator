@@ -8,7 +8,11 @@ interface AuthRequest extends Request {
   };
 }
 
-export const authenticateToken = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authenticateToken = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -18,7 +22,10 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || 'your-secret-key'
+    ) as {
       id: number;
       role: string;
     };
@@ -30,7 +37,11 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
   }
 };
 
-export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const isAdmin = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (req.user?.role !== 'admin') {
     res.status(403).json({ message: 'Admin access required' });
     return;
@@ -38,10 +49,14 @@ export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => 
   next();
 };
 
-export const isAuthor = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const isAuthor = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
   if (req.user?.role !== 'author' && req.user?.role !== 'admin') {
     res.status(403).json({ message: 'Author access required' });
     return;
   }
   next();
-}; 
+};
