@@ -23,10 +23,7 @@ const AppShell: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className='md:w-full md:px-10 px-0 bg-[#132A2E]'>
       <div className='md:flex md:flex-col md:justify-normal gap-10 items-center justify-center md:px-20 px-0 md:py-4 py-0 overflow-auto'>
-        {/* Navbar at top */}
         {!dissableNavbar.includes(pathname) ? <Navbar /> : null}
-        {/* Theme toggle below navbar */}
-        <ThemeToggle />
         {children}
       </div>
     </div>
