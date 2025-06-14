@@ -1,12 +1,6 @@
 {
-  "name": "TDE Calculator",
-  "short_name": "TDE Calc",
-  "description": "Calculate your Total Daily Energy Expenditure and manage your nutrition",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#34D399",
-  "orientation": "portrait",
+  "theme_color": "#1f372e",
+  "background_color": "#23342e",
   "icons": [
     {
       "src": "/tdee.svg",
@@ -23,42 +17,16 @@
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "icon512_rounded.png",
+      "type": "image/png"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/home.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Home screen of TDE Calculator"
-    },
-    {
-      "src": "/screenshots/calculator.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "TDEE Calculator screen"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Calculate TDEE",
-      "short_name": "TDEE",
-      "description": "Calculate your Total Daily Energy Expenditure",
-      "url": "/tdee-calculator",
-      "icons": [{ "src": "/icons/calculator.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Meal Plan",
-      "short_name": "Meals",
-      "description": "View and manage your meal plans",
-      "url": "/meal-plan",
-      "icons": [{ "src": "/icons/meal.png", "sizes": "192x192" }]
-    }
-  ],
-  "categories": ["health", "fitness", "utilities"],
-  "prefer_related_applications": false
+  "orientation": "any",
+  "display": "standalone",
+  "dir": "auto",
+  "lang": "id-ID",
+  "start_url": "/",
+  "scope": "/",
+  "short_name": "TDEE",
+  "name": "TDEE Calculator"
 }
