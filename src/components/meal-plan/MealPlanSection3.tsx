@@ -127,17 +127,31 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                 })
               : null}
           </div>
-          <div className='flex justify-center items-center h-16'>
-            <Button
-              onClick={() => {
-                handleSave();
-                handleSavebutton();
-              }}
-              className='bg-green-500 rounded-full w-64 h-10'
-            >
-              save
-            </Button>
-          </div>
+          {selectedFoods.length > 0 ? (
+            <div className='w-full flex justify-center items-center h-16 fixed bottom-14 px-3 right-0 duration-75 transition-all animate-fade-in ease-in-out'>
+              <Button
+                onClick={() => {
+                  handleSave();
+                  handleSavebutton();
+                }}
+                className='bg-green-500 rounded-full w-64 h-10'
+              >
+                save
+              </Button>
+            </div>
+          ) : (
+            <div className='w-full flex justify-center items-center h-16'>
+              <Button
+                onClick={() => {
+                  handleSave();
+                  handleSavebutton();
+                }}
+                className='bg-green-500 rounded-full w-64 h-10'
+              >
+                save
+              </Button>
+            </div>
+          )}
           {saveButton && (
             <div className='fixed inset-0 z-50 flex flex-col items-center justify-center bg-opacity-50'>
               <div className='border bg-white w-64 h-40 flex flex-col rounded-lg items-center gap-4 justify-center'>
