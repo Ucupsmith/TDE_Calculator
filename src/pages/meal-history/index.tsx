@@ -7,6 +7,7 @@ import { getMealHistory, DeleteMealHistory } from '@/services/mealService';
 import type { MealHistory, MealHistoryFood } from '@/services/mealService';
 import { useSession } from 'next-auth/react';
 import { error } from 'console';
+import Image from 'next/image';
 
 export function ButtonEdit({ onClick }: { onClick: () => void }) {
   return (
@@ -272,7 +273,7 @@ const MealHistory = () => {
         <div className='grid gap-4'>
           <AnimatePresence mode='popLayout'>
             {mealHistory?.length > 0 && mealHistory?.length !== 0
-              ? mealHistory.map((meal, idx: number) => (
+              ? mealHistory?.map((meal) => (
                   <motion.div
                     key={meal.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -375,24 +376,19 @@ const MealHistory = () => {
                                   animate={{ opacity: 1, y: 0 }}
                                   transition={{ delay: 0.1 }}
                                 >
-                                  <motion.img
+                                  <Image
                                     src={
                                       food.imageUrl
-                                        ? food.imageUrl.startsWith('http')
+                                        ? food.imageUrl.startsWith('http://') ||
+                                          food.imageUrl.startsWith('https://') // Jika sudah URL absolut
                                           ? food.imageUrl
-                                          : food.imageUrl.startsWith('/images/')
-                                            ? `http://localhost:8000${food.imageUrl}`
-                                            : `http://localhost:8000/images/${food.imageUrl}`
-                                        : `http://localhost:8000${food.imageUrl}`
+                                          : `${process.env.NEXT_PUBLIC_IMAGE_API_URL}${food.imageUrl.replace('/images/', '')}`
+                                        : `http://localhost:8000/images/${food.imageUrl}`
                                     }
-                                    alt={food.name}
+                                    alt={`${process.env.NEXT_PUBLIC_IMAGE_URL}${food.imageUrl}`}
                                     className='w-8 h-8 object-cover rounded-full'
-                                    whileHover={{ scale: 1.1 }}
-                                    transition={{
-                                      type: 'spring',
-                                      stiffness: 400,
-                                      damping: 17
-                                    }}
+                                    width={30}
+                                    height={30}
                                   />
                                   <div className='ml-3'>
                                     <p className='text-white font-medium'>
