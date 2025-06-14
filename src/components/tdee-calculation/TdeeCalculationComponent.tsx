@@ -277,13 +277,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                       <div className='flex items-center gap-2 mb-2'>
                         <FaFire className='text-yellow-500 text-2xl' />
                         <Typography className='font-bold font-poppins text-4xl md:text-5xl bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent'>
-                          {Math.floor(
-                            goal === 'LoseWeight'
-                              ? tdee - 500
-                              : goal === 'GainWeight'
-                                ? tdee + 300
-                                : tdee
-                          ).toLocaleString('id-ID')}
+                          {Math.ceil(tdee).toLocaleString('id-ID')}
                         </Typography>
                       </div>
                       <Typography className='font-medium font-poppins text-green-300 text-sm md:text-base'>
