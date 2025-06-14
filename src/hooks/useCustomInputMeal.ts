@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -27,6 +28,7 @@ const CustomMealSchema = z.object({
 export type CustomMealType = z.infer<typeof CustomMealSchema>;
 
 export const useCustomInputMeal = () => {
+  const id = Math.random() * 1 * 2 * 4;
   const {
     register,
     handleSubmit,
@@ -37,6 +39,7 @@ export const useCustomInputMeal = () => {
   } = useForm<CustomMealType>({
     resolver: zodResolver(CustomMealSchema),
     defaultValues: {
+      id: id,
       name: '',
       calories: undefined,
       unit: 1
