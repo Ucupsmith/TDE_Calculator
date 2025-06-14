@@ -211,7 +211,6 @@ const EditMealPage = () => {
                               'NEXT_PUBLIC_IMAGE_API_URL:',
                               process.env.NEXT_PUBLIC_IMAGE_API_URL
                             );
-
                             const finalImageSrc =
                               food.imageUrl && food.imageUrl.length > 0
                                 ? food.imageUrl.startsWith('http://') ||
@@ -219,15 +218,10 @@ const EditMealPage = () => {
                                   ? food.imageUrl
                                   : `${process.env.NEXT_PUBLIC_IMAGE_API_URL}${food.imageUrl.replace('/images/', '')}`
                                 : `http://localhost:8000/images/${food.imageUrl}`;
-
-                            console.log(
-                              'Final computed image src:',
-                              finalImageSrc
-                            ); // <-- Tambahkan ini
                             return (
                               <div
                                 key={food.id}
-                                className='flex items-center justify-between gap-4 p-3 rounded-lg bg-[#1e3a3d] border border-green-500 w-72 md:w-full'
+                                className='flex w-full items-center justify-between gap-4 p-3 rounded-lg bg-[#1e3a3d] border border-green-500 w-72 md:w-full'
                               >
                                 <Image
                                   src={finalImageSrc}

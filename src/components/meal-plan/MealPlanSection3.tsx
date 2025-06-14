@@ -56,6 +56,15 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
   const handleSavebutton = () => {
     setSaveButton(!saveButton);
   };
+
+  const findFoodByName = (data || []).filter((food) => {
+    const filterFood = (food.name.toLowerCase() === '' + food.name) === null;
+    if (filterFood === null && filterFood === undefined) {
+      return filterFood;
+    } else {
+      return food.name;
+    }
+  });
   return (
     <div className='w-full'>
       {!loading ? (
@@ -64,70 +73,95 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
             Lets choose how you prepare your meal
           </Typography>
           <div className='w-full flex flex-wrap justify-center items-start gap-4 md:px-0'>
-            {data?.length > 0 && data?.length !== null
-              ? data?.map((food) => {
-                  const currentFoodId = Number(food.id);
-                  const isCheked = selectedFoods.some(
-                    (selected) => selected.id === currentFoodId
-                  );
-                  return (
-                    <label key={food.id} className='relative cursor-pointer'>
-                      <input
-                        type='checkbox'
-                        className='peer hidden'
-                        onChange={(e) => onSelect(food, e.target.checked)}
-                        checked={isCheked}
-                      />
-                      <div className='absolute top-2 right-2 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 peer-checked:opacity-100 transition-opacity duration-200'>
-                        ✓
-                      </div>
-                      <div
-                        key={food.id}
-                        className='w-full md:w-40 lg:w-full rounded-xl peer-checked:ring-2 peer-checked:ring-seeds-green 
+            {data?.length > 0 && data?.length !== null ? (
+              data?.map((food) => {
+                const currentFoodId = Number(food.id);
+                const isCheked = selectedFoods.some(
+                  (selected) => selected.id === currentFoodId
+                );
+                return (
+                  <label key={food.id} className='relative cursor-pointer'>
+                    <input
+                      type='checkbox'
+                      className='peer hidden'
+                      onChange={(e) => onSelect(food, e.target.checked)}
+                      checked={isCheked}
+                    />
+                    <div className='absolute top-2 right-2 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 peer-checked:opacity-100 transition-opacity duration-200'>
+                      ✓
+                    </div>
+                    <div
+                      key={food.id}
+                      className='w-full md:w-40 lg:w-full rounded-xl peer-checked:ring-2 peer-checked:ring-seeds-green 
                 peer-checked: transition-all 
                 '
-                      >
-                        <div className='md:w-full border-[3px] border-seeds-green rounded-lg flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 h-60 shadow-lg shadow-green-500'>
-                          <div className='flex flex-col gap-2 w-full items-center justify-center'>
-                            <Image
-                              src={
-                                food.imageUrl
-                                  ? food.imageUrl.startsWith('http://') ||
-                                    food.imageUrl.startsWith('https://') // Jika sudah URL absolut
-                                    ? food.imageUrl
-                                    : `${process.env.NEXT_PUBLIC_IMAGE_API_URL}${food.imageUrl.replace('/images/', '')}`
-                                  : food.imageUrl
-                              }
-                              alt={food.imageUrl}
-                              width={50}
-                              height={200}
-                              className='flex items-center justify-center text-center bg-[#132A2E] w-40 h-20 text-white px-3 py-2'
-                            />
-                          </div>
-                          <div className='w-full flex justify-center gap-2'>
-                            <Typography className='text-white font-poppins font-semibold text-sm md:text-xl capitalize flex text-center'>
-                              {`${food.name.length > 15 ? food.name.slice(0, 17) : food.name}`}
-                            </Typography>
-                          </div>
-                          <div className='flex flex-row gap-2 w-full justify-center'>
-                            <Typography className='text-green-500 font-poppins font-normal text-[14px] md:text-xl capitalize'>
-                              {food.unit}
-                            </Typography>
-                          </div>
-                          <div className='flex flex-row gap-2 w-full items-center justify-center'>
-                            <Typography className='text-green-500 font-poppins font-normal text-xs md:text-xl capitalize'>
-                              {food.calories} cal
-                            </Typography>
-                          </div>
+                    >
+                      <div className='md:w-full border-[3px] border-seeds-green rounded-lg flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 h-60 shadow-lg shadow-green-500'>
+                        <div className='flex flex-col gap-2 w-full items-center justify-center'>
+                          <Image
+                            src={
+                              food.imageUrl
+                                ? food.imageUrl.startsWith('http://') ||
+                                  food.imageUrl.startsWith('https://') // Jika sudah URL absolut
+                                  ? food.imageUrl
+                                  : `${process.env.NEXT_PUBLIC_IMAGE_API_URL}${food.imageUrl.replace('/images/', '')}`
+                                : food.imageUrl
+                            }
+                            alt={food.imageUrl}
+                            width={50}
+                            height={200}
+                            className='flex items-center justify-center text-center bg-[#132A2E] w-40 h-20 text-white px-3 py-2'
+                          />
+                        </div>
+                        <div className='w-full flex justify-center gap-2'>
+                          <Typography className='text-white font-poppins font-semibold text-sm md:text-xl capitalize flex text-center'>
+                            {`${food.name.length > 15 ? food.name.slice(0, 17) : food.name}`}
+                          </Typography>
+                        </div>
+                        <div className='flex flex-row gap-2 w-full justify-center'>
+                          <Typography className='text-green-500 font-poppins font-normal text-[14px] md:text-xl capitalize'>
+                            {food.unit}
+                          </Typography>
+                        </div>
+                        <div className='flex flex-row gap-2 w-full items-center justify-center'>
+                          <Typography className='text-green-500 font-poppins font-normal text-xs md:text-xl capitalize'>
+                            {food.calories} cal
+                          </Typography>
                         </div>
                       </div>
-                    </label>
-                  );
-                })
-              : null}
+                    </div>
+                  </label>
+                );
+              })
+            ) : (
+              <div className='w-full px-2 h-auto flex items-center justify-center'>
+                <div className='w-full md:w-72 h-52 rounded-lg flex flex-col items-center justify-center gap-2 px-2 py-3 border-2 border-green-500 shadow-lg shadow-green-500 text-center'>
+                  <Typography className='font-poppins font-semibold text-lg md:text-xl text-white shadow-sm capitalize '>
+                    oops cannot reach the food
+                  </Typography>
+                  <Typography className='font-poppins font-semibold text-sm md:text-sm shadow-sm capitalize text-white'>
+                    try using the search button
+                  </Typography>
+                  <Typography className='font-poppins font-semibold text-sm md:text-sm shadow-sm capitalize text-white'>
+                    or
+                  </Typography>
+                  <Typography
+                    onClick={() => {
+                      window.scrollTo({
+                        top: document.body.scrollTop,
+                        behavior: 'smooth'
+                      });
+                    }}
+                    className='font-poppins font-semibold text-sm md:text-sm shadow-sm capitalize text-green-900 underline'
+                  >
+                    add a custom food!
+                  </Typography>
+                </div>
+              </div>
+            )}
           </div>
           {selectedFoods.length > 0 ? (
-            <div className='w-full flex justify-center items-center h-16 fixed bottom-14 px-3 right-0 duration-75 transition-all animate-fade-in ease-in-out'>
+            <div className='w-full flex justify-center items-center h-16 fixed bottom-16 px-3 right-0 duration-75 transition-all animate-fade-in ease-in-out'>
               <Button
                 onClick={() => {
                   handleSave();
@@ -139,16 +173,29 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
               </Button>
             </div>
           ) : (
-            <div className='w-full flex justify-center items-center h-16'>
-              <Button
-                onClick={() => {
-                  handleSave();
-                  handleSavebutton();
-                }}
-                className='bg-green-500 rounded-full w-64 h-10'
-              >
-                save
-              </Button>
+            <div className='w-full flex justify-center items-center h-6'>
+              {findFoodByName.length === 0 ||
+                (findFoodByName.length === null ? (
+                  <Button
+                    onClick={() => {
+                      handleSave();
+                      handleSavebutton();
+                    }}
+                    className='bg-green-500 rounded-full w-64 h-16 hidden'
+                  >
+                    save
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      handleSave();
+                      handleSavebutton();
+                    }}
+                    className='bg-green-500 rounded-full w-64 h-10 mt-10'
+                  >
+                    save
+                  </Button>
+                ))}
             </div>
           )}
           {saveButton && (
