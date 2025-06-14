@@ -9,6 +9,10 @@ import React, { useEffect, useState } from 'react';
 import GearProfile from '@/assets/homepage/gearprofile.svg';
 import { useRouter } from 'next/router';
 import ThemeToggle from '@/components/ThemeToggle';
+import dynamic from 'next/dynamic';
+
+// Komponen PWA dengan konfigurasi SSR yang sudah di-handle
+import PWAComponents from '@/components/PWAComponents';
 
 const Greeting = ({ name }: { name?: string }) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -46,11 +50,12 @@ const HomePageSection = () => {
     <div className='flex flex-col gap-10'>
       {session ? (
         <div className='flex flex-row px-3 py-2 justify-between items-center'>
-          <div className='flex items-center justify-center border border-none rounded-lg w-full px-3 bg-green-900 md:w-72'>
+          <div id="welcome-message" className='flex items-center justify-center border border-none rounded-lg w-full px-3 bg-green-900 md:w-72'>
             <Greeting name={session?.user.name} />
           </div>
           <ThemeToggle />
           <div
+            id="profile-settings"
             onClick={async () => {
               await push('/profile');
             }}
@@ -71,10 +76,11 @@ const HomePageSection = () => {
           </Button>
         </div>
       )}
-      <Section1 />
-      <Section2 />
-      <Section3 />
-      <Section4 />
+      <Section1 id="main-features" />
+      <Section2 id="tdee-score-record" />
+      <Section3 id="bmi-tips" />
+      <Section4 id="quick-links" />
+      <PWAComponents />
     </div>
   );
 };

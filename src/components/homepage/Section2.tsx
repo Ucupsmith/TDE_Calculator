@@ -29,7 +29,11 @@ interface TdeePayloadDelete {
   userId: number;
   accessToken?: string;
 }
-const Section2: React.FC = () => {
+interface Section2Props {
+  id?: string;
+}
+
+const Section2: React.FC<Section2Props> = ({ id }) => {
   const { data: session } = useSession();
   const { setTdeeId } = useTdee();
   const userId = session?.user.userId as number;
@@ -109,7 +113,7 @@ const Section2: React.FC = () => {
   }, [userId]);
 
   return (
-    <div className='w-full md:py-0 py-3 px-4 flex flex-col justify-center items-center gap-3'>
+    <div id={id} className='w-full flex flex-col items-center gap-10 px-4 py-10 md:px-10 md:py-20'>
       <div className='flex flex-row items-center justify-evenly w-full'>
         <motion.div
           ref={ref}
