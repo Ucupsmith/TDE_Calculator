@@ -17,7 +17,7 @@ const withPWA = require('next-pwa')({
       }
     },
     {
-      urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
+      urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font\.css)$/i,
       handler: 'StaleWhileRevalidate',
       options: {
         cacheName: 'static-font-assets',
@@ -100,7 +100,7 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
+  swcMinify: true,
   images: {
     domains: [
       'localhost',
