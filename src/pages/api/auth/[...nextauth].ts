@@ -18,12 +18,12 @@ const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt'
   },
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET ?? 'tdee.calculations',
   providers: [
     GoogleProvider({
       name: 'google',
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!
     }),
     CreadentialsProvider({
       name: 'credentials',
