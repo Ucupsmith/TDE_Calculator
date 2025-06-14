@@ -56,7 +56,8 @@ const ActivityLevels: ActivityLevelType[] = [
   {
     value: 'Moderately Active',
     description: 'Moderate exercise 3-5 days/week',
-    examples: '30-60 mins of moderate exercise like brisk walking, cycling, or swimming'
+    examples:
+      '30-60 mins of moderate exercise like brisk walking, cycling, or swimming'
   },
   {
     value: 'Very Active',
@@ -66,7 +67,8 @@ const ActivityLevels: ActivityLevelType[] = [
   {
     value: 'Extra Active',
     description: 'Very hard exercise & physical job or training 2x/day',
-    examples: 'Athletes with intense training schedules or physically demanding jobs'
+    examples:
+      'Athletes with intense training schedules or physically demanding jobs'
   }
 ];
 
@@ -188,192 +190,210 @@ const TdeeCalculatorPage = () => {
         </Typography>
       </div>
       <div className='md:w-[65%] w-auto flex flex-col justify-around items-center border rounded-[25px] border-green-500 px-2 py-3 shadow-lg shadow-green-500'>
-        <div className='md:w-96 w-72 flex flex-row items-center'>
-          <label className='w-24 md:w-32 text-center font-poppins font-semibold text-white text-sm md:text-2xl capitalize'>
-            gender
-          </label>
-          <div className='flex-1'>
-            <div
-              {...register('gender')}
-              onClick={handleButtonClick}
-              className='transition-all duration-100 flex justify-end gap-2'
-            >
-              <Button
-                onClick={() => reset({ ...watch(), gender: 'Male' })}
-                className={`w-20 py-2 px-3 border border-green-500 rounded-xl ${
-                  gender === 'Male' ? 'bg-[#34D399]' : 'bg-[#132A2E]'
-                }`}
-              >
-                male
-              </Button>
-              <Button
-                onClick={() => reset({ ...watch(), gender: 'Female' })}
-                className={`w-20 py-2 px-3 border rounded-xl border-green-500 ${
-                  gender === 'Female' ? 'bg-[#34D399]' : 'bg-[#132A2E]'
-                }`}
-              >
-                female
-              </Button>
-            </div>
-          </div>
-        </div>
-        <div className='flex flex-col md:w-[50%] w-full justify-around items-center h-96 py-3'>
-          <div className='md:w-96 w-72 flex flex-row items-center justify-around gap-1'>
-            <label className='w-full text-center md:text-start font-poppins font-semibold text-sm md:text-2xl text-white capitalize'>
-              age
+        <div className='flex flex-col w-full justify-between items-center'>
+          <div className='md:w-96 w-72 flex flex-row items-center'>
+            <label className='w-24 md:w-32 text-center font-poppins font-semibold text-white text-sm md:text-2xl capitalize'>
+              gender
             </label>
-            <div className='flex flex-col gap-2'>
-              <div className='w-full flex justify-end'>
-                <input
-                  {...register('age', { valueAsNumber: true })}
-                  type='number'
-                  name='age'
-                  placeholder='please input your age'
-                  className='bg-[#132A2E] rounded-md border border-green-500 px-3 py-2 focus:outline-none shadow-sm focus:ring-2 ring-green-500 focus:border-green-500 md:w-64 w-52 h-9 text-sm md:text-lg text-white'
-                />
-              </div>
-              {errors.age && (
-                <Typography className='font-poppins font-semibold text-sm md:text-lg md:text-center text-red-900 text-center'>
-                  {errors.age.message}
-                </Typography>
-              )}
-            </div>
-          </div>
-          <div className='md:w-96 w-72 flex flex-row items-center justify-around gap-1'>
-            <label className='w-full text-center font-poppin md:text-start font-semibold text-sm text-white capitalize md:text-2xl'>
-              weight
-            </label>
-            <div className='flex flex-col gap-2'>
-              <div className='w-full flex items-center justify-end'>
-                <input
-                  {...register('weight', { valueAsNumber: true })}
-                  type='number'
-                  name='weight'
-                  placeholder='please input your weight'
-                  className='bg-[#132A2E] rounded-md border border-green-500 px-3 py-2 focus:outline-none shadow-sm focus:ring-2 ring-green-500 focus:border-green-500 md:w-64 w-52 h-9 text-sm md:text-lg text-white'
-                />
-              </div>
-              {errors.weight && (
-                <Typography className='font-poppins font-semibold text-sm md:text-lg text-red-900 text-center'>
-                  {errors.weight.message}
-                </Typography>
-              )}
-            </div>
-          </div>
-          <div className='md:w-96 w-72 flex flex-row items-center justify-evenly gap-1 md:text-2xl'>
-            <label className='w-full md:text-start text-center font-poppins font-semibold text-sm text-white capitalize md:text-2xl'>
-              height
-            </label>
-            <div className='flex flex-col gap-2'>
-              <div className='w-full flex justify-end'>
-                <input
-                  {...register('height', { valueAsNumber: true })}
-                  type='number'
-                  name='height'
-                  placeholder='please input your height'
-                  className='bg-[#132A2E] rounded-md border border-green-500 px-3 py-2 focus:outline-none shadow-sm focus:ring-2 ring-green-500 focus:border-green-500 md:w-64 w-52 h-9 text-sm md:text-lg text-white'
-                />
-              </div>
-              {errors.height && (
-                <Typography className='font-poppins font-semibold text-sm md:text-lg text-red-900 text-center'>
-                  {errors.height.message}
-                </Typography>
-              )}
-            </div>
-          </div>
-          <div className='md:w-96 w-72 flex flex-row items-center justify-around gap-1'>
-            <label className='w-full text-center font-poppins font-semibold text-white text-sm md:text-2xl capitalize'>
-              goal
-            </label>
-            <div className='w-full flex justify-end'>
+            <div className='flex-1'>
               <div
-                id="weight-goal-container"
+                {...register('gender')}
                 onClick={handleButtonClick}
-                className='gap-2 md:gap-1 transition-all duration-100 flex'
+                className='transition-all duration-100 flex justify-end gap-2'
               >
                 <Button
-                  id="maintain-weight-btn"
-                  onClick={() => reset({ ...watch(), goal: 'MaintainWeight' })}
-                  className={`w-14 md:w-32 py-2 md:px-3 px-1 border rounded-xl border-green-500 text-[9px]  ${
-                    goal === 'MaintainWeight'
-                      ? 'bg-[#34D399] w-24'
-                      : 'bg-[#132A2E]'
+                  onClick={() => reset({ ...watch(), gender: 'Male' })}
+                  className={`w-20 py-2 px-3 border border-green-500 rounded-xl ${
+                    gender === 'Male' ? 'bg-[#34D399]' : 'bg-[#132A2E]'
                   }`}
                 >
-                  Maintain Weight
+                  male
                 </Button>
                 <Button
-                  id="lose-weight-btn"
-                  onClick={() => reset({ ...watch(), goal: 'LoseWeight' })}
-                  className={`w-14 md:w-32 py-2 md:px-3 px-1 border border-green-500 rounded-xl text-[9px]  ${
-                    goal === 'LoseWeight' ? 'bg-[#34D399] w-24' : 'bg-[#132A2E]'
+                  onClick={() => reset({ ...watch(), gender: 'Female' })}
+                  className={`w-20 py-2 px-3 border rounded-xl border-green-500 ${
+                    gender === 'Female' ? 'bg-[#34D399]' : 'bg-[#132A2E]'
                   }`}
                 >
-                  Lose Weight
-                </Button>
-                <Button
-                  id="gain-weight-btn"
-                  onClick={() => reset({ ...watch(), goal: 'GainWeight' })}
-                  className={`w-14 md:w-32 py-2 md:px-3 px-1 border rounded-xl border-green-500 text-[10px]  ${
-                    goal === 'GainWeight' ? 'bg-[#34D399] w-24' : 'bg-[#132A2E]'
-                  }`}
-                >
-                  Gain Weight
+                  female
                 </Button>
               </div>
             </div>
           </div>
-          <div className='md:w-96 w-72 flex flex-row items-center justify-center gap-1'>
-            <label className='w-full text-center font-poppins font-semibold text-sm text-white md:text-start capitalize md:text-2xl'>
-              activity
-            </label>
-            <div className='w-full flex justify-end'>
-              <select
-                {...register('activity_level', {
-                  onChange: (e) => {
-                    const selectedLevel = ActivityLevels.find(l => l.value === e.target.value);
-                    if (selectedLevel) {
-                      toast.info(
-                        <div>
-                          <p className='font-semibold'>{selectedLevel.value}</p>
-                          <p className='text-sm'>{selectedLevel.description}</p>
-                          <p className='text-xs text-gray-700 mt-1'>Contoh: {selectedLevel.examples}</p>
-                        </div>,
-                        {
-                          position: 'top-center',
-                          autoClose: 3000,
-                          hideProgressBar: true,
-                          closeOnClick: true,
-                          pauseOnHover: true,
-                          draggable: true,
-                          theme: 'light',
-                          style: {
-                            backgroundColor: '#34D399',
-                            color: '#1F2937',
-                            borderRadius: '0.5rem',
-                            maxWidth: '300px',
-                            margin: '0 auto',
-                            textAlign: 'left',
-                            padding: '0.75rem',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                          }
-                        }
-                      );
+          <div className='flex flex-col md:w-[50%] w-full justify-around items-center h-96 py-3'>
+            <div className='md:w-96 w-72 flex flex-row items-center justify-around gap-1'>
+              <label className='w-full text-center md:text-start font-poppins font-semibold text-sm md:text-2xl text-white capitalize'>
+                age
+              </label>
+              <div className='flex flex-col gap-2'>
+                <div className='w-full flex justify-end'>
+                  <input
+                    {...register('age', { valueAsNumber: true })}
+                    type='number'
+                    name='age'
+                    placeholder='please input your age'
+                    className='bg-[#132A2E] rounded-md border border-green-500 px-3 py-2 focus:outline-none shadow-sm focus:ring-2 ring-green-500 focus:border-green-500 md:w-64 w-52 h-9 text-sm md:text-lg text-white'
+                  />
+                </div>
+                {errors.age && (
+                  <Typography className='font-poppins font-semibold text-sm md:text-lg md:text-center text-red-900 text-center'>
+                    {errors.age.message}
+                  </Typography>
+                )}
+              </div>
+            </div>
+            <div className='md:w-96 w-72 flex flex-row items-center justify-around gap-1'>
+              <label className='w-full text-center font-poppin md:text-start font-semibold text-sm text-white capitalize md:text-2xl'>
+                weight
+              </label>
+              <div className='flex flex-col gap-2'>
+                <div className='w-full flex items-center justify-end'>
+                  <input
+                    {...register('weight', { valueAsNumber: true })}
+                    type='number'
+                    name='weight'
+                    placeholder='please input your weight'
+                    className='bg-[#132A2E] rounded-md border border-green-500 px-3 py-2 focus:outline-none shadow-sm focus:ring-2 ring-green-500 focus:border-green-500 md:w-64 w-52 h-9 text-sm md:text-lg text-white'
+                  />
+                </div>
+                {errors.weight && (
+                  <Typography className='font-poppins font-semibold text-sm md:text-lg text-red-900 text-center'>
+                    {errors.weight.message}
+                  </Typography>
+                )}
+              </div>
+            </div>
+            <div className='md:w-96 w-72 flex flex-row items-center justify-evenly gap-1 md:text-2xl'>
+              <label className='w-full md:text-start text-center font-poppins font-semibold text-sm text-white capitalize md:text-2xl'>
+                height
+              </label>
+              <div className='flex flex-col gap-2'>
+                <div className='w-full flex justify-end'>
+                  <input
+                    {...register('height', { valueAsNumber: true })}
+                    type='number'
+                    name='height'
+                    placeholder='please input your height'
+                    className='bg-[#132A2E] rounded-md border border-green-500 px-3 py-2 focus:outline-none shadow-sm focus:ring-2 ring-green-500 focus:border-green-500 md:w-64 w-52 h-9 text-sm md:text-lg text-white'
+                  />
+                </div>
+                {errors.height && (
+                  <Typography className='font-poppins font-semibold text-sm md:text-lg text-red-900 text-center'>
+                    {errors.height.message}
+                  </Typography>
+                )}
+              </div>
+            </div>
+            <div className='md:w-96 w-72 flex flex-row items-center justify-around gap-1'>
+              <label className='w-full text-center font-poppins font-semibold text-white text-sm md:text-2xl capitalize'>
+                goal
+              </label>
+              <div className='w-full flex justify-end'>
+                <div
+                  id='weight-goal-container'
+                  onClick={handleButtonClick}
+                  className='w-full gap-2 md:gap-1 transition-all duration-100 flex'
+                >
+                  <Button
+                    id='maintain-weight-btn'
+                    onClick={() =>
+                      reset({ ...watch(), goal: 'MaintainWeight' })
                     }
-                  }
-                })}
-                className='bg-[#34D399] rounded-md border-green-500 text-white focus:outline-none shadow-sm focus:ring-2 ring-green-500 px-3 py-2 focus:border-green-500 w-52 md:w-64 md:h-12 h-9 text-sm md:text-lg cursor-pointer appearance-none'
-              >
-                {ActivityLevels.map((level, id) => (
-                  <option key={id} value={level.value}>
-                    {level.value}
-                  </option>
-                ))}
-              </select>
-              <ToastContainer />
+                    className={`w-14 md:w-20 py-2 md:px-3 px-1 border rounded-xl border-green-500 text-[9px]  ${
+                      goal === 'MaintainWeight'
+                        ? 'bg-[#34D399] w-24'
+                        : 'bg-[#132A2E]'
+                    }`}
+                  >
+                    Maintain Weight
+                  </Button>
+                  <Button
+                    id='lose-weight-btn'
+                    onClick={() => reset({ ...watch(), goal: 'LoseWeight' })}
+                    className={`w-14 md:w-20 py-2 md:px-3 px-1 border border-green-500 rounded-xl text-[9px]  ${
+                      goal === 'LoseWeight'
+                        ? 'bg-[#34D399] w-24'
+                        : 'bg-[#132A2E]'
+                    }`}
+                  >
+                    Lose Weight
+                  </Button>
+                  <Button
+                    id='gain-weight-btn'
+                    onClick={() => reset({ ...watch(), goal: 'GainWeight' })}
+                    className={`w-14 md:w-20 py-2 md:px-3 px-1 border rounded-xl border-green-500 text-[10px]  ${
+                      goal === 'GainWeight'
+                        ? 'bg-[#34D399] w-24'
+                        : 'bg-[#132A2E]'
+                    }`}
+                  >
+                    Gain Weight
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <div className='md:w-96 w-72 flex flex-row items-center justify-center gap-1'>
+              <label className='w-full text-center font-poppins font-semibold text-sm text-white md:text-start capitalize md:text-2xl'>
+                activity
+              </label>
+              <div className='w-full flex justify-end'>
+                <select
+                  {...register('activity_level', {
+                    onChange: (e) => {
+                      const selectedLevel = ActivityLevels.find(
+                        (l) => l.value === e.target.value
+                      );
+                      if (selectedLevel) {
+                        toast.info(
+                          <div>
+                            <p className='font-semibold'>
+                              {selectedLevel.value}
+                            </p>
+                            <p className='text-sm'>
+                              {selectedLevel.description}
+                            </p>
+                            <p className='text-xs text-gray-700 mt-1'>
+                              Contoh: {selectedLevel.examples}
+                            </p>
+                          </div>,
+                          {
+                            position: 'top-center',
+                            autoClose: 3000,
+                            hideProgressBar: true,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            theme: 'light',
+                            style: {
+                              backgroundColor: '#34D399',
+                              color: '#1F2937',
+                              borderRadius: '0.5rem',
+                              maxWidth: '300px',
+                              margin: '0 auto',
+                              textAlign: 'left',
+                              padding: '0.75rem',
+                              boxShadow:
+                                '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                            }
+                          }
+                        );
+                      }
+                    }
+                  })}
+                  className='bg-[#34D399] rounded-md border-green-500 text-white focus:outline-none shadow-sm focus:ring-2 ring-green-500 px-3 py-2 focus:border-green-500 w-52 md:w-64 md:h-12 h-9 text-sm md:text-lg cursor-pointer appearance-none'
+                >
+                  {ActivityLevels.map((level, id) => (
+                    <option key={id} value={level.value}>
+                      {level.value}
+                    </option>
+                  ))}
+                </select>
+                <ToastContainer />
+              </div>
             </div>
           </div>
         </div>
+
         <Button
           onClick={() => handleSubmit(fetchDataTdee)()}
           className='w-44 md:w-60 h-7 md:h-12 flex justify-center items-center capitalize rounded-md bg-[#34D399] text-sm md:text-2xl text-white hover:scale-125'
