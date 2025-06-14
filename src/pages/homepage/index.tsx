@@ -142,7 +142,7 @@ const HomePageSection = () => {
             >
               {tutorialStep < tutorialMessages.length - 1
                 ? 'Lanjut'
-                : 'Selesai'}
+                : 'Selesai '}
             </button>
           </div>
         </div>
