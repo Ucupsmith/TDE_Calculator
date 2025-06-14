@@ -60,7 +60,7 @@ const Navbar = () => {
   const { pathname, push } = router;
   return (
     <div className='w-full flex fixed bottom-0 left-0 right-0 z-10 py-0 md:py-3 px-0 items-end justify-center md:relative bg-opacity-50'>
-      <div className='w-full h-14 flex flex-row items-center md:px-2  border border-none px-0 md:bg-[#144B3C] bg-[#143238] md:rounded-[20px] rounded-t-[8px]'>
+      <div className='w-full h-16 flex flex-row items-start md:items-center md:px-2 border border-none px-0 md:bg-[#144B3C] bg-[#143238] md:rounded-[20px] rounded-t-xl'>
         <div className='h-6 flex flex-col items-end justify-center'>
           <Image
             className='md:flex md:w-24 hidden md:pt-5 pt-0'

@@ -45,7 +45,11 @@ const itemVariant = {
   }
 };
 
-const Section3: React.FC = () => {
+interface Section3Props {
+  id?: string;
+}
+
+const Section3: React.FC<Section3Props> = ({ id }) => {
   const controls = useAnimation();
   const { ref, inView } = useInView({ threshold: 0.2 });
 
@@ -60,6 +64,7 @@ const Section3: React.FC = () => {
       ref={ref}
       initial='hidden'
       animate={controls}
+      id={id}
       className='flex flex-col gap-5 md:gap-10 w-full py-2 px-3'
     >
       <motion.div
@@ -85,7 +90,7 @@ const Section3: React.FC = () => {
             <motion.div
               key={id}
               custom={direction}
-              variants={itemVariant}
+              variants={{ itemVariant }}
               className='flex flex-col gap-5 md:gap-0 w-full md:w-auto items-center justify-center md:items-center h-auto md:flex md:flex-row border border-none rounded-lg shadow-lg shadow-green-500 py-3 px-2'
             >
               <Image

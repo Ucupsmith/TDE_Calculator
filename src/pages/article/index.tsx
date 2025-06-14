@@ -155,8 +155,8 @@ const ArticleCard = () => {
         initial='initial'
         animate='animate'
         exit='exit'
-        variants={pageVariants}
-        className='flex flex-col w-full overflow-x-hidden'
+        variants={{ pageVariants }}
+        className='flex flex-col w-full overflow-x-hidden justify-center items-center'
       >
         <motion.div
           className='text-[#34D399] text-2xl sm:text-3xl lg:pt-10 pt-8 font-bold flex justify-center items-center mx-auto'
@@ -210,7 +210,7 @@ const ArticleCard = () => {
                 <motion.div
                   key={article.id}
                   custom={index}
-                  variants={cardVariants}
+                  variants={{ cardVariants }}
                   whileHover={{ scale: 1.05 }}
                   className='bg-white rounded-lg shadow-lg overflow-hidden'
                 >
@@ -322,6 +322,7 @@ const ArticleCard = () => {
         )}
 
         {/* Pagination Controls */}
+
         <PaginationControls
           currentPage={page}
           itemsPerPage={limit}

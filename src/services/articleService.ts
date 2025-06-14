@@ -5,12 +5,19 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL
   ? `${process.env.NEXT_PUBLIC_API_URL}/user/v1/articles`
   : 'http://localhost:8000/user/v1/articles';
 
-// Helper function to get full image URL
+/**
+ * Helper function to get full image URL with fallback to default image
+ * @param {string | null} imagePath - Relative or absolute image path from the API
+ * @returns {string} Full URL to the image or default image if not provided
+ */
 export const getImageUrl = (imagePath: string | null): string => {
+  // Return default image if no path is provided
   if (!imagePath) return '/default-article.jpg';
-  // If the image path is already a full URL, return it
+  
+  // Return as is if it's already a full URL
   if (imagePath.startsWith('http')) return imagePath;
-  // Otherwise, prepend the backend URL
+  
+  // Prepend the backend URL for relative paths
   return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${imagePath}`;
 };
 

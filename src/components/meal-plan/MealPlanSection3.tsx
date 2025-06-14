@@ -92,12 +92,11 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                             <Image
                               src={
                                 food.imageUrl
-                                  ? food.imageUrl.startsWith('http')
+                                  ? food.imageUrl.startsWith('http://') ||
+                                    food.imageUrl.startsWith('https://') // Jika sudah URL absolut
                                     ? food.imageUrl
-                                    : food.imageUrl.startsWith('/images/')
-                                      ? `http://localhost:8000${food.imageUrl}`
-                                      : `http://localhost:8000/images/${food.imageUrl}`
-                                  : `http://localhost:8000${food.imageUrl}`
+                                    : `${process.env.NEXT_PUBLIC_IMAGE_API_URL}${food.imageUrl.replace('/images/', '')}`
+                                  : food.imageUrl
                               }
                               alt={food.imageUrl}
                               width={50}

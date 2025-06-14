@@ -27,6 +27,7 @@ import MealPlanEmptyState from '@/assets/mealplan/malplanemptystate-removebg-pre
 import Link from 'next/link';
 import SearchIcon from '@/assets/mealplan/SearchIcon-removebg-preview.png';
 import MealPlanSearchComponent from '@/components/meal-plan/MealPlanSearchComponent';
+import { toast } from 'react-toastify';
 
 interface MealRemainingResponse {
   totalCalories: number;
@@ -35,13 +36,11 @@ interface MealRemainingResponse {
   goal: string;
   isNewDay: boolean;
 }
-
 interface MealCalculate {
   tdeeId: number;
   userId: number;
   accessToken: string;
 }
-
 export interface CustomFoodsProps {
   id: number;
   name: string;
@@ -55,13 +54,11 @@ export interface MainFoodsProps {
   unit: string | number;
   isCustom?: boolean;
 }
-
 interface MainFoodsPayload {
   userId: number;
   accessToken: string;
   foods: MainFoodsProps[];
 }
-
 interface MealPayload {
   id: number;
   name: string;
@@ -99,18 +96,15 @@ const MealPlanPage = () => {
     (acc, food) => acc + Number(food.calories),
     0
   );
-
   const displayTotalCalories =
     (mealRemaining?.totalCalories ? Number(mealRemaining.totalCalories) : 0) +
     totalCaloriesCustomFoods +
     totalCaloriesSelectedFoods;
-
   const tdeeGoal = Number(mealRemaining?.tdeeGoal).toFixed(0);
   const percentage =
     tdeeGoal && displayTotalCalories !== 0
       ? (displayTotalCalories / Math.floor(Number(tdeeGoal))) * 100
       : 0;
-
   const {
     register,
     handleSubmit,
@@ -126,11 +120,9 @@ const MealPlanPage = () => {
   const handleIncrement = () => {
     setValue('unit', unit + 1);
   };
-
   const handleDecrement = () => {
     setValue('unit', unit > 1 ? unit - 1 : unit);
   };
-
   const fetchDataGetMeal = async (): Promise<void> => {
     if (!tdeeId) {
       console.warn('tdeeId belum tersedia, tidak bisa fetch meal plan.');
@@ -174,7 +166,6 @@ const MealPlanPage = () => {
       setLoading(false);
     }
   };
-
   const fetchDataPostMainFoods = async (): Promise<void> => {
     if (status === 'authenticated') {
       try {
@@ -198,8 +189,15 @@ const MealPlanPage = () => {
 
   const handleSelectedFoods = (food: MealPayload, checked: boolean): void => {
     const safeFoodId = Number(food.id);
+    const payload: MealPayload = {
+      id: safeFoodId,
+      name: food.name,
+      calories: food.calories,
+      unit: food.unit,
+      isCustom: false
+    };
     if (checked === true) {
-      setSelectedFoods((prev) => [...prev, { ...food, id: safeFoodId }]);
+      setSelectedFoods((prev) => [...prev, { ...payload, isCustom: false }]);
     } else {
       setSelectedFoods((prev) => {
         const newSelectedFoods = prev.filter((selectedFood) => {
@@ -214,10 +212,8 @@ const MealPlanPage = () => {
     }
     console.log('selectedFoods AFTER (will update on next render cycle).');
   };
-
   const handleSaveMeal = async () => {
     await fetchDataPostMainFoods();
-
     setAllCustomFoods([]);
     setSelectedFoods([]);
     reset();
@@ -225,18 +221,15 @@ const MealPlanPage = () => {
     await fetchDataGetMeal();
     localStorage.removeItem('selectedFoods');
     localStorage.removeItem('allCustomFoods');
-    if (!selectedFoods) {
+    if (selectedFoods.length === 0 && selectedFoods.length === null) {
       return <Typography className=''>u must select foods</Typography>;
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
   const handleSaveSearchFoods = async () => {
     void fetchDataFoods();
-
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   };
-
   useEffect(() => {
     if (userId && tdeeId && accessToken) {
       console.log(
@@ -249,10 +242,8 @@ const MealPlanPage = () => {
         'Conditions not met in MealPlanPage, not fetching initial data.'
       );
     }
-
     const storedSelectedFoods = localStorage.getItem('selectedFoods');
     const storedCustomFoods = localStorage.getItem('allCustomFoods');
-
     if (storedSelectedFoods) {
       setSelectedFoods(JSON.parse(storedSelectedFoods));
     }
@@ -260,30 +251,39 @@ const MealPlanPage = () => {
       setAllCustomFoods(JSON.parse(storedCustomFoods));
     }
   }, [userId, tdeeId, accessToken, status]);
-
   useEffect(() => {
     localStorage.setItem('selectedFoods', JSON.stringify(selectedFoods));
   }, [selectedFoods]);
-
   useEffect(() => {
     localStorage.setItem('allCustomFoods', JSON.stringify(allCustomFoods));
   }, [allCustomFoods]);
 
   const handleSaveCustomFood = (data: CustomMealType) => {
     const payload: CustomFoodsProps = {
-      id: Number(data.id),
+      id: Math.random(),
       isCustom: true,
       name: data.name,
       calories: data.calories,
       unit: data.unit
     };
+    if (payload) {
+      toast.success('successful save custom food', {
+        delay: 1000,
+        position: 'top-center'
+      });
+    }
     setAllCustomFoods((prev) => [...prev, { ...payload }]);
-    reset();
   };
 
-  const handleDeleteCustomFood = (mealName: string) => {
-    setAllCustomFoods((prev) => prev.filter((meal) => meal.name !== mealName));
+  const handleDeleteCustomFood = (id: number) => {
+    setAllCustomFoods((prev) => prev.filter((meal) => meal.id !== id));
   };
+
+  const filteredSearchMeal = (paginationMainFoods || []).filter((meal) => {
+    const searchMealFoods =
+      meal.name.toLowerCase() || meal.calories.toLocaleString();
+    return searchMealFoods.toLowerCase().includes(searchFoods.toLowerCase());
+  });
 
   if (loading) {
     return (
@@ -297,7 +297,6 @@ const MealPlanPage = () => {
       </div>
     );
   }
-
   return (
     <div className='w-full py-3 flex flex-col items-center justify-center gap-10'>
       {mealRemaining ? (
@@ -410,12 +409,12 @@ const MealPlanPage = () => {
         </Typography>
         <Button
           onClick={handleClickCustom}
-          className='border rounded-xl border-green-500 py-3 px-2 w-32 h-15 md:w-40 bg-[#132A2E] text-sm md:text-lg  text-green-500 shadow-md shadow-green-500'
+          className='border rounded-xl border-green-500 py-3 px-2 w-32 h-15 md:w-40 bg-[#132A2E] text-sm md:text-lg  text-green-500 shadow-md shadow-green-500 duration-100 transition-all animate-fade-in'
         >
-          {buttonClicked ? '- close meal' : '+ add meal'}
+          {buttonClicked ? 'x close meal' : '+ add meal'}
         </Button>
         {buttonClicked && (
-          <Card className='w-full'>
+          <Card className='w-full transition-all duration-75 animate-fade-in-slide peer-last:animate-fade-out-slide'>
             <CardBody className='flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 border-[3px] border-green-400 rounded-xl shadow-lg shadow-green-500 '>
               <div className='flex flex-col gap-2 w-full'>
                 <label className='text-green-500 font-poppins font-normal text-lg md:text-xl capitalize'>
@@ -473,7 +472,6 @@ const MealPlanPage = () => {
                       </Typography>
                     )}
                   </div>
-
                   <div
                     onClick={handleIncrement}
                     className='border flex items-center justify-center border-green-500 rounded-full w-7 h-7 text-green-500'
@@ -502,7 +500,7 @@ const MealPlanPage = () => {
         onSubmit={handleSaveSearchFoods}
       />
       <MealPlanSection3
-        data={paginationMainFoods}
+        data={filteredSearchMeal}
         onSelect={handleSelectedFoods}
         onSave={handleSaveMeal}
         loading={loading}
@@ -517,5 +515,4 @@ const MealPlanPage = () => {
     </div>
   );
 };
-
 export default MealPlanPage;
