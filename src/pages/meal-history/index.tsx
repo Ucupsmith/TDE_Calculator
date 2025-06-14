@@ -370,7 +370,7 @@ const MealHistory = () => {
                               {foods.map((food: MealHistoryFood) => (
                                 <motion.div
                                   key={food.id}
-                                  className='flex items-center p-3 rounded-lg hover:bg-[#34D399]/5 transition-colors'
+                                  className='flex items-center p-3 rounded-lg hover:bg-[#34D399]  transition-colors'
                                   initial={{ opacity: 0, y: 10 }}
                                   animate={{ opacity: 1, y: 0 }}
                                   transition={{ delay: 0.1 }}

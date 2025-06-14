@@ -268,11 +268,12 @@ const MealPlanPage = () => {
     };
     if (payload) {
       toast.success('successful save custom food', {
-        delay: 1000,
+        delay: 0,
         position: 'top-center'
       });
     }
     setAllCustomFoods((prev) => [...prev, { ...payload }]);
+    reset();
   };
 
   const handleDeleteCustomFood = (id: number) => {
@@ -506,12 +507,23 @@ const MealPlanPage = () => {
         loading={loading}
         selectedFoods={selectedFoods}
       />
-      <PaginationControls
-        currentPage={currentPage}
-        itemsPerPage={itemsPerPage}
-        totalItems={mainFoods.length}
-        onPageChanges={setCurrentPage}
-      />
+      {selectedFoods && selectedFoods ? (
+        <PaginationControls
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          totalItems={mainFoods.length}
+          onPageChanges={setCurrentPage}
+        />
+      ) : (
+        <div className='hidden'>
+          <PaginationControls
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            totalItems={mainFoods.length}
+            onPageChanges={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };
