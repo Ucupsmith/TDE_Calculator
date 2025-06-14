@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button, Dialog, Typography } from '@material-tailwind/react';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import { getMealHistory, DeleteMealHistory } from '@/services/mealService';
 import type { MealHistory, MealHistoryFood } from '@/services/mealService';
+import MealHistorySkeleton from '@/components/MealHistory/MealHistorySkeleton';
 import { useSession } from 'next-auth/react';
 import { error } from 'console';
 import Image from 'next/image';
@@ -157,32 +159,78 @@ const MealHistory = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<MealHistory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const { data: session } = useSession();
-  console.log('Debug - Session data:', session);
+  const observer = useRef<IntersectionObserver>();
+  const lastMealRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (isLoading || isLoadingMore) return;
+      
+      if (observer.current) observer.current.disconnect();
+      
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          setPage(prevPage => prevPage + 1);
+        }
+      });
+      
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, isLoadingMore, hasMore]
+  );
 
-  const fetchMealHistory = async (
-    userId: number,
-    accessToken: string
-  ): Promise<void> => {
+  const fetchMealHistory = useCallback(async (pageNum: number = 1, isInitialLoad: boolean = false) => {
+    if (!session?.user?.userId || !session?.accessToken) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      setIsLoading(true);
-      const payload = { userId, accessToken };
-      console.log('Debug - Payload for getMealHistory:', payload);
-      const response = await getMealHistory(payload);
-      console.log('response get meal history', response);
-      if (response) {
-        setMealHistory(response);
+      if (isInitialLoad) {
+        setIsLoading(true);
       } else {
-        setMealHistory([]);
+        setIsLoadingMore(true);
       }
+
+      const { data: newMeals, total } = await getMealHistory({
+        userId: Number(session.user.userId),
+        accessToken: session.accessToken,
+        page: pageNum,
+        limit: 5
+      });
+
+      setMealHistory(prev => {
+        // Hapus duplikat berdasarkan ID
+        const existingIds = new Set(prev.map(meal => meal.id));
+        const uniqueNewMeals = newMeals.filter((meal: MealHistory) => !existingIds.has(meal.id));
+        return [...prev, ...uniqueNewMeals];
+      });
+
+      setHasMore(newMeals.length === 5); // Asumsi limit adalah 5
     } catch (error) {
-      toast.error('Failed to fetch meal history');
-      console.error(error);
-      setMealHistory([]);
+      console.error('Error fetching meal history:', error);
+      toast.error('Gagal memuat riwayat makanan');
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
-  };
+  }, [session]);
+
+  // Load initial data
+  useEffect(() => {
+    setMealHistory([]);
+    setPage(1);
+    fetchMealHistory(1, true);
+  }, [fetchMealHistory]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 1) {
+      fetchMealHistory(page);
+    }
+  }, [page, fetchMealHistory]);
 
   const handleEdit = (id: number) => {
     router.push(`/meal-history/${id}/edit`);

@@ -111,6 +111,7 @@ const HomePageSection = () => {
             <ThemeToggle />
           </div>
           <div
+            id="profile-settings"
             onClick={async () => {
               await push('/profile');
             }}

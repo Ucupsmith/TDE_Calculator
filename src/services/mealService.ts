@@ -32,28 +32,37 @@ interface ApiError {
   data?: any;
 }
 
-// Get meal history
+// Get meal history with pagination support
 export const getMealHistory = async (params: {
   userId: number;
   accessToken?: string;
-}): Promise<any> => {
-  const { userId, accessToken } = params;
-  console.log('Debug - userId in getMealHistory (before request):', userId);
+  page?: number;
+  limit?: number;
+}): Promise<{data: MealHistory[], total: number}> => {
+  const { userId, accessToken, page = 1, limit = 10 } = params;
+  
   try {
-    if (accessToken === null || accessToken === '') {
-      console.log('accessToken invalid');
+    if (!accessToken) {
+      throw new Error('No access token provided');
     }
-    const requestUrl = `/history?userId=${userId}`;
-    console.log('Debug - Request URL:', requestUrl);
+
+    const requestUrl = `/history?userId=${userId}&page=${page}&limit=${limit}`;
+    
     const response = await mealHistoryService.get(requestUrl, {
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${accessToken}`
-      }
+      },
+      timeout: 10000 // 10 seconds timeout
     });
-    return response.data;
+
+    return {
+      data: response.data.data || [],
+      total: response.data.total || 0
+    };
   } catch (error) {
-    console.log(`Error Cannot Get Meal History:${error}`);
+    console.error('Error fetching meal history:', error);
+    throw error; // Re-throw to handle in component
   }
 };
 
