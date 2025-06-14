@@ -27,6 +27,7 @@ import MealPlanEmptyState from '@/assets/mealplan/malplanemptystate-removebg-pre
 import Link from 'next/link';
 import SearchIcon from '@/assets/mealplan/SearchIcon-removebg-preview.png';
 import MealPlanSearchComponent from '@/components/meal-plan/MealPlanSearchComponent';
+import { toast } from 'react-toastify';
 
 interface MealRemainingResponse {
   totalCalories: number;
@@ -198,8 +199,15 @@ const MealPlanPage = () => {
 
   const handleSelectedFoods = (food: MealPayload, checked: boolean): void => {
     const safeFoodId = Number(food.id);
+    const payload: MealPayload = {
+      id: safeFoodId,
+      name: food.name,
+      calories: food.calories,
+      unit: food.unit,
+      isCustom: false
+    };
     if (checked === true) {
-      setSelectedFoods((prev) => [...prev, { ...food, id: safeFoodId }]);
+      setSelectedFoods((prev) => [...prev, { ...payload, isCustom: false }]);
     } else {
       setSelectedFoods((prev) => {
         const newSelectedFoods = prev.filter((selectedFood) => {
@@ -225,7 +233,7 @@ const MealPlanPage = () => {
     await fetchDataGetMeal();
     localStorage.removeItem('selectedFoods');
     localStorage.removeItem('allCustomFoods');
-    if (!selectedFoods) {
+    if (selectedFoods.length === 0 && selectedFoods.length === null) {
       return <Typography className=''>u must select foods</Typography>;
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -271,19 +279,30 @@ const MealPlanPage = () => {
 
   const handleSaveCustomFood = (data: CustomMealType) => {
     const payload: CustomFoodsProps = {
-      id: Number(data.id),
+      id: Math.random(),
       isCustom: true,
       name: data.name,
       calories: data.calories,
       unit: data.unit
     };
+    if (payload) {
+      toast.success('successful save custom food', {
+        delay: 1000,
+        position: 'top-center'
+      });
+    }
     setAllCustomFoods((prev) => [...prev, { ...payload }]);
-    reset();
   };
 
-  const handleDeleteCustomFood = (mealName: string) => {
-    setAllCustomFoods((prev) => prev.filter((meal) => meal.name !== mealName));
+  const handleDeleteCustomFood = (id: number) => {
+    setAllCustomFoods((prev) => prev.filter((meal) => meal.id !== id));
   };
+
+  const filteredSearchMeal = (paginationMainFoods || []).filter((meal) => {
+    const searchMealFoods =
+      meal.name.toLowerCase() || meal.calories.toLocaleString();
+    return searchMealFoods.toLowerCase().includes(searchFoods.toLowerCase());
+  });
 
   if (loading) {
     return (
@@ -410,12 +429,12 @@ const MealPlanPage = () => {
         </Typography>
         <Button
           onClick={handleClickCustom}
-          className='border rounded-xl border-green-500 py-3 px-2 w-32 h-15 md:w-40 bg-[#132A2E] text-sm md:text-lg  text-green-500 shadow-md shadow-green-500'
+          className='border rounded-xl border-green-500 py-3 px-2 w-32 h-15 md:w-40 bg-[#132A2E] text-sm md:text-lg  text-green-500 shadow-md shadow-green-500 duration-100 transition-all animate-fade-in'
         >
-          {buttonClicked ? '- close meal' : '+ add meal'}
+          {buttonClicked ? 'x close meal' : '+ add meal'}
         </Button>
         {buttonClicked && (
-          <Card className='w-full'>
+          <Card className='w-full transition-all duration-75 animate-fade-in-slide peer-last:animate-fade-out-slide'>
             <CardBody className='flex flex-col items-center justify-between py-3 px-2 bg-[#132A2E] gap-3 border-[3px] border-green-400 rounded-xl shadow-lg shadow-green-500 '>
               <div className='flex flex-col gap-2 w-full'>
                 <label className='text-green-500 font-poppins font-normal text-lg md:text-xl capitalize'>
@@ -502,7 +521,7 @@ const MealPlanPage = () => {
         onSubmit={handleSaveSearchFoods}
       />
       <MealPlanSection3
-        data={paginationMainFoods}
+        data={filteredSearchMeal}
         onSelect={handleSelectedFoods}
         onSave={handleSaveMeal}
         loading={loading}

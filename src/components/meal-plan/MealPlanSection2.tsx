@@ -15,7 +15,7 @@ import { type Swiper as SwiperInstance } from 'swiper';
 
 interface MealCustomInterface {
   data: CustomFoodsProps[];
-  onDelete: (mealName: string) => void;
+  onDelete: (id: number) => void;
 }
 
 interface CustomMealPagination {
@@ -97,10 +97,10 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
             your custom will appear here!
           </Typography>
           {data?.length > 0 && data?.length !== 0 && data?.length !== null ? (
-            data?.map((meal, idx: number) => {
+            data?.map((meal) => {
               const totalCal = Number(meal.unit) * meal.calories;
               return (
-                <SwiperSlide key={idx} className='w-full'>
+                <SwiperSlide key={Number(meal.id)} className='w-full'>
                   <input type='checkbox' className='sr-only' />
                   <div className='flex flex-row gap-10'>
                     <Card className='w-full border cursor-pointer rounded-xl bg-white peer-checked:ring-blue-500 border-green-500 peer-checked:grayscale-0 active:scale-95 transition-all gap-10'>
@@ -111,7 +111,7 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
                             alt=''
                             className='w-5 h-5'
                             onClick={() => {
-                              onDelete(meal.name);
+                              onDelete(meal.id);
                             }}
                           />
                         </div>

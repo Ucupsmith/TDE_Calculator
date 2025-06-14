@@ -12,6 +12,7 @@ import {
 import { useSession } from 'next-auth/react';
 import { useTdee } from '@/common/TdeeProvider';
 import { CustomSlidesPagination } from '../custom-pagination/CustomPaginationSlides';
+import { useRouter } from 'next/router';
 
 export interface TdeeProps {
   tdeeId?: string;
@@ -34,7 +35,8 @@ const Section2: React.FC = () => {
   const { setTdeeId } = useTdee();
   const userId = session?.user.userId as number;
   console.log('userId:', userId);
-  // const { tdeeId } = useParams();
+  const router = useRouter();
+  const { push } = router;
   const accessToken = session?.user.accessToken;
   const [TdeeDisplay, setTdeeDisplay] = useState<TdeeProps[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -151,7 +153,7 @@ const Section2: React.FC = () => {
         <Typography className='text-white'>Loading TDEE data...</Typography>
       )}
       {error && <Typography className='text-red-500'>{error}</Typography>}
-      <div className='w-full gap-2'>
+      <div onClick={() => push('meal-history')} className='w-full gap-2'>
         <CardBMI
           data={TdeeDisplay}
           loading={isLoading}

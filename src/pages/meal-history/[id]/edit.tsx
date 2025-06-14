@@ -32,8 +32,6 @@ const EditMealPage = () => {
   const accessToken = session?.user.accessToken as string;
 
   const [meal, setMeal] = useState<EditableMealHistory | null>(null);
-  const [mealHistory, setMealHistory] = useState<MealHistory[]>([]);
-
   const [loading, setLoading] = useState(true);
 
   const fetchSpecificMealData = async () => {
@@ -137,17 +135,6 @@ const EditMealPage = () => {
     );
   };
 
-  // Keep label function
-  // const getMealTypeLabel = (type: string) => {
-  //   const labels: Record<string, string> = {
-  //     breakfast: 'Breakfast',
-  //     lunch: 'Lunch',
-  //     dinner: 'Dinner',
-  //     snack: 'Snack'
-  //   };
-  //   return labels[type] || type;
-  // };
-
   if (loading) {
     return (
       <div className='flex justify-center items-center min-h-screen'>
@@ -209,81 +196,95 @@ const EditMealPage = () => {
             <Typography className='text-white mb-4'>Foods Consumed:</Typography>
             <div className='grid gap-4'>
               <div className='grid gap-4'>
-                {Object.entries(groupFoodsByMealType(meal.foods)).map(
+                {Object.entries(groupFoodsByMealType(meal?.foods)).map(
                   ([mealType, foods]) => (
                     <div key={mealType} className='bg-[#132A2E] rounded-lg'>
                       <Typography className='text-[#34D399] font-semibold mb-3 capitalize'>
                         food list
                       </Typography>
                       <div className='space-y-3'>
-                        {foods.map((food) => (
-                          <div
-                            key={food.id}
-                            className='flex items-center justify-between gap-4 p-3 rounded-lg bg-[#1e3a3d] border border-green-500 w-72 md:w-full'
-                          >
-                            <Image
-                              src={
-                                food.imageUrl
-                                  ? food.imageUrl.startsWith('http')
-                                    ? food.imageUrl
-                                    : food.imageUrl.startsWith('/images/')
-                                      ? `http://localhost:8000${food.imageUrl}`
-                                      : `http://localhost:8000/images/${food.imageUrl}`
-                                  : 'https://via.placeholder.com/40'
-                              }
-                              alt={food.name}
-                              width={40}
-                              height={40}
-                              className='w-10 h-10 object-cover rounded-full'
-                            />
-                            <div className='flex flex-col gap-2 items-center justify-center'>
-                              <Typography className='text-white font-normal font-poppins text-sm md:text-lg'>
-                                {food.name}
-                              </Typography>
-                              <Typography className='text-white font-normal font-poppins text-[12px] md:text-lg'>
-                                {food.calories} calories per {food.unit}
-                              </Typography>
-                            </div>
-                            <div className='flex items-center gap-2'>
-                              <input
-                                type='number'
-                                value={food.quantity}
-                                onChange={(e) =>
-                                  handleFoodQuantityChange(
-                                    meal.foods.findIndex(
-                                      (f) => f.id === food.id
-                                    ),
-                                    Number(e.target.value)
-                                  )
-                                }
-                                className='text-white w-16 bg-[#132A2E] rounded-lg focus:ring-2 focus:ring-white text-center border'
-                                min={1}
-                              />
-                              <Button
-                                variant='outlined'
-                                onClick={() =>
-                                  handleRemoveFood(Number(food.id))
-                                }
-                                className='text-[#D33434] border-[#D33434] p-2'
+                        {foods.length > 0 &&
+                          foods.length !== 0 &&
+                          foods?.map((food) => {
+                            console.log('ini image Food url,:', food.imageUrl);
+                            console.log(
+                              'NEXT_PUBLIC_IMAGE_API_URL:',
+                              process.env.NEXT_PUBLIC_IMAGE_API_URL
+                            );
+
+                            const finalImageSrc =
+                              food.imageUrl && food.imageUrl.length > 0
+                                ? food.imageUrl.startsWith('http://') ||
+                                  food.imageUrl.startsWith('https://')
+                                  ? food.imageUrl
+                                  : `${process.env.NEXT_PUBLIC_IMAGE_API_URL}${food.imageUrl.replace('/images/', '')}`
+                                : `http://localhost:8000/images/${food.imageUrl}`;
+
+                            console.log(
+                              'Final computed image src:',
+                              finalImageSrc
+                            ); // <-- Tambahkan ini
+                            return (
+                              <div
+                                key={food.id}
+                                className='flex items-center justify-between gap-4 p-3 rounded-lg bg-[#1e3a3d] border border-green-500 w-72 md:w-full'
                               >
-                                <svg
-                                  xmlns='http://www.w3.org/2000/svg'
-                                  className='h-5 w-5'
-                                  fill='none'
-                                  viewBox='0 0 24 24'
-                                  stroke='currentColor'
-                                >
-                                  <path
-                                    strokeLinecap='round'
-                                    strokeLinejoin='round'
-                                    strokeWidth={2}
-                                    d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                                <Image
+                                  src={finalImageSrc}
+                                  alt={food.name}
+                                  width={40}
+                                  height={40}
+                                  className='w-10 h-10 object-cover rounded-full'
+                                />
+                                <div className='flex flex-col gap-2 items-center justify-center'>
+                                  <Typography className='text-white font-normal font-poppins text-sm md:text-lg'>
+                                    {food.name}
+                                  </Typography>
+                                  <Typography className='text-white font-normal font-poppins text-[12px] md:text-lg'>
+                                    {food.calories} calories per {food.unit}
+                                  </Typography>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  <input
+                                    type='number'
+                                    value={food.quantity}
+                                    onChange={(e) =>
+                                      handleFoodQuantityChange(
+                                        meal.foods.findIndex(
+                                          (f) => f.id === food.id
+                                        ),
+                                        Number(e.target.value)
+                                      )
+                                    }
+                                    className='text-white w-16 bg-[#132A2E] rounded-lg focus:ring-2 focus:ring-white text-center border'
+                                    min={1}
                                   />
-                                </svg>
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                                  <Button
+                                    variant='outlined'
+                                    onClick={() =>
+                                      handleRemoveFood(Number(food.id))
+                                    }
+                                    className='text-[#D33434] border-[#D33434] p-2'
+                                  >
+                                    <svg
+                                      xmlns='http://www.w3.org/2000/svg'
+                                      className='h-5 w-5'
+                                      fill='none'
+                                      viewBox='0 0 24 24'
+                                      stroke='currentColor'
+                                    >
+                                      <path
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
+                                        strokeWidth={2}
+                                        d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                                      />
+                                    </svg>
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
                   )

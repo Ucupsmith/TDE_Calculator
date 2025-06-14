@@ -3,16 +3,27 @@ import GoogleProvider from 'next-auth/providers/google';
 import CreadentialsProvider from 'next-auth/providers/credentials';
 import { oauthLoginRegister } from '@/repository/auth.repository';
 
+console.log(
+  'DEBUG IN NEXTAUTH: GOOGLE_CLIENT_ID',
+  process.env.GOOGLE_CLIENT_ID
+);
+console.log(
+  'DEBUG IN NEXTAUTH: GOOGLE_CLIENT_SECRET (partial)',
+  process.env.GOOGLE_CLIENT_SECRET
+    ? process.env.GOOGLE_CLIENT_SECRET.substring(0, 5) + '...'
+    : 'NOT SET'
+);
+
 const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt'
   },
-  secret: process.env.AUTH_SECRET ?? 'tdee.calculations',
+  secret: process.env.AUTH_SECRET,
   providers: [
     GoogleProvider({
       name: 'google',
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
     }),
     CreadentialsProvider({
       name: 'credentials',
@@ -65,22 +76,31 @@ const authOptions: NextAuthOptions = {
         if (account.provider === 'google') {
           try {
             console.log('Google User ID (from NextAuth): ', user.id);
-            console.log('Google Provider Account ID (from NextAuth): ', account.providerAccountId);
+            console.log(
+              'Google Provider Account ID (from NextAuth): ',
+              account.providerAccountId
+            );
             const backendUser = await oauthLoginRegister({
               email: user.email!,
               name: user.name!,
-              googleId: account.providerAccountId,
+              googleId: account.providerAccountId
             });
-            console.log('Backend User (after oauthLoginRegister):', backendUser);
+            console.log(
+              'Backend User (after oauthLoginRegister):',
+              backendUser
+            );
             token.id = backendUser.userId;
             token.accessToken = backendUser.accessToken;
             token.name = backendUser.name;
             token.email = backendUser.email;
-            token.number_phone = backendUser.number_phone || "";
+            token.number_phone = backendUser.number_phone || '';
           } catch (error) {
-            console.error('Error during Google OAuth backend processing:', error);
+            console.error(
+              'Error during Google OAuth backend processing:',
+              error
+            );
             // Handle error, maybe redirect to an error page or prevent login
-            return Promise.reject(new Error("OAuth login failed"));
+            return Promise.reject(new Error('OAuth login failed'));
           }
         } else if (account.provider === 'credentials' && user) {
           token.id = user.id;
