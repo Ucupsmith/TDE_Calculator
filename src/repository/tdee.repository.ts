@@ -42,7 +42,7 @@ export const tdeeCalculation = async (params: {
       console.log('input invalid');
     }
     const response = await tdeeService.post(
-      '/tdee/calculate',
+      '/tdee/calculate-mifflin-st-jeor',
       {
         ...params,
         goal: params.goal || 'MainTainWeight',

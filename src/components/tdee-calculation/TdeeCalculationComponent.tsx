@@ -239,14 +239,13 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                 transition={{ delay: 0.3, type: 'spring' }}
                 className='w-full md:w-1/2 flex flex-col items-center gap-4'
               >
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-2 relative'>
                   <Typography className='font-poppins font-semibold text-white text-lg md:text-2xl capitalize'>
                     Your TDEE Score
                   </Typography>
                   <div
                     onMouseEnter={() => setShowTdeeTooltip(true)}
                     onMouseLeave={() => setShowTdeeTooltip(false)}
-                    className='relative'
                   >
                     <FaInfoCircle className='text-[#34D399] hover:text-[#2bbd8c] cursor-pointer transition-colors duration-200' />
                     <AnimatePresence>
@@ -255,7 +254,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          className='absolute z-10 w-64 p-3 text-sm bg-gray-800 text-gray-100 rounded-lg shadow-lg -left-32 top-6'
+                          className='absolute z-10 w-64 p-3 text-sm bg-gray-800 text-gray-100 rounded-lg shadow-lg -left-10 top-6'
                         >
                           Total Daily Energy Expenditure (TDEE) adalah total
                           kalori yang Anda bakar dalam sehari, termasuk
@@ -313,11 +312,11 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                     berat badan, konsumsilah sekitar
                     <span className='font-bold text-green-400'>
                       {' '}
-                      {goal === 'LoseWeight'
-                        ? Math.floor(tdee - 500).toLocaleString('id-ID')
-                        : goal === 'GainWeight'
-                          ? Math.floor(tdee + 300).toLocaleString('id-ID')
-                          : Math.floor(tdee).toLocaleString('id-ID')}
+                      {tdee.toLocaleString('id-ID') === 'LoseWeight'
+                        ? Math.ceil(tdee - 500).toLocaleString('id-ID')
+                        : tdee.toLocaleString('id-ID') === 'GainWeight'
+                          ? Math.ceil(tdee + 300).toLocaleString('id-ID')
+                          : Math.ceil(tdee).toLocaleString('id-ID')}
                     </span>{' '}
                     kalori per hari.
                   </Typography>
@@ -330,14 +329,13 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                 transition={{ delay: 0.4, type: 'spring' }}
                 className='w-full md:w-1/2 flex flex-col items-center gap-4'
               >
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-2 relative'>
                   <Typography className='font-poppins font-semibold text-white text-lg md:text-2xl capitalize'>
                     Your BMI Score
                   </Typography>
                   <div
                     onMouseEnter={() => setShowBmiTooltip(true)}
                     onMouseLeave={() => setShowBmiTooltip(false)}
-                    className='relative'
                   >
                     <FaInfoCircle className='text-blue-400 cursor-help' />
                     <AnimatePresence>
@@ -346,7 +344,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          className='absolute z-10 w-72 p-3 text-sm bg-gray-800 text-gray-100 rounded-lg shadow-lg -left-36 top-6'
+                          className='absolute z-10 w-72 p-3 text-sm bg-gray-800 text-gray-100 rounded-lg shadow-lg -left-16 right-0 top-6'
                         >
                           <p className='font-semibold mb-1'>
                             Body Mass Index (BMI)
@@ -449,7 +447,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
                             <div className='h-full w-1/4 bg-red-600/30'></div>
                           </div>
                           <motion.div
-                            className='h-full bg-current rounded-full absolute top-0 left-0 w-1 bg-transparent border-2 border-white'
+                            className='h-full rounded-full absolute top-0 left-0 w-1 bg-transparent border-2 border-white'
                             initial={{ left: '0%' }}
                             animate={{
                               left: `${Math.min(100, Math.max(0, ((bmi - 10) / 30) * 100))}%`,
