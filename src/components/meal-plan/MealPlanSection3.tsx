@@ -46,6 +46,10 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
   selectedFoods
 }) => {
   const [saveButton, setSaveButton] = useState<boolean>(false);
+  const [savedFood, setSavedFood] = useState<boolean>(false);
+  const handleSavedFood = () => {
+    setSavedFood(!savedFood);
+  };
   const handleSave = async () => {
     try {
       await onSave();
@@ -65,6 +69,20 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
       return food.name;
     }
   });
+
+  // const selectedFood = (data || []).filter((food) => {
+  //   const foodName = food.name.toLowerCase();
+  //   const foodQuantity = food.unit;
+  //   const foodImage = food.imageUrl;
+  //   if (foodName && foodQuantity !== null && foodName && foodQuantity === '') {
+  //     return foodName.toLowerCase() && foodQuantity.toLowerCase() && foodImage;
+  //   }
+  //   return {
+  //     foodName,
+  //     foodQuantity,
+  //     foodImage
+  //   };
+  // });
   return (
     <div className='w-full'>
       {!loading ? (
@@ -72,6 +90,21 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
           <Typography className='font-poppins font-normal text-green-500 text-lg md:text-lg  capitalize'>
             Lets choose how you prepare your meal
           </Typography>
+          {/* {selectedFoods.length > 0 && (
+            <div className='w-full flex flex-col justify-center px-3 items-end gap-3 duration-75 animate-fade-in-slide transition-all'>
+              <div
+                onClick={handleSavedFood}
+                className='border-[3px] border-green-500 w-auto py-2 px-3 bg-[#132A2E] rounded-xl shadow-md shadow-green-500 text-green-900 hover:bg-blue-gray-600 '
+              >
+                <Typography className='text-white font-poppins font-semibold text-sm md:text-xl capitalize flex text-center'>
+                  selected
+                </Typography>
+              </div>
+              {savedFood && (
+                <div className='flex flex-col items-center justify-center border-[3px] border-green-500 w-full py-2 px-3 bg-[#132A2E] rounded-xl shadow-md shadow-green-500 text-green-900 hover:bg-blue-gray-600 '></div>
+              )}
+            </div>
+          )} */}
           <div className='w-full flex flex-wrap justify-center items-start gap-4 md:px-0'>
             {data?.length > 0 && data?.length !== null ? (
               data?.map((food) => {
