@@ -97,32 +97,34 @@ const TdeeCalculatorPage = () => {
     async (data: TdeeFormType): Promise<void> => {
       try {
         setIsLoading(true);
-        const payloadTdee = await tdeeCalculation({
+        const payloadTdee: TdeeFormType = {
           gender: data.gender,
           age: data.age,
           weight: data.weight,
           height: data.height,
           goal: data.goal,
           activity_level: data.activity_level
-        });
-        if (payloadTdee !== null && payloadTdee !== 0) {
-          setCalculateTdee(payloadTdee);
-          setIsModalOpen(payloadTdee);
+        };
+        const responseBenedict = await tdeeCalculation({ ...payloadTdee });
+
+        if (responseBenedict !== null && responseBenedict !== 0) {
+          setCalculateTdee(responseBenedict);
+          setIsModalOpen(responseBenedict);
         } else {
           setCalculateTdee(null);
         }
-        if (!payloadTdee || typeof payloadTdee !== 'object') {
+        if (!responseBenedict || typeof responseBenedict !== 'object') {
           setCalculateTdee(null);
           return;
         }
 
-        if (typeof payloadTdee === 'string') {
+        if (typeof responseBenedict === 'string') {
           setCalculateTdee(null);
           return;
         }
 
-        if (payloadTdee) {
-          setCalculateTdee(payloadTdee);
+        if (responseBenedict) {
+          setCalculateTdee(responseBenedict);
           setIsModalOpen(true);
           // Let the child component handle the scroll and animation
           // The results will be scrolled to by the TdeeCalculationComponent
