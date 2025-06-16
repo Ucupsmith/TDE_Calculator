@@ -40,16 +40,15 @@ const EditMealPage = () => {
       setLoading(true);
       if (userId && accessToken) {
         const history = await getMealHistory({ userId, accessToken });
-        const specificMeal = history.data.find((m: any) => m.id === mealId);
+        const specificMeal = history.find((m: any) => m.id === mealId);
 
         if (specificMeal) {
           console.log('Fetched specificMeal:', specificMeal);
-          const editableFoods: EditableMealHistoryFood[] = specificMeal.foods.map(
-            (food: any) => ({
+          const editableFoods: EditableMealHistoryFood[] =
+            specificMeal.foods.map((food: any) => ({
               ...food,
               quantity: food.quantity
-            })
-          );
+            }));
           setMeal({
             ...specificMeal,
             foods: editableFoods
@@ -85,7 +84,7 @@ const EditMealPage = () => {
     if (!meal) return;
 
     try {
-      // Call the delete service to remove the food entry from the backend
+      // Call the delete service to remove the food entry from th e backend
       await DeleteSelectionMeal({
         foodEntryId: idToRemove
       });
@@ -154,7 +153,7 @@ const EditMealPage = () => {
   }
 
   return (
-    <div className='w-full container mx-auto px-4 py-8 h-full'>
+    <div className='w-full container mx-auto px-4 py-8 h-screen'>
       <div className='max-w-2xl mx-auto md:w-full'>
         <Typography variant='h3' className='text-[#34D399] mb-8'>
           Edit Meal History Entry
@@ -223,7 +222,7 @@ const EditMealPage = () => {
                             return (
                               <div
                                 key={food.id}
-                                className='flex w-full items-center justify-between gap-4 p-3 rounded-lg bg-[#1e3a3d] border border-green-500 w-72 md:w-full'
+                                className='flex w-full items-center justify-between gap-4 p-3 rounded-lg bg-[#1e3a3d] border border-green-500 md:w-full'
                               >
                                 <Image
                                   src={finalImageSrc}

@@ -7,6 +7,7 @@ import {
   Typography
 } from '@material-tailwind/react';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
 export interface MealResponse {
@@ -46,6 +47,7 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
   const handlePopUpFood = () => {
     setSelectedFoodSection(!selectedFoodSection);
   };
+  const { push } = useRouter();
   const handleSave = async () => {
     try {
       await onSave();
@@ -244,7 +246,7 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
             )}
           </div>
           {selectedFoods.length > 0 ? (
-            <div className='w-full flex justify-center items-center h-16 fixed bottom-16 px-3 right-0 duration-75 transition-all animate-fade-in ease-in-out'>
+            <div className='w-full flex justify-center items-center h-16 fixed bottom-16 px-3 right-0 duration-75 transition-all animate-fade-in ease-in-out z-50'>
               <Button
                 onClick={() => handleSave()}
                 className='bg-green-500 rounded-full w-64 h-10'
@@ -277,6 +279,12 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
               <div className='border bg-white w-64 h-40 flex flex-col rounded-lg items-center gap-4 justify-center'>
                 <Typography className='font-poppins font-semibold text-green-500 text-lg capitalize text-center'>
                   meal selection saved successfull
+                </Typography>
+                <Typography
+                  onClick={() => push('/meal-history')}
+                  className='font-poppins font-semibold text-blue-500 text-xs capitalize text-center underline'
+                >
+                  see the collection
                 </Typography>
                 <Button
                   onClick={() => setSaveButton(false)}

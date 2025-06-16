@@ -155,7 +155,7 @@ const ArticleCard = () => {
         initial='initial'
         animate='animate'
         exit='exit'
-        variants={{ pageVariants }}
+        variants={pageVariants}
         className='flex flex-col w-full overflow-x-hidden justify-center items-center'
       >
         <motion.div
@@ -210,7 +210,7 @@ const ArticleCard = () => {
                 <motion.div
                   key={article.id}
                   custom={index}
-                  variants={{ cardVariants }}
+                  variants={cardVariants}
                   whileHover={{ scale: 1.05 }}
                   className='bg-white rounded-lg shadow-lg overflow-hidden'
                 >

@@ -174,7 +174,7 @@ const TdeeCalculatorPage = () => {
       setIsLoading(false);
     }
   }, [calculateTdee, setTdeeId]);
-  // Fetch initial data when component mounts
+
   useEffect(() => {
     const fetchInitialData = async () => {
       const session = await getSession();
@@ -200,14 +200,13 @@ const TdeeCalculatorPage = () => {
       }
     };
     void fetchInitialData();
-  }, []); // Removed getSession from dependencies as it's not needed
+  }, []);
 
-  // Save TDEE calculation when it changes
   useEffect(() => {
     if (calculateTdee) {
       void handleSaveTdee();
     }
-  }, [calculateTdee, handleSaveTdee]); // Added handleSaveTdee to dependencies
+  }, []);
   const handleButtonClick = (): void => {
     setButtonClicked(!buttonClicked);
   };

@@ -124,7 +124,7 @@ const MealPlanPage = () => {
   const handleDecrement = () => {
     setValue('unit', unit > 1 ? unit - 1 : unit);
   };
-  const fetchDataGetMeal = async (): Promise<void> => {
+  const fetchDataGetMeal = useCallback(async (): Promise<void> => {
     if (!tdeeId) {
       console.warn('tdeeId belum tersedia, tidak bisa fetch meal plan.');
       return;
@@ -145,7 +145,7 @@ const MealPlanPage = () => {
     } catch (error) {
       console.log(`error get meal remaining: ${error}`);
     }
-  };
+  }, [tdeeId, userId, accessToken]);
   const fetchDataFoods = useCallback(async (): Promise<void> => {
     try {
       const payload = {
@@ -256,12 +256,14 @@ const MealPlanPage = () => {
       console.log(
         'All conditions met in MealPlanPage, fetching meal data and foods...'
       );
+      void fetchDataGetMeal();
+      void fetchDataFoods();
     } else {
       console.log(
         'Conditions not met in MealPlanPage, not fetching initial data.'
       );
     }
-  }, [userId, tdeeId, accessToken]);
+  }, [userId, tdeeId, accessToken, fetchDataGetMeal, fetchDataFoods]);
   useEffect(() => {
     const storedSelectedFoods = localStorage.getItem('selectedFoods');
     if (storedSelectedFoods) {
