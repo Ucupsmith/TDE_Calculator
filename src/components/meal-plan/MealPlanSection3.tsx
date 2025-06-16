@@ -128,10 +128,10 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                             width={100}
                             height={100}
                           />
-                          <Typography className='w-full text-white font-poppins font-semibold text-sm md:text-xl capitalize text-end'>
+                          <Typography className='w-full text-white font-poppins font-semibold text-sm md:text-xl capitalize text-end md:text-center md:w-auto'>
                             {food.name}
                           </Typography>
-                          <Typography className='w-full text-white font-poppins font-semibold text-sm md:text-xl capitalize text-center'>
+                          <Typography className='w-full text-white font-poppins font-semibold text-sm md:text-xl capitalize text-center md:text-center md:w-auto'>
                             {food.unit}
                           </Typography>
                           <div className='flex items-center justify-center border-red-900 bg-[#132A2E]'>
