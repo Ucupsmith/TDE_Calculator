@@ -16,7 +16,6 @@ const SplashScreen = (): JSX.Element => {
 
   return (
     <div className='flex flex-col justify-center items-center min-h-screen'>
-      {/* Logo or spinner */}
       <div className='relative h-48 w-48 md:h-60 md:w-60 animate-spin-slow'>
         <Image
           src='/tdee.svg'
