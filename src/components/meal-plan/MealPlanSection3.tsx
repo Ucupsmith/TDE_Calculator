@@ -97,8 +97,11 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
               {selectedFoodSection && (
                 <div className='flex flex-col items-center justify-center border-[3px] border-green-500 w-full py-2 px-3 bg-[#132A2E] rounded-xl shadow-md shadow-green-500 text-green-900 duration-75 transition-none animate-fade-in'>
                   <div className='w-full flex flex-row justify-between items-center px-0 py-1'>
-                    {title.map((t) => (
-                      <Typography className='text-green-500 font-poppins font-semibold text-lg md:text-xl capitalize flex text-center'>
+                    {title.map((t, idx: number) => (
+                      <Typography
+                        key={idx}
+                        className='text-green-500 font-poppins font-semibold text-lg md:text-xl capitalize flex text-center'
+                      >
                         {t}
                       </Typography>
                     ))}
@@ -107,7 +110,10 @@ const MealPlanSection3: React.FC<MealPlanProps> = ({
                     selectedFoods.length !== null &&
                     selectedFoods.map((food) => {
                       return (
-                        <div className='w-full flex flex-row justify-between items-center px-0 py-1 text-center'>
+                        <div
+                          key={food.id}
+                          className='w-full flex flex-row justify-between items-center px-0 py-1 text-center'
+                        >
                           <Image
                             src={
                               food.imageUrl
