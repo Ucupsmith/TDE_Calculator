@@ -1,6 +1,5 @@
 import baseAxios from '@/utils/common/axios';
-import { isEmptyString, isUndefindOrNull } from '@/utils/common/utils';
-import { error } from 'console';
+import { getSession } from 'next-auth/react';
 
 const mealService = baseAxios(
   `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'}/user/v1`
@@ -125,15 +124,18 @@ export const getMainUserFoods = async (params: {
 }): Promise<any> => {
   const { name } = params;
   try {
+    const session = await getSession();
+    const accessToken = session?.user?.accessToken || '';
     const response = await mealService.get(`/foods/`, {
       params: {
         name
       },
       headers: {
-        Accept: 'application/json'
+        Accept: 'application/json',
+        Authorization: `Bearer ${accessToken}`
       }
     });
-    console.log("Raw response data from getMainUserFoods:", response.data);
+    console.log('Raw response data from getMainUserFoods:', response.data);
     if (response.status === null) {
       return await Promise.resolve('data null');
     }
