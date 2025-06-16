@@ -203,10 +203,10 @@ const MealHistory = () => {
         console.log('payload masuk:', payload);
         if (data) {
           toast.success('Meal deleted successfully!');
-          await fetchMealHistory(
-            Number(session?.user.userId),
-            session?.user.accessToken || ''
-          );
+          // Reset and reload the meal history
+          setMealHistory([]);
+          setPage(1);
+          await fetchMealHistory(1, true);
         } else {
           toast.error('Failed to delete meal');
         }
@@ -233,15 +233,18 @@ const MealHistory = () => {
     );
   };
 
-  useEffect(() => {
+  const fetchInitialData = useCallback(async () => {
     if (session?.user?.userId && session?.user?.accessToken) {
       const userId = Number(session.user.userId);
-      const accessToken = session.user.accessToken;
       if (!isNaN(userId) && userId > 0) {
-        void fetchMealHistory(userId, accessToken);
+        await fetchMealHistory(1, true);
       }
     }
-  }, [session]);
+  }, [session, fetchMealHistory]);
+
+  useEffect(() => {
+    void fetchInitialData();
+  }, [fetchInitialData]);
 
   if (isLoading) {
     return (

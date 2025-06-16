@@ -197,6 +197,159 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               />
             </motion.div>
           )}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className='flex flex-col w-full md:h-auto h-auto gap-6 py-4'
+        >
+          {goal && (
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 100 }}
+              className='flex w-full items-center justify-center bg-[#1a3a3f] py-2 rounded-lg mx-auto max-w-md'
+            >
+              <Typography className='font-poppins font-semibold text-white text-sm md:text-lg flex items-center gap-2'>
+                <span>Your Goal:</span>
+                <span className={`px-3 py-1 rounded-full text-sm ${
+                  goal === 'LoseWeight' 
+                    ? 'bg-red-900/50 text-red-300' 
+                    : goal === 'GainWeight' 
+                      ? 'bg-blue-900/50 text-blue-300' 
+                      : 'bg-green-900/50 text-green-300'
+                }`}>
+                  {goal === 'LoseWeight'
+                    ? 'Lose Weight 🔥'
+                    : goal === 'MaintainWeight'
+                      ? 'Maintain Weight ⚖️'
+                      : 'Gain Weight 💪'}
+                </span>
+              </Typography>
+            </motion.div>
+          )}
+          
+          <div className='flex flex-col md:flex-row w-full px-3 gap-6 md:gap-8'>
+            {/* TDEE Card */}
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.3, type: 'spring' }}
+              className='w-full md:w-1/2 flex flex-col items-center gap-4'
+            >
+              <div className='flex items-center gap-2'>
+                <Typography className='font-poppins font-semibold text-white text-lg md:text-2xl capitalize'>
+                  Your TDEE Score
+                </Typography>
+                <div 
+                  onMouseEnter={() => setShowTdeeTooltip(true)}
+                  onMouseLeave={() => setShowTdeeTooltip(false)}
+                  className='relative'
+                >
+                  <FaInfoCircle className='text-[#34D399] hover:text-[#2bbd8c] cursor-pointer transition-colors duration-200' />
+                  <AnimatePresence>
+                    {showTdeeTooltip && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className='absolute z-10 w-64 p-3 text-sm bg-gray-800 text-gray-100 rounded-lg shadow-lg -left-32 top-6'
+                      >
+                        Total Daily Energy Expenditure (TDEE) adalah total kalori yang Anda bakar dalam sehari, termasuk aktivitas fisik dan metabolisme dasar.
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+              
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onSubmit}
+                className='w-full max-w-md cursor-pointer'
+              >
+                <Card className='w-full h-40 md:h-56 rounded-2xl bg-[#132A2E] border-2 border-green-500 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300'>
+                  <CardBody className='h-full flex flex-col items-center justify-center p-4'>
+                    <div className='flex items-center gap-2 mb-2'>
+                      <FaFire className='text-yellow-500 text-2xl' />
+                      <Typography className='font-bold font-poppins text-4xl md:text-5xl bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent'>
+                        {Math.floor(goal === 'LoseWeight' 
+                          ? tdee - 500 
+                          : goal === 'GainWeight' 
+                            ? tdee + 300 
+                            : tdee
+                        ).toLocaleString('id-ID')}
+                      </Typography>
+                    </div>
+                    <Typography className='font-medium font-poppins text-green-300 text-sm md:text-base'>
+                      calories per day
+                    </Typography>
+                    <div className='mt-4 w-full max-w-xs'>
+                      <div className='h-2 bg-gray-700 rounded-full overflow-hidden'>
+                        <motion.div 
+                          className='h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full'
+                          initial={{ width: 0 }}
+                          animate={{ width: '100%' }}
+                          transition={{ duration: 2, delay: 0.5 }}
+                        />
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className='w-full max-w-md bg-[#1a3a3f] p-4 md:p-6 rounded-lg border border-gray-700 mt-2 md:mt-0'
+              >
+                <Typography className='font-poppins text-gray-200 text-sm md:text-base text-center leading-relaxed px-2'>
+                  Untuk {goal === 'LoseWeight' ? 'menurunkan' : goal === 'GainWeight' ? 'menaikkan' : 'mempertahankan'} berat badan, konsumsilah sekitar
+                  <span className='font-bold text-green-400'>
+                    {' '}
+                    {goal === 'LoseWeight' 
+                      ? Math.floor(tdee - 500).toLocaleString('id-ID')
+                      : goal === 'GainWeight' 
+                        ? Math.floor(tdee + 300).toLocaleString('id-ID')
+                        : Math.floor(tdee).toLocaleString('id-ID')}
+                  </span>
+                  {' '}kalori per hari.
+                </Typography>
+              </motion.div>
+            </motion.div>
+            {/* BMI Card */}
+            <motion.div
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.4, type: 'spring' }}
+              className='w-full md:w-1/2 flex flex-col items-center gap-4'
+            >
+              <div className='flex items-center gap-2'>
+                <Typography className='font-poppins font-semibold text-white text-lg md:text-2xl capitalize'>
+                  Your BMI Score
+                </Typography>
+                <div 
+                  onMouseEnter={() => setShowBmiTooltip(true)}
+                  onMouseLeave={() => setShowBmiTooltip(false)}
+                  className='relative'
+                >
+                  <FaInfoCircle className='text-blue-400 cursor-help' />
+                  <AnimatePresence>
+                    {showBmiTooltip && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className='absolute z-10 w-72 p-3 text-sm bg-gray-800 text-gray-100 rounded-lg shadow-lg -left-36 top-6'
+                      >
+                        <p className='font-semibold mb-1'>Body Mass Index (BMI)</p>
+                        <p className='text-xs'>Indeks massa tubuh (IMT) adalah pengukuran yang menggunakan tinggi dan berat badan untuk memperkirakan jumlah lemak tubuh.</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

@@ -256,8 +256,6 @@ const MealPlanPage = () => {
       console.log(
         'All conditions met in MealPlanPage, fetching meal data and foods...'
       );
-      void fetchDataGetMeal();
-      void fetchDataFoods();
     } else {
       console.log(
         'Conditions not met in MealPlanPage, not fetching initial data.'

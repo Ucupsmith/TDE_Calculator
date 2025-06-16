@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '@/components/navbar/Navbar';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import {
   getArticles,
   Article,
@@ -67,7 +67,7 @@ const ArticleCard = () => {
     return searchContent.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  const pageVariants = {
+  const pageVariants: Variants = {
     initial: {
       opacity: 0,
       y: 20
@@ -77,7 +77,7 @@ const ArticleCard = () => {
       y: 0,
       transition: {
         duration: 0.5,
-        ease: 'easeOut'
+        ease: [0.4, 0, 0.2, 1] as const // cubic-bezier equivalent of 'easeOut'
       }
     },
     exit: {
@@ -85,12 +85,12 @@ const ArticleCard = () => {
       y: -20,
       transition: {
         duration: 0.3,
-        ease: 'easeIn'
+        ease: [0.4, 0, 1, 1] as const // cubic-bezier equivalent of 'easeIn'
       }
     }
   };
 
-  const cardVariants = {
+  const cardVariants: Variants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: (i: number) => ({
       opacity: 1,

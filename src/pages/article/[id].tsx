@@ -206,98 +206,92 @@ const ArticlePage = () => {
     );
   }
 
-  return (
-    <div className='min-h-screen bg-gradient-to-b from-teal-900 to-teal-950'>
-      <Head>
-        <title>{article.title} | TDEE Calculator</title>
-        <meta name='description' content={article.content || article.title} />
-      </Head>
-
-      <BackButton />
-
-      <div className='max-w-4xl mx-auto px-4 py-20'>
-        <div className='bg-black/30 backdrop-blur-sm rounded-xl overflow-hidden border border-teal-500/20'>
-          {/* Article Header with Background Image */}
-          {article.imagePath && (
-            <div className='relative h-64 w-full'>
-              <Image
-                src={getImageUrl(article.imagePath)}
-                alt={article.title}
-                fill
-                className='object-cover opacity-20'
-                priority
-              />
-              <div className='absolute inset-0 bg-gradient-to-t from-black/80 to-transparent'>
-                <div className='absolute bottom-0 left-0 right-0 p-6'>
-                  <h1 className='text-3xl font-bold text-green-400 mb-2'>
-                    {article.title}
-                  </h1>
-                  <div className='flex items-center text-green-300/80 text-sm'>
-                    <span>•</span>
-                    <span className='ml-1'>
-                      {article.author?.name || 'Unknown Author'}
-                    </span>
-                  </div>
+    return (
+        <div className="min-h-screen bg-gradient-to-b from-teal-900 to-teal-950">
+            <Head>
+                <title>{article.title} | TDEE Calculator</title>
+                <meta name="description" content={article.content?.substring(0, 160) || article.title} />
+            </Head>
+            
+            <BackButton />
+            
+            <div className="max-w-4xl mx-auto px-4 py-20">
+                <div className="bg-black/30 backdrop-blur-sm rounded-xl overflow-hidden border border-teal-500/20">
+                    {/* Article Header with Background Image */}
+                    {article.imagePath && (
+                        <div className="relative h-64 w-full">
+                            <Image
+                                src={getImageUrl(article.imagePath)}
+                                alt={article.title}
+                                fill
+                                className="object-cover opacity-20"
+                                priority
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent">
+                                <div className="absolute bottom-0 left-0 right-0 p-6">
+                                    <h1 className="text-3xl font-bold text-green-400 mb-2">
+                                        {article.title}
+                                    </h1>
+                                    <div className="flex items-center text-green-300/80 text-sm">
+                                        <span>•</span>
+                                        <span className="ml-1">{article.author?.name || 'Unknown Author'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Article Content */}
+                    <div className="p-6">
+                        <div className="prose prose-invert max-w-none text-green-100 article-content">
+                            <div dangerouslySetInnerHTML={{ __html: article.content }} />
+                        </div>
+                        
+                        <style jsx>{`
+                            .article-content ul { margin-left: 1.5em; }
+                            .article-content li { margin-bottom: 0.5em; }
+                            .article-content h2 { 
+                                margin-top: 1.5em; 
+                                color: #34D399;
+                                font-size: 1.5rem;
+                                font-weight: 600;
+                            }
+                            .article-content h3 { 
+                                margin-top: 1.25em; 
+                                color: #6EE7B7;
+                                font-size: 1.25rem;
+                                font-weight: 500;
+                            }
+                            .article-content p {
+                                margin-bottom: 1rem;
+                                line-height: 1.7;
+                            }
+                            .article-content a { 
+                                color: #34D399; 
+                                text-decoration: none;
+                                font-weight: 500;
+                            }
+                            .article-content a:hover { 
+                                text-decoration: underline;
+                                color: #6EE7B7;
+                            }
+                        `}</style>
+                    </div>
+                    
+                    {/* Article Footer */}
+                    <div className="border-t border-teal-500/20 px-6 py-4 flex justify-end items-center bg-black/30">
+                        <div className="text-sm text-green-300/60">
+                            {new Date(article.createdAt).toLocaleDateString('id-ID', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })}
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          )}
-
-          {/* Article Content */}
-          <div className='p-6'>
-            <div className='prose prose-invert max-w-none text-green-100 article-content'>
-              <div dangerouslySetInnerHTML={{ __html: article.content }} />
-            </div>
-
-            <style jsx>{`
-              .article-content ul {
-                margin-left: 1.5em;
-              }
-              .article-content li {
-                margin-bottom: 0.5em;
-              }
-              .article-content h2 {
-                margin-top: 1.5em;
-                color: #34d399;
-                font-size: 1.5rem;
-                font-weight: 600;
-              }
-              .article-content h3 {
-                margin-top: 1.25em;
-                color: #6ee7b7;
-                font-size: 1.25rem;
-                font-weight: 500;
-              }
-              .article-content p {
-                margin-bottom: 1rem;
-                line-height: 1.7;
-              }
-              .article-content a {
-                color: #34d399;
-                text-decoration: none;
-                font-weight: 500;
-              }
-              .article-content a:hover {
-                text-decoration: underline;
-                color: #6ee7b7;
-              }
-            `}</style>
-          </div>
-
-          {/* Article Footer */}
-          <div className='border-t border-teal-500/20 px-6 py-4 flex justify-end items-center bg-black/30'>
-            <div className='text-sm text-green-300/60'>
-              {new Date(article.createdAt).toLocaleDateString('id-ID', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default ArticlePage;
