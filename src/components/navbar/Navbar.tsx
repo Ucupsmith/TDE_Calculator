@@ -60,7 +60,7 @@ const Navbar = () => {
   const { pathname, push } = router;
   return (
     <div className='w-full flex fixed bottom-0 left-0 right-0 z-10 py-0 md:py-3 px-0 items-end justify-center md:relative bg-opacity-50'>
-      <div className='w-full h-14 flex flex-row items-center md:px-2  border border-none px-0 md:bg-[#144B3C] bg-[#143238] md:rounded-[20px] rounded-t-[8px]'>
+      <div className='w-full h-16 flex flex-row items-start md:items-center justify-center md:px-2 border border-none px-0 md:bg-[#144B3C] bg-[#143238] md:rounded-[20px] rounded-t-xl'>
         <div className='h-6 flex flex-col items-end justify-center'>
           <Image
             className='md:flex md:w-24 hidden md:pt-5 pt-0'
@@ -68,14 +68,14 @@ const Navbar = () => {
             alt={TdeeLogo}
           />
         </div>
-        <div className='w-full md:h-6 md:flex md:flex-row flex justify-center md:items-center items-center'>
+        <div className='w-full md:h-6 md:flex md:flex-row flex justify-between md:items-center items-center '>
           {Navigate !== null
             ? Navigate.map((nav, id: number) => {
                 const active = pathname === nav.navigate;
                 return (
                   <div
                     key={id}
-                    className='w-full md:h-auto md:flex flex flex-col items-center justify-center  cursor-pointer'
+                    className='w-full md:h-auto md:flex flex flex-col items-center justify-start  cursor-pointer'
                   >
                     {active ? (
                       <div
@@ -86,7 +86,7 @@ const Navbar = () => {
                             await push(nav.navigate);
                           }
                         }}
-                        className={`md:w-auto md:h-auto w-8 flex flex-row justify-around items-center md:rounded-none md:bg-[#144B3C] rounded-[35px] ease-in transition-all duration-300 text-[#34D399]`}
+                        className={`md:w-auto md:h-auto w-8 flex flex-row items-center md:rounded-none md:bg-[#144B3C] rounded-[35px] ease-in transition-all duration-300 text-[#34D399]`}
                       >
                         <div className='flex flex-col w-full items-center justify-around h-14'>
                           <Image

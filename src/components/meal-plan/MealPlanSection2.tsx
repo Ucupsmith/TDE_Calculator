@@ -1,6 +1,7 @@
 import { CustomFoodsProps } from '@/pages/meal-plan';
 import {
   Avatar,
+  button,
   Button,
   Card,
   CardBody,
@@ -15,7 +16,8 @@ import { type Swiper as SwiperInstance } from 'swiper';
 
 interface MealCustomInterface {
   data: CustomFoodsProps[];
-  onDelete: (mealName: string) => void;
+  onDelete: (id: number) => void;
+  onSave: () => void;
 }
 
 interface CustomMealPagination {
@@ -52,12 +54,17 @@ const CustomMealPagination: React.FC<CustomMealPagination> = ({
   );
 };
 
-const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
+const MealPlanCustom: React.FC<MealCustomInterface> = ({
+  data,
+  onDelete,
+  onSave
+}) => {
   console.log('data custom get food', data);
   const [activeSlides, setActiveSlides] = useState<number>(0);
   const [swiperInstance, setSwiperInstance] = useState<SwiperInstance | null>(
     null
   );
+  const [buttonSave, setButtonSave] = useState<boolean>(false);
 
   useEffect(() => {
     if (swiperInstance !== null) {
@@ -77,6 +84,12 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
       swiperInstance.autoplay.start();
     }
   };
+
+  const handleSave = async () => {
+    await onSave();
+    setButtonSave(!button);
+  };
+
   return (
     <div className='w-full flex flex-col items-center justify-center gap-3'>
       <Swiper
@@ -92,15 +105,15 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
           setSwiperInstance(swiper);
         }}
       >
-        <div className='flex flex-col gap-2 px-3'>
+        <div className='flex flex-col gap-2 px-3 justify-center items-center'>
           <Typography className='font-poppins font-semibold text-lg md:text-xl text-green-800 capitalise'>
             your custom will appear here!
           </Typography>
           {data?.length > 0 && data?.length !== 0 && data?.length !== null ? (
-            data?.map((meal, idx: number) => {
+            data?.map((meal) => {
               const totalCal = Number(meal.unit) * meal.calories;
               return (
-                <SwiperSlide key={idx} className='w-full'>
+                <SwiperSlide key={Number(meal.id)} className='w-full'>
                   <input type='checkbox' className='sr-only' />
                   <div className='flex flex-row gap-10'>
                     <Card className='w-full border cursor-pointer rounded-xl bg-white peer-checked:ring-blue-500 border-green-500 peer-checked:grayscale-0 active:scale-95 transition-all gap-10'>
@@ -111,7 +124,7 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
                             alt=''
                             className='w-5 h-5'
                             onClick={() => {
-                              onDelete(meal.name);
+                              onDelete(meal.id);
                             }}
                           />
                         </div>
@@ -146,6 +159,31 @@ const MealPlanCustom: React.FC<MealCustomInterface> = ({ data, onDelete }) => {
             </div>
           )}
         </div>
+        {data?.length > 0 && (
+          <div className='w-full flex justify-center py-3 px-2 mt-4'>
+            <Button
+              onClick={handleSave}
+              className='bg-green-500 rounded-full w-64 h-10'
+            >
+              save
+            </Button>
+          </div>
+        )}
+        {buttonSave && (
+          <div className='fixed inset-0 z-50 flex flex-col items-center justify-center bg-opacity-50'>
+            <div className='border bg-white w-64 h-40 flex flex-col rounded-lg items-center gap-4 justify-center'>
+              <Typography className='font-poppins font-semibold text-green-500 text-lg capitalize text-center'>
+                custom meal selection saved successfull
+              </Typography>
+              <Button
+                onClick={() => setButtonSave(false)}
+                className='bg-green-500 font-poppins font-semibold text-white text-lg capitalize h-4 flex items-center justify-center'
+              >
+                oke
+              </Button>
+            </div>
+          </div>
+        )}
       </Swiper>
       <CustomMealPagination
         activeSlides={activeSlides}

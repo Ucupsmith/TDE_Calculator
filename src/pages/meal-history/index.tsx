@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Dialog, Typography } from '@material-tailwind/react';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSession } from 'next-auth/react';
 import { getMealHistory, DeleteMealHistory } from '@/services/mealService';
 import type { MealHistory, MealHistoryFood } from '@/services/mealService';
-import { error } from 'console';
-
-
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 export function ButtonEdit({ onClick }: { onClick: () => void }) {
   return (
@@ -158,78 +156,32 @@ const MealHistory = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<MealHistory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const { data: session } = useSession();
-  const observer = useRef<IntersectionObserver>();
-  const lastMealRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (isLoading || isLoadingMore) return;
-      
-      if (observer.current) observer.current.disconnect();
-      
-      observer.current = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
-          setPage(prevPage => prevPage + 1);
-        }
-      });
-      
-      if (node) observer.current.observe(node);
-    },
-    [isLoading, isLoadingMore, hasMore]
-  );
+  console.log('Debug - Session data:', session);
 
-  const fetchMealHistory = useCallback(async (pageNum: number = 1, isInitialLoad: boolean = false) => {
-    if (!session?.user?.userId || !session.user.accessToken) {
-      setIsLoading(false);
-      return;
-    }
-
+  const fetchMealHistory = async (
+    userId: number,
+    accessToken: string
+  ): Promise<void> => {
     try {
-      if (isInitialLoad) {
-        setIsLoading(true);
+      setIsLoading(true);
+      const payload = { userId, accessToken };
+      console.log('Debug - Payload for getMealHistory:', payload);
+      const response = await getMealHistory(payload);
+      console.log('response get meal history', response);
+      if (response) {
+        setMealHistory(response);
       } else {
-        setIsLoadingMore(true);
+        setMealHistory([]);
       }
-
-      const { data: newMeals, total } = await getMealHistory({
-        userId: Number(session.user.userId),
-        accessToken: session.user.accessToken,
-        page: pageNum,
-        limit: 5
-      });
-
-      setMealHistory(prev => {
-        // Hapus duplikat berdasarkan ID
-        const existingIds = new Set(prev.map(meal => meal.id));
-        const uniqueNewMeals = newMeals.filter((meal: MealHistory) => !existingIds.has(meal.id));
-        return [...prev, ...uniqueNewMeals];
-      });
-
-      setHasMore(newMeals.length === 5); // Asumsi limit adalah 5
     } catch (error) {
-      console.error('Error fetching meal history:', error);
-      toast.error('Gagal memuat riwayat makanan');
+      toast.error('Failed to fetch meal history');
+      console.error(error);
+      setMealHistory([]);
     } finally {
       setIsLoading(false);
-      setIsLoadingMore(false);
     }
-  }, [session]);
-
-  // Load initial data
-  useEffect(() => {
-    setMealHistory([]);
-    setPage(1);
-    fetchMealHistory(1, true);
-  }, [fetchMealHistory]);
-
-  // Load more when page changes
-  useEffect(() => {
-    if (page > 1) {
-      fetchMealHistory(page);
-    }
-  }, [page, fetchMealHistory]);
+  };
 
   const handleEdit = (id: number) => {
     router.push(`/meal-history/${id}/edit`);
@@ -421,30 +373,26 @@ const MealHistory = () => {
                               {foods.map((food: MealHistoryFood) => (
                                 <motion.div
                                   key={food.id}
-                                  className='flex items-center p-3 rounded-lg hover:bg-[#34D399]/5 transition-colors'
+                                  className='flex items-center p-3 rounded-lg hover:bg-[#34D399]  transition-colors'
                                   initial={{ opacity: 0, y: 10 }}
                                   animate={{ opacity: 1, y: 0 }}
                                   transition={{ delay: 0.1 }}
                                 >
-                                  <motion.img
+                                  <Image
                                     src={
                                       food.imageUrl
-                                        ? food.imageUrl.startsWith('http')
+                                        ? food.imageUrl.startsWith('http://') ||
+                                          food.imageUrl.startsWith('https://') // Jika sudah URL absolut
                                           ? food.imageUrl
-                                          : food.imageUrl.startsWith('/images/')
-                                            ? `http://localhost:8000${food.imageUrl}`
-                                            : `http://localhost:8000/images/${food.imageUrl}`
-                                        : `http://localhost:8000${food.imageUrl}`
+                                          : `${process.env.NEXT_PUBLIC_IMAGE_API_URL}${food.imageUrl.replace('/images/', '')}`
+                                        : `http://localhost:8000/images/${food.imageUrl}`
                                     }
-                                    alt={food.name}
+                                    alt={`${process.env.NEXT_PUBLIC_IMAGE_URL}${food.imageUrl}`}
                                     className='w-8 h-8 object-cover rounded-full'
-                                    whileHover={{ scale: 1.1 }}
-                                    transition={{
-                                      type: 'spring',
-                                      stiffness: 400,
-                                      damping: 17
-                                    }}
+                                    width={30}
+                                    height={30}
                                   />
+
                                   <div className='ml-3'>
                                     <p className='text-white font-medium'>
                                       {food.name}
