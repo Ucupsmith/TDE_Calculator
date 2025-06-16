@@ -6,9 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { getMealHistory, DeleteMealHistory } from '@/services/mealService';
 import type { MealHistory, MealHistoryFood } from '@/services/mealService';
-import MealHistorySkeleton from '@/components/MealHistory/MealHistorySkeleton';
-import { useSession } from 'next-auth/react';
 import { error } from 'console';
+
+
 
 export function ButtonEdit({ onClick }: { onClick: () => void }) {
   return (
@@ -181,7 +181,7 @@ const MealHistory = () => {
   );
 
   const fetchMealHistory = useCallback(async (pageNum: number = 1, isInitialLoad: boolean = false) => {
-    if (!session?.user?.userId || !session?.accessToken) {
+    if (!session?.user?.userId || !session.user.accessToken) {
       setIsLoading(false);
       return;
     }
@@ -195,7 +195,7 @@ const MealHistory = () => {
 
       const { data: newMeals, total } = await getMealHistory({
         userId: Number(session.user.userId),
-        accessToken: session.accessToken,
+        accessToken: session.user.accessToken,
         page: pageNum,
         limit: 5
       });
@@ -251,10 +251,10 @@ const MealHistory = () => {
         console.log('payload masuk:', payload);
         if (data) {
           toast.success('Meal deleted successfully!');
-          await fetchMealHistory(
-            Number(session?.user.userId),
-            session?.user.accessToken || ''
-          );
+          // Reset and reload the meal history
+          setMealHistory([]);
+          setPage(1);
+          await fetchMealHistory(1, true);
         } else {
           toast.error('Failed to delete meal');
         }
@@ -281,15 +281,18 @@ const MealHistory = () => {
     );
   };
 
-  useEffect(() => {
+  const fetchInitialData = useCallback(async () => {
     if (session?.user?.userId && session?.user?.accessToken) {
       const userId = Number(session.user.userId);
-      const accessToken = session.user.accessToken;
       if (!isNaN(userId) && userId > 0) {
-        void fetchMealHistory(userId, accessToken);
+        await fetchMealHistory(1, true);
       }
     }
-  }, [session]);
+  }, [session, fetchMealHistory]);
+
+  useEffect(() => {
+    void fetchInitialData();
+  }, [fetchInitialData]);
 
   if (isLoading) {
     return (

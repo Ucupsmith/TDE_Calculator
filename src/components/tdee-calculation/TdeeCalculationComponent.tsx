@@ -254,7 +254,7 @@ const TdeeCalculationComponent: React.FC<TdeeProps> = ({
               <motion.div 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => handleSubmit()}
+                onClick={onSubmit}
                 className='w-full max-w-md cursor-pointer'
               >
                 <Card className='w-full h-40 md:h-56 rounded-2xl bg-[#132A2E] border-2 border-green-500 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300'>

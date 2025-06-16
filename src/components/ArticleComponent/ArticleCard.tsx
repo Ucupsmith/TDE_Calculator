@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { id as indonesianLocale } from 'date-fns/locale';
 
 interface ArticleCardProps {
   id: number;
@@ -55,9 +55,9 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   const formatDate = (dateString: string | Date) => {
     try {
       const dateObj = typeof dateString === 'string' ? new Date(dateString) : dateString;
-      return formatDistanceToNow(dateObj, { 
+return formatDistanceToNow(dateObj, { 
         addSuffix: true,
-        locale: id 
+        locale: indonesianLocale
       });
     } catch (e) {
       return '';

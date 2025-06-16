@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Input, Typography } from '@material-tailwind/react';
 import { toast } from 'react-toastify';
@@ -36,28 +36,30 @@ const EditMealPage = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const fetchSpecificMealData = async () => {
+  const fetchSpecificMealData = useCallback(async () => {
     if (mealId === null) return;
     try {
       setLoading(true);
-      const history = await getMealHistory({ userId, accessToken });
-      const specificMeal = history.find((m: any) => m.id === mealId);
+      if (userId && accessToken) {
+        const history = await getMealHistory({ userId, accessToken });
+        const specificMeal = history.data.find((m: any) => m.id === mealId);
 
-      if (specificMeal) {
-        console.log('Fetched specificMeal:', specificMeal);
-        const editableFoods: EditableMealHistoryFood[] = specificMeal.foods.map(
-          (food: any) => ({
-            ...food,
-            quantity: food.quantity
-          })
-        );
-        setMeal({
-          ...specificMeal,
-          foods: editableFoods
-        });
-      } else {
-        toast.error('Meal not found');
-        router.push('/meal-history');
+        if (specificMeal) {
+          console.log('Fetched specificMeal:', specificMeal);
+          const editableFoods: EditableMealHistoryFood[] = specificMeal.foods.map(
+            (food: any) => ({
+              ...food,
+              quantity: food.quantity
+            })
+          );
+          setMeal({
+            ...specificMeal,
+            foods: editableFoods
+          });
+        } else {
+          toast.error('Meal not found');
+          router.push('/meal-history');
+        }
       }
     } catch (error) {
       toast.error('Failed to fetch meal data');
@@ -65,11 +67,11 @@ const EditMealPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [mealId, userId, accessToken, router]);
 
   useEffect(() => {
     void fetchSpecificMealData();
-  }, [mealId, userId, accessToken]);
+  }, [fetchSpecificMealData]);
 
   const handleFoodQuantityChange = (index: number, quantity: number) => {
     if (!meal) return;

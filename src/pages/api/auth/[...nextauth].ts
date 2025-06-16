@@ -72,7 +72,7 @@ const authOptions: NextAuthOptions = {
               googleId: account.providerAccountId,
             });
             console.log('Backend User (after oauthLoginRegister):', backendUser);
-            token.id = backendUser.userId;
+            token.id = String(backendUser.userId);
             token.accessToken = backendUser.accessToken;
             token.name = backendUser.name;
             token.email = backendUser.email;

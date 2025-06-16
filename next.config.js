@@ -4,75 +4,18 @@ const withPWA = require('next-pwa')({
   register: true,
   skipWaiting: true,
   disableDevLogs: true,
+  disable: process.env.NODE_ENV === 'development',
+  mode: 'production',
+  buildExcludes: [/middleware-manifest\.json$/],
+  publicExcludes: ['!noprecache/**/*', '!**/*'],
+  dynamicStartUrl: false,
+  fallbacks: {
+    image: '/static/images/fallback.png',
+    document: '/_offline.html'
+  },
   runtimeCaching: [
     {
-      urlPattern: /^https:\/\/fonts\.(?:gstatic|googleapis)\.com\/.*/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'google-fonts',
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60
-        }
-      }
-    },
-    {
-      urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font\.css)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-font-assets',
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 7 * 24 * 60 * 60
-        }
-      }
-    },
-    {
-      urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-image-assets',
-        expiration: {
-          maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60
-        }
-      }
-    },
-    {
-      urlPattern: /\.(?:js)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-js-assets',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60
-        }
-      }
-    },
-    {
-      urlPattern: /\.(?:css|less)$/i,
-      handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-style-assets',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60
-        }
-      }
-    },
-    {
-      urlPattern: /\.(?:json|xml|csv)$/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'static-data-assets',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60
-        }
-      }
-    },
-    {
-      urlPattern: /\/api\/.*$/i,
+      urlPattern: /^https?:\/\/api\./i,
       handler: 'NetworkFirst',
       options: {
         cacheName: 'api-cache',
@@ -80,19 +23,79 @@ const withPWA = require('next-pwa')({
         expiration: {
           maxEntries: 100,
           maxAgeSeconds: 24 * 60 * 60
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
         }
       }
     },
     {
-      urlPattern: /.*/i,
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'image-cache',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 30 * 24 * 60 * 60
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      urlPattern: /^https?:\/\/fonts\.(?:gstatic|googleapis)\.com\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'font-cache',
+        expiration: {
+          maxEntries: 10,
+          maxAgeSeconds: 365 * 24 * 60 * 60
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      urlPattern: /\.(?:js|css|woff|woff2|ttf|eot|otf|ttc|font\.css)$/i,
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'static-assets',
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 7 * 24 * 60 * 60
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      urlPattern: /\.(?:json|xml|csv)$/i,
       handler: 'NetworkFirst',
       options: {
-        cacheName: 'others',
+        cacheName: 'data-cache',
+        networkTimeoutSeconds: 5,
         expiration: {
-          maxEntries: 32,
+          maxEntries: 50,
           maxAgeSeconds: 24 * 60 * 60
         },
-        networkTimeoutSeconds: 10
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      urlPattern: /^https?:\/\//i,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'default-cache',
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 6 * 60 * 60
+        }
       }
     }
   ]
@@ -100,7 +103,6 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     domains: [
       'localhost',

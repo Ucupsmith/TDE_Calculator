@@ -33,7 +33,9 @@ const hero: HeroProps[] = [
       'To reduce processed food consumption, focus on eating more whole foods like fruits, vegetables, and lean proteins. You can also make healthier swaps, like choosing whole grains over refined grains and preparing meals at home instead of relying on ready-made options.'
   }
 ];
-const itemVariant = {
+import type { Variants } from 'framer-motion';
+
+const itemVariant: Variants = {
   hidden: (direction: 'left' | 'right') => ({
     opacity: 0,
     x: direction === 'left' ? -50 : 50
@@ -41,7 +43,10 @@ const itemVariant = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.8, ease: 'easeOut' }
+    transition: { 
+      duration: 0.8, 
+      ease: [0.25, 0.1, 0.25, 1] // cubic-bezier equivalent of easeOutQuad
+    }
   }
 };
 

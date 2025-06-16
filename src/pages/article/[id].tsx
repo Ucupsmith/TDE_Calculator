@@ -188,7 +188,7 @@ const ArticlePage = () => {
         <div className="min-h-screen bg-gradient-to-b from-teal-900 to-teal-950">
             <Head>
                 <title>{article.title} | TDEE Calculator</title>
-                <meta name="description" content={article.description || article.title} />
+                <meta name="description" content={article.content?.substring(0, 160) || article.title} />
             </Head>
             
             <BackButton />
