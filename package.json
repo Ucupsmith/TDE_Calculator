@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "NODE_ENV=production next start",
+    "start": "cross-env NODE_ENV=production next start",
     "lint": "next lint",
     "export": "next export",
     "migrate:articles": "ts-node src/scripts/migrateArticles.ts"
@@ -55,6 +55,7 @@
     "@types/react-dom": "18.2.14",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/parser": "^8.33.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
     "eslint-plugin-prettier": "^5.4.1",

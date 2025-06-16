@@ -4,7 +4,9 @@ import { TdeeFormType, useTdeeForm } from '@/hooks/useTdeeCalculation';
 import {
   saveTdeeCalculation,
   saveTdeeCalculationToHome,
-  tdeeCalculation
+  tdeeCalculation,
+  getTdeeCalcualation,
+  getTdeeCalculationHome
 } from '@/repository/tdee.repository';
 import {
   Accordion,
@@ -144,7 +146,7 @@ const TdeeCalculatorPage = () => {
     },
     [reset]
   );
-  const handleSaveTdee = async () => {
+  const handleSaveTdee = useCallback(async () => {
     if (!calculateTdee) {
       return;
     }
@@ -167,13 +169,43 @@ const TdeeCalculatorPage = () => {
       }
       return response;
     } catch (error) {
+      console.error('Error saving TDEE calculation:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [calculateTdee, setTdeeId]);
+
   useEffect(() => {
-    void fetchDataTdee;
-    void saveTdeeCalculationToHome;
+    const fetchInitialData = async () => {
+      const session = await getSession();
+      if (session?.user?.userId) {
+        // Get the latest saved TDEE data for this user
+        try {
+          const response = await getTdeeCalculationHome({
+            userId: Number(session.user.userId),
+            accessToken: session.user.accessToken as string
+          });
+          if (response && response.data && response.data.length > 0) {
+            const latestTdee = response.data[response.data.length - 1];
+            setCalculateTdee({
+              bmi: 0, // You might want to fetch the actual BMI if available
+              bmiCategory: '', // You might want to fetch the actual category if available
+              tdee: Number(latestTdee.tdee_result),
+              goal: latestTdee.goal
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching TDEE data:', error);
+        }
+      }
+    };
+    void fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    if (calculateTdee) {
+      void handleSaveTdee();
+    }
   }, []);
   const handleButtonClick = (): void => {
     setButtonClicked(!buttonClicked);

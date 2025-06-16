@@ -19,15 +19,16 @@ import {
   Typography
 } from '@material-tailwind/react';
 import { useSession } from 'next-auth/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import DangerButton from '@/assets/mealplan/dangerbutton.svg';
 import LoadingMealPlan from '@/assets/mealplan/loadingmealplanpng-removebg-preview.png';
 import Image from 'next/image';
 import MealPlanEmptyState from '@/assets/mealplan/malplanemptystate-removebg-preview.png';
 import Link from 'next/link';
-import SearchIcon from '@/assets/mealplan/SearchIcon-removebg-preview.png';
 import MealPlanSearchComponent from '@/components/meal-plan/MealPlanSearchComponent';
 import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface MealRemainingResponse {
   totalCalories: number;
@@ -74,7 +75,7 @@ const MealPlanPage = () => {
   const [mealRemaining, setMealRemaining] =
     useState<MealRemainingResponse | null>(null);
   const [mainFoods, setMainFoods] = useState<MealResponse[]>([]);
-  const [selectedFoods, setSelectedFoods] = useState<MealPayload[]>([]);
+  const [selectedFoods, setSelectedFoods] = useState<MealResponse[]>([]);
   const [searchFoods, setSearchFoods] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [buttonClicked, setButtonClicked] = useState<boolean>(false);
@@ -123,13 +124,12 @@ const MealPlanPage = () => {
   const handleDecrement = () => {
     setValue('unit', unit > 1 ? unit - 1 : unit);
   };
-  const fetchDataGetMeal = async (): Promise<void> => {
+  const fetchDataGetMeal = useCallback(async (): Promise<void> => {
     if (!tdeeId) {
       console.warn('tdeeId belum tersedia, tidak bisa fetch meal plan.');
       return;
     }
     try {
-      setLoading(true);
       const payload: MealCalculate = {
         tdeeId: tdeeId,
         userId: userId,
@@ -144,13 +144,10 @@ const MealPlanPage = () => {
       }
     } catch (error) {
       console.log(`error get meal remaining: ${error}`);
-    } finally {
-      setLoading(false);
     }
-  };
-  const fetchDataFoods = async (): Promise<void> => {
+  }, [tdeeId, userId, accessToken]);
+  const fetchDataFoods = useCallback(async (): Promise<void> => {
     try {
-      setLoading(true);
       const payload = {
         name: searchFoods
       };
@@ -162,10 +159,8 @@ const MealPlanPage = () => {
       }
     } catch (error) {
       console.log(`Error Retrieving Data Foods : ${error}`);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [searchFoods, setLoading, setMainFoods]);
   const fetchDataPostMainFoods = async (): Promise<void> => {
     if (status === 'authenticated') {
       try {
@@ -187,31 +182,29 @@ const MealPlanPage = () => {
     }
   };
 
-  const handleSelectedFoods = (food: MealPayload, checked: boolean): void => {
-    const safeFoodId = Number(food.id);
-    const payload: MealPayload = {
-      id: safeFoodId,
-      name: food.name,
-      calories: food.calories,
-      unit: food.unit,
-      isCustom: false
-    };
-    if (checked === true) {
-      setSelectedFoods((prev) => [...prev, { ...payload, isCustom: false }]);
-    } else {
+  const handleSelectedFoods = useCallback(
+    (food: MealResponse, checked: boolean): void => {
+      const safeFoodId = Number(food.id);
+      const payload: MealResponse = {
+        id: safeFoodId,
+        name: food.name,
+        calories: food.calories,
+        unit: food.unit,
+        imageUrl: food.imageUrl,
+        isCustom: food.isCustom ?? false
+      };
+
       setSelectedFoods((prev) => {
-        const newSelectedFoods = prev.filter((selectedFood) => {
-          console.log(
-            `COMPARE: selectedFood.id (${selectedFood.id}, Type: ${typeof selectedFood.id}) !== safeFoodId (${safeFoodId}, Type: ${typeof safeFoodId})`
-          );
-          return selectedFood.id !== safeFoodId;
-        });
-        console.log('ACTION: Filtered newSelectedFoods:', newSelectedFoods);
-        return newSelectedFoods;
+        if (checked) {
+          return [...prev, payload];
+        } else {
+          return prev.filter((selectedFood) => selectedFood.id !== safeFoodId);
+        }
       });
-    }
-    console.log('selectedFoods AFTER (will update on next render cycle).');
-  };
+    },
+    []
+  );
+
   const handleSaveMeal = async () => {
     await fetchDataPostMainFoods();
     setAllCustomFoods([]);
@@ -227,53 +220,25 @@ const MealPlanPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const handleSaveSearchFoods = async () => {
-    void fetchDataFoods();
+    setCurrentPage(1);
+    await fetchDataFoods();
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   };
-  useEffect(() => {
-    if (userId && tdeeId && accessToken) {
-      console.log(
-        'All conditions met in MealPlanPage, fetching meal data and foods...'
-      );
-      void fetchDataGetMeal();
-      void fetchDataFoods();
-    } else {
-      console.log(
-        'Conditions not met in MealPlanPage, not fetching initial data.'
-      );
-    }
-    const storedSelectedFoods = localStorage.getItem('selectedFoods');
-    const storedCustomFoods = localStorage.getItem('allCustomFoods');
-    if (storedSelectedFoods) {
-      setSelectedFoods(JSON.parse(storedSelectedFoods));
-    }
-    if (storedCustomFoods) {
-      setAllCustomFoods(JSON.parse(storedCustomFoods));
-    }
-  }, [userId, tdeeId, accessToken, status]);
-  useEffect(() => {
-    localStorage.setItem('selectedFoods', JSON.stringify(selectedFoods));
-  }, [selectedFoods]);
-  useEffect(() => {
-    localStorage.setItem('allCustomFoods', JSON.stringify(allCustomFoods));
-  }, [allCustomFoods]);
 
   const handleSaveCustomFood = (data: CustomMealType) => {
-    const payload: CustomFoodsProps = {
-      id: Math.random(),
+    const payloadCustomFood: CustomFoodsProps = {
+      id: Math.random() * Number(data.id),
       isCustom: true,
       name: data.name,
       calories: data.calories,
       unit: data.unit
     };
-    if (payload) {
-      toast.success('successful save custom food', {
-        delay: 0,
-        position: 'top-center'
-      });
+    setAllCustomFoods((prev) => [...prev, { ...payloadCustomFood }]);
+    if (payloadCustomFood) {
+      toast.success('successful save custom food');
     }
-    setAllCustomFoods((prev) => [...prev, { ...payload }]);
     reset();
+    window.scrollTo(400, 500);
   };
 
   const handleDeleteCustomFood = (id: number) => {
@@ -286,9 +251,47 @@ const MealPlanPage = () => {
     return searchMealFoods.toLowerCase().includes(searchFoods.toLowerCase());
   });
 
+  useEffect(() => {
+    if (userId && tdeeId && accessToken) {
+      console.log(
+        'All conditions met in MealPlanPage, fetching meal data and foods...'
+      );
+      void fetchDataGetMeal();
+      void fetchDataFoods();
+    } else {
+      console.log(
+        'Conditions not met in MealPlanPage, not fetching initial data.'
+      );
+    }
+  }, [userId, tdeeId, accessToken, fetchDataGetMeal, fetchDataFoods]);
+  useEffect(() => {
+    const storedSelectedFoods = localStorage.getItem('selectedFoods');
+    if (storedSelectedFoods) {
+      setSelectedFoods(JSON.parse(storedSelectedFoods));
+    }
+  }, []);
+
+  useEffect(() => {
+    const storedCustomFoods = localStorage.getItem('allCustomFoods');
+    if (storedCustomFoods) {
+      setAllCustomFoods(JSON.parse(storedCustomFoods));
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      void fetchDataFoods();
+      setCurrentPage(1);
+      loading;
+    }, 0);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchFoods]);
+
   if (loading) {
     return (
-      <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-green-800'>
+      <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-green-900'>
         <div className='flex flex-col items-center justify-center gap-3 h-full'>
           <Image src={LoadingMealPlan} alt='loading-meal-plan' />
           <Typography className='text-white font-poppins font-semibold text-center text-lg'>
@@ -485,7 +488,7 @@ const MealPlanPage = () => {
                     onClick={handleSubmit(handleSaveCustomFood)}
                     className='border border-green-500 rounded-xl bg-green-500 w-40 h-10 text-white px-3 py-2 capitalize'
                   >
-                    save
+                    submit
                   </Button>
                 </div>
               </div>
@@ -493,7 +496,11 @@ const MealPlanPage = () => {
           </Card>
         )}
       </div>
-      <MealPlanCustom data={allCustomFoods} onDelete={handleDeleteCustomFood} />
+      <MealPlanCustom
+        data={allCustomFoods}
+        onDelete={handleDeleteCustomFood}
+        onSave={handleSaveMeal}
+      />
       <MealPlanSearchComponent
         onChange={setSearchFoods}
         placeholder='type foods...'
@@ -506,6 +513,7 @@ const MealPlanPage = () => {
         onSave={handleSaveMeal}
         loading={loading}
         selectedFoods={selectedFoods}
+        onRemove={handleSelectedFoods}
       />
       {selectedFoods && selectedFoods ? (
         <PaginationControls
@@ -524,6 +532,11 @@ const MealPlanPage = () => {
           />
         </div>
       )}
+      <ToastContainer
+        position='top-center'
+        autoClose={2000}
+        hideProgressBar={false}
+      />
     </div>
   );
 };

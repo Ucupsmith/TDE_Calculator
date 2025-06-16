@@ -49,10 +49,10 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
     threshold: 0.2
   });
 
-  const fetchDataTdee = async (): Promise<void> => {
+  const fetchDataTdee = useCallback(async (): Promise<void> => {
     if (!userId) {
       console.log(
-        'fetchDataTdee: userId is falsy at the start of the function, returning early.'
+        'fetchDataTdee: userId is falsy at the start of the function.'
       );
       setError('Internal Error: User ID missing.');
       return;
@@ -64,13 +64,13 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
     try {
       const historyData = await getTdeeCalculationHome(payload);
       if (historyData.length > 0) {
-        const latestTdee = historyData[historyData.length - 1]; // Ambil data terbaru
-        setTdeeId(latestTdee.tdeeId); // ✅ Simpan ke context
+        const latestTdee = historyData[historyData.length - 1];
+        setTdeeId(latestTdee.tdeeId);
       }
       console.log('getTdeeCalculation home menyala:', historyData);
       if (historyData && Array.isArray(historyData)) {
         setTdeeDisplay(historyData);
-        setError(null); // Clear error jika berhasil
+        setError(null);
       } else {
         console.warn(
           'fetchDataTdee: Repository returned unexpected data format:',
@@ -86,7 +86,8 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId, session?.user?.accessToken, setTdeeId]);
+
   const deleteTdeeCalculation = async (tdeeId: number) => {
     try {
       const payload: TdeePayloadDelete = {
@@ -107,12 +108,15 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
       console.error('Error deleting TDEE data:', error);
     }
   };
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (userId) {
-      fetchDataTdee();
+      await fetchDataTdee();
     }
-    void deleteTdeeCalculation;
-  }, [userId]);
+  }, [userId, fetchDataTdee]);
+
+  useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
 
   return (
     <div id={id} className='w-full flex flex-col items-center gap-10 px-4 py-10 md:px-10 md:py-20'>

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 const SplashScreen = (): JSX.Element => {
   const router = useRouter();
@@ -16,11 +17,16 @@ const SplashScreen = (): JSX.Element => {
   return (
     <div className='flex flex-col justify-center items-center min-h-screen'>
       {/* Logo or spinner */}
-      <img
-        src='/tdee.svg'
-        alt='Loading...'
-        className='h-48 w-48 md:h-60 md:w-60 animate-spin-slow'
-      />
+      <div className='relative h-48 w-48 md:h-60 md:w-60 animate-spin-slow'>
+        <Image
+          src='/tdee.svg'
+          alt='Loading...'
+          fill
+          sizes='(max-width: 768px) 12rem, 15rem'
+          priority
+          className='object-contain'
+        />
+      </div>
       <p className='mt-4 text-[#34D399] font-poppins font-semibold'>
         Loading...
       </p>

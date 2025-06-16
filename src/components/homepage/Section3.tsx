@@ -33,7 +33,9 @@ const hero: HeroProps[] = [
       'To reduce processed food consumption, focus on eating more whole foods like fruits, vegetables, and lean proteins. You can also make healthier swaps, like choosing whole grains over refined grains and preparing meals at home instead of relying on ready-made options.'
   }
 ];
-const itemVariant = {
+import type { Variants } from 'framer-motion';
+
+const itemVariant: Variants = {
   hidden: (direction: 'left' | 'right') => ({
     opacity: 0,
     x: direction === 'left' ? -50 : 50
@@ -41,7 +43,10 @@ const itemVariant = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.8, ease: 'easeOut' }
+    transition: {
+      duration: 0.8,
+      ease: [0.25, 0.1, 0.25, 1] // cubic-bezier equivalent of easeOutQuad
+    }
   }
 };
 
@@ -90,7 +95,7 @@ const Section3: React.FC<Section3Props> = ({ id }) => {
             <motion.div
               key={id}
               custom={direction}
-              variants={{ itemVariant }}
+              variants={itemVariant}
               className='flex flex-col gap-5 md:gap-0 w-full md:w-auto items-center justify-center md:items-center h-auto md:flex md:flex-row border border-none rounded-lg shadow-lg shadow-green-500 py-3 px-2'
             >
               <Image
