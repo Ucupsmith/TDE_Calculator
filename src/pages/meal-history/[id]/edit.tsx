@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { Button, Input, Typography } from '@material-tailwind/react';
 import { toast } from 'react-toastify';
-
+import LoadingMealPlan from '@/assets/mealplan/loadingmealplanpng-removebg-preview.png';
 import {
   getMealHistory,
   EditSelectedFood,
@@ -138,8 +138,13 @@ const EditMealPage = () => {
 
   if (loading) {
     return (
-      <div className='flex justify-center items-center min-h-screen'>
-        <Typography className='text-white'>Loading...</Typography>
+      <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-[#132A2E] items-center justify-end'>
+        <div className='flex flex-col items-center justify-center gap-3 h-full'>
+          <Image src={LoadingMealPlan} alt='loading-meal-plan' />
+          <Typography className='text-white font-poppins font-semibold text-center text-lg'>
+            loading ...
+          </Typography>
+        </div>
       </div>
     );
   }
