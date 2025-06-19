@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -11,8 +11,9 @@ import {
 } from '@/repository/tdee.repository';
 import { useSession } from 'next-auth/react';
 import { useTdee } from '@/common/TdeeProvider';
-import { CustomSlidesPagination } from '../custom-pagination/CustomPaginationSlides';
 import { useRouter } from 'next/router';
+import Joyride from 'react-joyride';
+import Cookies from 'js-cookie';
 
 export interface TdeeProps {
   tdeeId?: string;
@@ -34,6 +35,19 @@ interface Section2Props {
   id?: string;
 }
 
+const steps: any = [
+  {
+    target: '#first-section-1',
+    content: 'Ini adalah TDEE record untuk mengetauhi kondisi TDEE',
+    disableBeacon: true
+  },
+  {
+    target: '#second-section-2',
+    content: 'Ini adalah record TDEE anda selama menghitung TDEE diapplikasi',
+    disableBeacon: true
+  }
+];
+
 const Section2: React.FC<Section2Props> = ({ id }) => {
   const { data: session } = useSession();
   const { setTdeeId } = useTdee();
@@ -48,6 +62,11 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
   const { ref, inView } = useInView({
     threshold: 0.2
   });
+  const [isClient, setIsClient] = useState<boolean>(false);
+  const [run, setRun] = useState<boolean>(false);
+  const [stepIndex, setStepIndex] = useState<number>(0);
+  const targetId = 'first-section-1';
+  const targetRef = useRef(null);
 
   const fetchDataTdee = useCallback(async (): Promise<void> => {
     if (!userId) {
@@ -115,11 +134,29 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
   }, [userId, fetchDataTdee]);
 
   useEffect(() => {
-    void fetchData();
+    setIsClient(true);
+    if (!userId) return;
+    const hasSeenTutorial = Cookies.get('hasSeenJoyride');
+    if (hasSeenTutorial) {
+      return;
+    }
+    const startJoyride = () => {
+      setRun(true);
+      Cookies.set('hasSeenJoyride', 'true', { expires: 365 }); // cookie disimpan 7 hari
+    };
+    const waitForElement = setInterval(() => {
+      const el = document.querySelector('#first-section-1');
+      if (el) {
+        clearInterval(waitForElement);
+        setTimeout(startJoyride, 300); // kasih delay kecil biar layout fix
+      }
+    }, 100);
+
+    return () => clearInterval(waitForElement);
   }, [fetchData]);
 
   return (
-    <div id={id} className='w-full flex flex-col items-center gap-10 px-4 py-10 md:px-10 md:py-20'>
+    <div className='w-full flex flex-col items-center gap-10 px-4 py-10 md:px-10 md:py-20'>
       <div className='flex flex-row items-center justify-evenly w-full'>
         <motion.div
           ref={ref}
@@ -154,20 +191,96 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
           <Image className='w-20' src={Circle} alt={Circle} />
         </motion.div>
       </div>
-      <Button className='py-1 text-white font-poppins font-semibold text-sm md:text-lg bg-[#144B3C] hover:scale-100'>
+      <Button
+        id={targetId}
+        ref={targetRef}
+        className='w-full md:w-60 py-1 text-white font-poppins font-semibold text-sm md:text-lg bg-[#144B3C] hover:scale-100'
+      >
         TDEE Score Record
       </Button>
       {isLoading && (
         <Typography className='text-white'>Loading TDEE data...</Typography>
       )}
       {error && <Typography className='text-red-500'>{error}</Typography>}
-      <div onClick={() => push('meal-history')} className='w-full gap-2'>
+      <div
+        id='second-section-2'
+        onClick={() => push('meal-history')}
+        className='w-full gap-2'
+      >
         <CardBMI
           data={TdeeDisplay}
           loading={isLoading}
           onDelete={deleteTdeeCalculation}
         />
       </div>
+      {isClient && (
+        <Joyride
+          run={run}
+          steps={steps}
+          showSkipButton={true}
+          continuous={true}
+          stepIndex={stepIndex}
+          spotlightClicks={true}
+          styles={{
+            options: {
+              primaryColor: '#22c55e',
+              textColor: '#222',
+              backgroundColor: '#fff',
+              arrowColor: '#fff',
+              overlayColor: 'rgba(0,0,0,0.5)',
+              beaconSize: 5
+            },
+            spotlight: {
+              borderRadius: 12,
+              boxShadow: '0 0 0 2px #22c55e, 0 0 0 9999px rgba(0,0,0,0.5)',
+              padding: 4,
+              margin: 4,
+              background: 'transparent'
+            },
+            buttonNext: {
+              backgroundColor: '#22c55e', // tombol next hijau
+              color: '#fff'
+            },
+            buttonBack: {
+              color: '#22c55e' // tombol back hijau
+            },
+            buttonSkip: {
+              color: '#d33434' // tombol skip merah
+            },
+            tooltip: {
+              borderRadius: '12px',
+              padding: '6px',
+              fontSize: '16px',
+              maxWidth: 'auto',
+              width: 'auto'
+            }
+          }}
+          locale={{
+            back: 'Kembali',
+            close: 'Tutup',
+            last: 'Selesai',
+            next: 'Lanjut',
+            skip: 'Lewati'
+          }}
+          scrollToFirstStep={true}
+          disableScrollParentFix={true}
+          callback={(data) => {
+            const { index, status, type } = data;
+            if (['finished', 'skipped'].includes(status)) {
+              setRun(false);
+              setStepIndex(0);
+              return;
+            }
+            if (type === 'step:after' || type === 'error:target_not_found') {
+              setStepIndex(index + 1);
+            }
+
+            if (type === 'step:before') {
+              setStepIndex(index);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

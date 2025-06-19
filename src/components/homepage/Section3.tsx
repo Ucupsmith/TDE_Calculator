@@ -67,7 +67,7 @@ const Section3: React.FC<Section3Props> = ({ id }) => {
   return (
     <motion.div
       ref={ref}
-      initial='hidden'
+      initial={'hidden'}
       animate={controls}
       id={id}
       className='flex flex-col gap-5 md:gap-10 w-full py-2 px-3'

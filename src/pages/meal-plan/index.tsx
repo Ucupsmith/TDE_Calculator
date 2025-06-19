@@ -130,6 +130,7 @@ const MealPlanPage = () => {
       return;
     }
     try {
+      setLoading(true);
       const payload: MealCalculate = {
         tdeeId: tdeeId,
         userId: userId,
@@ -145,6 +146,7 @@ const MealPlanPage = () => {
     } catch (error) {
       console.log(`error get meal remaining: ${error}`);
     }
+    setLoading(false);
   }, [tdeeId, userId, accessToken]);
   const fetchDataFoods = useCallback(async (): Promise<void> => {
     try {
@@ -164,6 +166,7 @@ const MealPlanPage = () => {
   const fetchDataPostMainFoods = async (): Promise<void> => {
     if (status === 'authenticated') {
       try {
+        setLoading(true);
         const payload: MainFoodsPayload = {
           userId: userId,
           accessToken: accessToken,
@@ -178,6 +181,8 @@ const MealPlanPage = () => {
         console.log('error fetching data:', response);
       } catch (error) {
         console.log('error retrieving data:', error);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -214,9 +219,6 @@ const MealPlanPage = () => {
     await fetchDataGetMeal();
     localStorage.removeItem('selectedFoods');
     localStorage.removeItem('allCustomFoods');
-    if (selectedFoods.length === 0 && selectedFoods.length === null) {
-      return <Typography className=''>u must select foods</Typography>;
-    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const handleSaveSearchFoods = async () => {
@@ -282,7 +284,6 @@ const MealPlanPage = () => {
     const handler = setTimeout(() => {
       void fetchDataFoods();
       setCurrentPage(1);
-      loading;
     }, 0);
     return () => {
       clearTimeout(handler);
@@ -291,7 +292,7 @@ const MealPlanPage = () => {
 
   if (loading) {
     return (
-      <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-green-900'>
+      <div className='flex flex-col fixed inset-0 z-50 bg-opacity-50 bg-[#132A2E] items-center justify-end'>
         <div className='flex flex-col items-center justify-center gap-3 h-full'>
           <Image src={LoadingMealPlan} alt='loading-meal-plan' />
           <Typography className='text-white font-poppins font-semibold text-center text-lg'>
@@ -415,7 +416,7 @@ const MealPlanPage = () => {
           onClick={handleClickCustom}
           className='border rounded-xl border-green-500 py-3 px-2 w-32 h-15 md:w-40 bg-[#132A2E] text-sm md:text-lg  text-green-500 shadow-md shadow-green-500 duration-100 transition-all animate-fade-in'
         >
-          {buttonClicked ? 'x close meal' : '+ add meal'}
+          {buttonClicked ? 'close meal' : '+ add meal'}
         </Button>
         {buttonClicked && (
           <Card className='w-full transition-all duration-75 animate-fade-in-slide peer-last:animate-fade-out-slide'>

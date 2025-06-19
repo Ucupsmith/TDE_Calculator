@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { TdeeProps } from '../homepage/Section2';
 import Image from 'next/image';
 import TrashBin from '@/assets/homepage/trashbinremv.png';
-import { useTdee } from '@/common/TdeeProvider';
 import { CustomSlidesPagination } from '../custom-pagination/CustomPaginationSlides';
 import { Swiper as SwiperInstance } from 'swiper';
 import { Autoplay } from 'swiper/modules';
