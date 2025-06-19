@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import React from 'react';
-import ImageNotFound from '@/assets/error/404-error-with-landscape-concept-illustration.png';
+import ImageNotFound from '@/assets/homepage/notfound/404-error-with-landscape-concept-illustration.png';
 import { Typography } from '@material-tailwind/react';
 import { useRouter } from 'next/router';
 
