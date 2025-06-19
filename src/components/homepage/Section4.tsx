@@ -30,7 +30,10 @@ interface Section4Props {
 const Section4: React.FC<Section4Props> = ({ id }) => {
   const { push } = useRouter();
   return (
-    <div id={id} className='md:w-full md:h-24 h-28 flex flex-col md:justify-end justify-start'>
+    <div
+      id={id}
+      className='md:w-full md:h-24 h-28 flex flex-col md:justify-end justify-start'
+    >
       <div className='flex flex-row justify-center items-center h-16'>
         <div className='w-full flex justify-center'>
           <Typography className='font-poppins font-bold text-[#34D399] uppercase text-2xl md:text-4xl'>

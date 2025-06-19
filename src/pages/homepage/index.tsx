@@ -12,6 +12,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import Cookies from 'js-cookie';
 import PaginationControls from '@/components/pagination-controls/PaginationControls';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import Joyride from 'react-joyride';
 
 const tutorialMessages = [
   'Selamat datang di aplikasi kami! Mari kita lihat fitur-fitur utamanya.',
@@ -21,26 +22,10 @@ const tutorialMessages = [
   "Ayo mulai jelajahi! Klik 'Selesai' untuk menutup tutorial ini."
 ];
 
-const tutorial = [
+const steps: any = [
   {
-    image: <Image src={''} alt='' className='w-40 h-28' />,
-    text: 'Selamat datang di aplikasi kami! Mari kita lihat fitur-fitur utamanya.'
-  },
-  {
-    image: <Image src={''} alt='' className='w-40 h-28' />,
-    text: 'Ini adalah halaman utama, tempat Anda akan melihat ringkasan aktivitas Anda.'
-  },
-  {
-    image: <Image src={''} alt='' className='w-40 h-28' />,
-    text: 'Gunakan tombol di pojok kanan atas untuk mengakses Profil Anda.'
-  },
-  {
-    image: <Image src={''} alt='' className='w-40 h-28' />,
-    text: 'Di bagian bawah, Anda bisa menemukan berbagai kalkulator dan meal plan.'
-  },
-  {
-    image: <Image src={''} alt='' className='w-40 h-28' />,
-    text: 'Ayo mulai jelajahi! Klik Selesai untuk menutup tutorial ini'
+    target: '#profile-settings',
+    content: 'Klik di sini untuk ke halaman profil kamu.'
   }
 ];
 
@@ -79,6 +64,8 @@ const HomePageSection = () => {
   const [tutorialStep, setTutorialStep] = useState<number>(0);
   const [itemsPage, setItemsPage] = useState<number>(1);
   const [showTutorialModal, setShowTutorialModal] = useState(false);
+  const [run, setRun] = useState<boolean>(false);
+  const [isClient, setIsClient] = useState<boolean>(false);
   // const itemsPerPage = 1;
   // const LastIndexItems = itemsPage * itemsPerPage;
   // const FirstIndexItems = (LastIndexItems / itemsPerPage) % itemsPerPage;
@@ -87,9 +74,15 @@ const HomePageSection = () => {
 
   useEffect(() => {
     if (session?.user && !Cookies.get('hasSeenTutorial')) {
-      setShowTutorialModal(true);
+      // setShowTutorialModal(true);
+      setIsClient(true);
+      setRun(true);
     }
   }, [session]);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleNextStepTutorial = () => {
     if (tutorialStep < tutorialMessages.length - 1) {
@@ -111,7 +104,7 @@ const HomePageSection = () => {
             <ThemeToggle />
           </div>
           <div
-            id="profile-settings"
+            id='profile-settings'
             onClick={async () => {
               await push('/profile');
             }}
@@ -148,6 +141,12 @@ const HomePageSection = () => {
           </div>
         </div>
       )}
+      {/* <Button
+        onClick={handleJoyrideRun}
+        className='w-12 border bg-green-500 px-3 py-2 text-white font-poppins font-semibold text-lg md:text-lg capitalize'
+      >
+        next
+      </Button> */}
       <Section1 />
       <Section2 />
       <Section3 />

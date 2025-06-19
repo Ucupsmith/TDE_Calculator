@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography } from '@material-tailwind/react';
 import TdeeLogo from '@/assets/homepage/Logo.svg';
 import { useRouter } from 'next/router';
@@ -14,6 +14,8 @@ import Home from '@/assets/homepage/navbar/homeclicked.svg';
 import HomeUnclicked from '@/assets/homepage/navbar/homeunclicked.svg';
 import TdeeCalculator from '@/assets/homepage/navbar/tdeecalculatorsm.svg';
 import TdeeCalculatorUnclicked from '@/assets/homepage/navbar/calculator-solid.svg';
+import Joyride from 'react-joyride';
+import Cookies from 'js-cookie';
 
 interface Navigation {
   label: string;
@@ -24,6 +26,10 @@ interface Navigation {
 
 const Navbar = () => {
   const { data: session } = useSession();
+  const userId = session?.user.userId as number;
+  const [isClient, setIsclient] = useState<boolean>(false);
+  const [run, setRun] = useState<boolean>(false);
+  const [stepIndex, setStepIndex] = useState<number>(0);
   const Navigate: Navigation[] = [
     {
       label: 'Home',
@@ -56,6 +62,44 @@ const Navbar = () => {
       icon2: MealHistory
     }
   ];
+
+  const steps: any = Navigate.map((nav) => ({
+    target: `#nav-${nav.label.toLowerCase()}`,
+    content:
+      nav.label.toLowerCase() === 'home'
+        ? 'Ini adalah halaman utama TDEE berguna untuk melihat hasil TDEE status.'
+        : nav.label.toLowerCase() === 'meal'
+          ? 'Fitur Meal Plan membantu kamu merancang dan mencatat asupan harian dengan lebih mudah dan terstruktur.'
+          : nav.label.toLowerCase() === 'tdee'
+            ? 'Gunakan kalkulator TDEE untuk mengetahui kebutuhan kalori harianmu berdasarkan aktivitas dan tujuan.'
+            : nav.label.toLowerCase() === 'article'
+              ? 'Baca berbagai artikel informatif seputar kesehatan, nutrisi, dan gaya hidup sehat.'
+              : 'Halaman riwayat meal akan terisi otomatis setelah kamu menyusun meal plan dan memilih makanan.',
+    disableBeacon: true
+  }));
+
+  useEffect(() => {
+    if (!userId) return;
+    setIsclient(true);
+    const hasSeenTutorial = Cookies.get('hasSeenJoyride');
+    if (hasSeenTutorial) return;
+    const startJoyride = () => {
+      setRun(true);
+      Cookies.set('hasSeenJoyride', 'true', { expires: 365 });
+    };
+    const targetIds = Navigate.map((nav) => `#nav-${nav.label.toLowerCase()}`);
+    const waitForTargets = setInterval(() => {
+      const oneExist = targetIds.some((selector) =>
+        document.querySelector(selector)
+      );
+      if (oneExist) {
+        clearInterval(waitForTargets);
+        setTimeout(startJoyride, 300);
+      }
+    }, 100);
+    return () => clearInterval(waitForTargets);
+  }, [userId]);
+
   const router = useRouter();
   const { pathname, push } = router;
   return (
@@ -72,8 +116,10 @@ const Navbar = () => {
           {Navigate !== null
             ? Navigate.map((nav, id: number) => {
                 const active = pathname === nav.navigate;
+                const navId = `nav-${nav.label.toLowerCase()}`;
                 return (
                   <div
+                    id={navId}
                     key={id}
                     className='w-full md:h-auto md:flex flex flex-col items-center justify-start  cursor-pointer'
                   >
@@ -146,6 +192,72 @@ const Navbar = () => {
                 );
               })
             : null}
+          {isClient && (
+            <Joyride
+              run={run}
+              steps={steps}
+              showSkipButton={true}
+              continuous={true}
+              stepIndex={stepIndex}
+              spotlightClicks={true}
+              styles={{
+                options: {
+                  zIndex: 10000,
+                  primaryColor: '#22c55e', // warna tombol utama (next, done) — hijau tailwind
+                  textColor: '#222',
+                  backgroundColor: '#fff',
+                  arrowColor: '#fff',
+                  overlayColor: 'rgba(0,0,0,0.5)',
+                  beaconSize: 5
+                },
+                buttonNext: {
+                  backgroundColor: '#22c55e', // tombol next hijau
+                  color: '#fff'
+                },
+                buttonBack: {
+                  color: '#22c55e' // tombol back hijau
+                },
+                buttonSkip: {
+                  color: '#d33434' // tombol skip merah
+                },
+                tooltip: {
+                  borderRadius: '12px',
+                  padding: '20px',
+                  fontSize: '16px',
+                  overlay: 'none'
+                }
+              }}
+              locale={{
+                back: 'Kembali',
+                close: 'Tutup',
+                last: 'Selesai',
+                next: 'Lanjut',
+                skip: 'Lewati'
+              }}
+              disableScrolling={true}
+              disableScrollParentFix={true}
+              scrollToFirstStep={true}
+              callback={(data) => {
+                const { status, index, type } = data;
+
+                if (['finished', 'skipped'].includes(status)) {
+                  setRun(false);
+                  setStepIndex(0);
+                  return;
+                }
+                if (
+                  type === 'step:after' ||
+                  type === 'error:target_not_found'
+                ) {
+                  setStepIndex(index + 1);
+                }
+
+                if (type === 'step:before') {
+                  setStepIndex(index);
+                }
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
