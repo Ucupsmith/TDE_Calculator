@@ -98,7 +98,8 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
         setTdeeDisplay([]);
         setError('Failed to load TDEE history: Invalid data format.');
       }
-      return historyData;
+      setTdeeDisplay(historyData);
+      console.log('tess history data', historyData);
     } catch (error) {
       setTdeeDisplay([]);
       setError('Failed to load TDEE history.');
@@ -116,7 +117,7 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
       };
       if (!payload) {
         console.log('error payload', payload);
-        return; // Added return here
+        return;
       }
       setTdeeDisplay((prev) =>
         prev.filter((item) => Number(item.tdeeId) !== tdeeId)
@@ -134,21 +135,32 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
   }, [userId, fetchDataTdee]);
 
   useEffect(() => {
+    fetchData()
+      .then()
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     setIsClient(true);
-    if (!userId) return;
+    if (!userId) {
+      return;
+    }
+    if (userId) {
+      void fetchData();
+    }
     const hasSeenTutorial = Cookies.get('hasSeenJoyride');
     if (hasSeenTutorial) {
       return;
     }
     const startJoyride = () => {
       setRun(true);
-      Cookies.set('hasSeenJoyride', 'true', { expires: 365 }); // cookie disimpan 7 hari
+      Cookies.set('hasSeenJoyride', 'true', { expires: 365 });
     };
     const waitForElement = setInterval(() => {
       const el = document.querySelector('#first-section-1');
       if (el) {
         clearInterval(waitForElement);
-        setTimeout(startJoyride, 300); // kasih delay kecil biar layout fix
+        setTimeout(startJoyride, 300);
       }
     }, 100);
 
@@ -202,11 +214,7 @@ const Section2: React.FC<Section2Props> = ({ id }) => {
         <Typography className='text-white'>Loading TDEE data...</Typography>
       )}
       {error && <Typography className='text-red-500'>{error}</Typography>}
-      <div
-        id='second-section-2'
-        onClick={() => push('meal-history')}
-        className='w-full gap-2'
-      >
+      <div id='second-section-2' className='w-full gap-2'>
         <CardBMI
           data={TdeeDisplay}
           loading={isLoading}
