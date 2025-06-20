@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: 'If you use this software, please cite it using the metadata below.'
+title: 'DEVELOPMENT OF A WEB-BASED TDEE CALCULATOR APPLICATION TO SUPPORT A HEALTHY LIFESTYLE'
+version: 'v1.0.0'
+doi: 'doi'
+date-released: 2025-06-20
+authors:
+  - family-names: 'Marjana'
+    given-names: 'Aqil Nauffan'
+    orcid: 'aqil.marjana@binus.ac.id'
+    affiliation: 'Bina Nusantara University'
+  - family-names: 'Riyanto'
+    given-names: 'Muhammad Arya'
+    orcid: 'muhammad.riyanto003@binus.ac.id'
+    affiliation: 'Bina Nusantara University'
+  - family-names: 'Wijaya'
+    given-names: 'Darrell Belilosa Wijaya'
+    orcid: 'darrell.wijaya@binus.ac.id'
+    affiliation: 'Bina Nusantara University'
+
+repository-code: 'https://github.com/Ucupsmith/TDE_Calculator.git'
+license: 'MIT'
+keywords:
+  - nutrition
+  - tdee
+  - meal planner
+  - health app
+abstract: >
+  Obesity and underweight are significant global health issues. Total Daily Energy Expenditure (TDEE) is a method of calculating daily calorie needs that can support users to achieve their weight goals, either for Weightloss, Gain Weight, or Maintain weight. This study aims to develop a TDEE calculator application based on Progressive Web Apps (PWA) to support users in reaching their targeted weight goals. This test was conducted on 19 respondents for 7 trial days. The results of this study indicate that this application has a success rate of 89,47% to help users achieve their target weight goals. The assessment of the application features showed positive results with an average score above 4,3 on a scale of 1 - 5, especially in the main features including TDEE calculations, Meals, and Meal History. These indicate that the application has been effectively to help users achieve their goal weight. However, behind it all, the Meal feature is the most suggested to be improved furthermore. In the future, the development of this application can be focused on articles that are more varied and relevant to users and the addition of training program features.
